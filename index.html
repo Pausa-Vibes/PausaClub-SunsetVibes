@@ -84,6 +84,11 @@
     }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .sticker-draggable {
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
     @keyframes slideDown {
       from { transform: translate(-50%, -100%); opacity: 0; }
       to { transform: translate(-50%, 0); opacity: 1; }
@@ -110,7 +115,7 @@
   <!-- Babel -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  <!-- Firebase Modular SDK -->
+  <!-- Firebase Modular SDK (Arquitectura Dual: Muro Principal + Servidor de Chat/Notificaciones) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { 
@@ -131,11 +136,13 @@
       onSnapshot, 
       query, 
       orderBy, 
+      limit,
       arrayUnion, 
       arrayRemove 
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    const firebaseConfig = {
+    // Firebase 1: Usuarios, Fotos, Videos e Historias
+    const primaryConfig = {
       apiKey: "AIzaSyASRyF6gzetEzPIBN-1ED_5M_X6pjft4nw",
       authDomain: "sunset-vibess.firebaseapp.com",
       projectId: "sunset-vibess",
@@ -145,16 +152,30 @@
       measurementId: "G-7LFGEPP334"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+    // Firebase 2: Chat Grupal, Chats Privados y Campanita de Notificaciones
+    const chatConfig = {
+      apiKey: "AIzaSyCOk3-Zyb-X149BgX8OeQqrI8E5-SFKVaw",
+      authDomain: "sunset-vibess-chat.firebaseapp.com",
+      projectId: "sunset-vibess-chat",
+      storageBucket: "sunset-vibess-chat.firebasestorage.app",
+      messagingSenderId: "486946526031",
+      appId: "1:486946526031:web:277406a90830ec1ccaab3a",
+      measurementId: "G-KWYVLH136Z"
+    };
+
+    const primaryApp = initializeApp(primaryConfig, "primary");
+    const chatApp = initializeApp(chatConfig, "chatServer");
+
+    const auth = getAuth(primaryApp);
+    const db = getFirestore(primaryApp);
+    const chatDb = getFirestore(chatApp);
     const googleProvider = new GoogleAuthProvider();
 
     window.FB = {
-      auth, db, googleProvider,
+      auth, db, chatDb, googleProvider,
       signInWithPopup, fbSignOut, onAuthStateChanged,
       collection, doc, setDoc, addDoc, updateDoc, deleteDoc,
-      onSnapshot, query, orderBy, arrayUnion, arrayRemove
+      onSnapshot, query, orderBy, limit, arrayUnion, arrayRemove
     };
     window.dispatchEvent(new Event("firebase-ready"));
   </script>
@@ -165,16 +186,18 @@
     const ADMIN_EMAIL = "joellpethers@gmail.com";
 
     // ====================================================================
-    // CLÚSTER DE 4 CUENTAS DE CLOUDINARY (100 GB LIBRES + BALANCEO + FAILOVER)
+    // 6 CUENTAS CONFIGURADAS EN BALANCEO AUTOMÁTICO Y OPTIMIZADO
     // ====================================================================
     const CLOUDINARY_ACCOUNTS = [
       { cloudName: "i1uvypzh", uploadPreset: "sunset_vibes" },
       { cloudName: "uzr7jcxh", uploadPreset: "sunset_vibes" },
       { cloudName: "g83ttzfm", uploadPreset: "sunset_vibes" },
-      { cloudName: "ggn5rjdw", uploadPreset: "sunset_vibes" }
+      { cloudName: "ggn5rjdw", uploadPreset: "sunset_vibes" },
+      { cloudName: "plhp0zsj", uploadPreset: "sunset_vibes" },
+      { cloudName: "wvcns1k3", uploadPreset: "sunset_vibes" }
     ];
 
-    const uploadToSingleCloudinaryAccount = (account, fileOrDataUrl, resourceType = "auto", onProgress = null) => {
+    const uploadToSingleAccount = (account, fileOrDataUrl, resourceType = "auto", onProgress = null) => {
       return new Promise((resolve, reject) => {
         const url = `https://api.cloudinary.com/v1_1/${account.cloudName}/${resourceType}/upload`;
         const xhr = new XMLHttpRequest();
@@ -197,39 +220,31 @@
           if (xhr.status >= 200 && xhr.status < 300) {
             const response = JSON.parse(xhr.responseText);
             const optimizedUrl = response.secure_url
-              ? response.secure_url.replace("/upload/", "/upload/q_auto:best,f_auto/")
+              ? response.secure_url.replace("/upload/", "/upload/q_auto:good,f_auto/")
               : response.secure_url;
             resolve(optimizedUrl);
           } else {
-            let errMsg = `Error en cuenta ${account.cloudName}`;
-            try {
-              const errJson = JSON.parse(xhr.responseText);
-              if (errJson?.error?.message) errMsg = `${account.cloudName}: ${errJson.error.message}`;
-            } catch (e) {}
-            reject(new Error(errMsg));
+            reject(new Error("Reintentando subida..."));
           }
         };
 
-        xhr.onerror = () => reject(new Error(`Error de red con ${account.cloudName}`));
+        xhr.onerror = () => reject(new Error("Error de red"));
         xhr.send(formData);
       });
     };
 
-    // Balanceador entre las 4 cuentas con respaldo automático
-    const uploadToCloudinary = async (fileOrDataUrl, resourceType = "auto", onProgress = null) => {
+    const uploadMediaFile = async (fileOrDataUrl, resourceType = "auto", onProgress = null) => {
       const shuffledPool = [...CLOUDINARY_ACCOUNTS].sort(() => Math.random() - 0.5);
-
       let lastErr = null;
       for (const acc of shuffledPool) {
         if (!acc || !acc.cloudName) continue;
         try {
-          return await uploadToSingleCloudinaryAccount(acc, fileOrDataUrl, resourceType, onProgress);
+          return await uploadToSingleAccount(acc, fileOrDataUrl, resourceType, onProgress);
         } catch (err) {
-          console.warn("Saltando a la siguiente cuenta de Cloudinary...", err.message);
           lastErr = err;
         }
       }
-      throw lastErr || new Error("No se pudo subir a ninguna de las 4 cuentas de Cloudinary.");
+      throw lastErr || new Error("No se pudo procesar el archivo. Verifica tu conexión.");
     };
 
     // Los 10 Retos Secuenciales (Avanzan del 1 al 10 y vuelven al 1)
@@ -257,13 +272,6 @@
       { id: "cyber", name: "Neon Night", css: "saturate(1.85) contrast(1.18) hue-rotate(15deg)" }
     ];
 
-    const CROP_RATIOS = [
-      { id: "original", label: "Libre", ratio: null, class: "max-h-[450px] object-contain" },
-      { id: "1:1", label: "1:1 Cuadrado", ratio: 1, class: "aspect-square object-cover" },
-      { id: "4:5", label: "4:5 Vertical", ratio: 0.8, class: "aspect-[4/5] object-cover" },
-      { id: "9:16", label: "9:16 Story", ratio: 9/16, class: "aspect-[9/16] max-h-[450px] object-cover" }
-    ];
-
     const STICKERS = ["🌅", "🥂", "🔥", "✨", "💃", "🕶️", "❤️", "👑", "🎶", "🍾", "🪩", "🌴"];
 
     const TEXT_COLORS = [
@@ -279,24 +287,22 @@
       "“Congela las sonrisas, los brindis y la magia de este Sunset.”"
     ];
 
-    const bakeEditedImage = (rawDataUrl, { filterCss, cropRatio, overlayText, textColorObj, textYPos, stickers = [], maxDim = 1920, quality = 0.92 }) => {
+    // Hornear imagen con Recorte por Bordes (Arriba/Abajo/Izquierda/Derecha) + Filtros + Texto + Stickers
+    const bakeEditedImage = (rawDataUrl, { filterCss, borderCrop, overlayText, textColorObj, textYPos, stickers = [], maxDim = 1600, quality = 0.86 }) => {
       return new Promise((resolve, reject) => {
         const img = new Image();
         img.crossOrigin = "anonymous";
         img.src = rawDataUrl;
         img.onload = () => {
-          let srcX = 0, srcY = 0, srcW = img.width, srcH = img.height;
+          const topPct = borderCrop?.top || 0;
+          const bottomPct = borderCrop?.bottom || 0;
+          const leftPct = borderCrop?.left || 0;
+          const rightPct = borderCrop?.right || 0;
 
-          if (cropRatio) {
-            const currentRatio = srcW / srcH;
-            if (currentRatio > cropRatio) {
-              srcW = srcH * cropRatio;
-              srcX = (img.width - srcW) / 2;
-            } else {
-              srcH = srcW / cropRatio;
-              srcY = (img.height - srcH) / 2;
-            }
-          }
+          const srcX = Math.round((leftPct / 100) * img.width);
+          const srcY = Math.round((topPct / 100) * img.height);
+          const srcW = Math.max(40, Math.round(((100 - leftPct - rightPct) / 100) * img.width));
+          const srcH = Math.max(40, Math.round(((100 - topPct - bottomPct) / 100) * img.height));
 
           let outW = srcW, outH = srcH;
           if (outW > maxDim) { outH = Math.round((outH * maxDim) / outW); outW = maxDim; }
@@ -369,13 +375,13 @@
           canvas.height = sh;
           const ctx = canvas.getContext("2d");
           ctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
-          resolve(canvas.toDataURL("image/jpeg", 0.92));
+          resolve(canvas.toDataURL("image/jpeg", 0.88));
         };
         img.onerror = reject;
       });
     };
 
-    const compressSimpleImage = (file, maxWidth = 600, quality = 0.86) => {
+    const compressSimpleImage = (file, maxWidth = 500, quality = 0.84) => {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -399,7 +405,7 @@
     const validateVideoFile = (file) => {
       return new Promise((resolve, reject) => {
         if (file.size > 100 * 1024 * 1024) {
-          reject(new Error("El video supera los 100 MB. Graba un clip de máximo 15 segundos."));
+          reject(new Error("El video es demasiado pesado. Graba un clip de máximo 15 segundos."));
           return;
         }
         const video = document.createElement("video");
@@ -421,12 +427,14 @@
       });
     };
 
+    // Ventana de 6 minutos para optimizar escrituras de Firebase en fiestas de 100 personas
     const isUserOnline = (u) => {
       if (!u || u.isOnline === false || !u.lastSeen) return false;
-      return (Date.now() - u.lastSeen) < 95000;
+      return (Date.now() - u.lastSeen) < 360000;
     };
 
-    function MediaRenderer({ item, className = "w-full object-cover", onDoubleClick, autoPlay = false, controls = true, paused = false }) {
+    // Renderizador Multimedia con soporte de Recorte por Bordes en Video, Pausa Real y Stickers
+    function MediaRenderer({ item, className = "w-full max-h-[460px] object-contain", onDoubleClick, autoPlay = false, controls = true, paused = false }) {
       const videoRef = useRef(null);
       const filterObj = MEDIA_FILTERS.find(f => f.id === item.filterId) || MEDIA_FILTERS[0];
       const textColorObj = TEXT_COLORS.find(c => c.id === item.overlayColorId) || TEXT_COLORS[0];
@@ -446,6 +454,12 @@
         ? [{ id: "legacy", emoji: item.overlaySticker, x: 85, y: 15 }]
         : [];
 
+      const bCrop = item.borderCrop || { top: 0, bottom: 0, left: 0, right: 0 };
+      const hasVideoBorderCrop = bCrop.top > 0 || bCrop.bottom > 0 || bCrop.left > 0 || bCrop.right > 0;
+      const clipPathStyle = hasVideoBorderCrop
+        ? `inset(${bCrop.top}% ${bCrop.right}% ${bCrop.bottom}% ${bCrop.left}%)`
+        : "none";
+
       if (item.mediaType === "video") {
         return (
           <div className="relative w-full h-full flex items-center justify-center bg-black overflow-hidden" onDoubleClick={onDoubleClick}>
@@ -455,7 +469,7 @@
               controls={controls}
               autoPlay={autoPlay && !paused}
               playsInline
-              style={{ filter: filterObj.css }}
+              style={{ filter: filterObj.css, clipPath: clipPathStyle }}
               className={className}
             />
             {stickersList.map((st) => (
@@ -492,8 +506,7 @@
         />
       );
     }
-
-        function SunsetVibesApp() {
+    function SunsetVibesApp() {
       const [fbReady, setFbReady] = useState(!!window.FB);
       const [authSession, setAuthSession] = useState(null);
       const [users, setUsers] = useState([]);
@@ -546,13 +559,14 @@
       const [setupAvatar, setSetupAvatar] = useState("");
       const [setupError, setSetupError] = useState("");
 
-      // Estudio de Subida con Cloudinary Multi-Cuenta + Stickers Móviles
+      // Estudio de Subida con Herramientas en Botones (Recortar Bordes, Filtros, Texto, Stickers)
       const [rawMediaUrl, setRawMediaUrl] = useState("");
       const [rawVideoFile, setRawVideoFile] = useState(null);
       const [mediaType, setMediaType] = useState("image");
       const [videoDuration, setVideoDuration] = useState(0);
+      const [activeStudioTool, setActiveStudioTool] = useState(null); // 'crop' | 'filter' | 'text' | 'stickers' | null
+      const [uploadBorderCrop, setUploadBorderCrop] = useState({ top: 0, bottom: 0, left: 0, right: 0 });
       const [selectedFilter, setSelectedFilter] = useState(MEDIA_FILTERS[0]);
-      const [selectedCrop, setSelectedCrop] = useState(CROP_RATIOS[0]);
       const [overlayText, setOverlayText] = useState("");
       const [overlayColor, setOverlayColor] = useState(TEXT_COLORS[0]);
       const [overlayYPos, setOverlayYPos] = useState(50);
@@ -616,10 +630,10 @@
         }
       }, []);
 
-      // Escuchar Firebase en vivo (incluyendo la nueva colección notifications)
+      // Escuchar los 2 servidores de Firebase en paralelo con límites optimizados
       useEffect(() => {
         if (!fbReady || !window.FB) return;
-        const { auth, db, onAuthStateChanged, collection, onSnapshot, query, orderBy } = window.FB;
+        const { auth, db, chatDb, onAuthStateChanged, collection, onSnapshot, query, orderBy, limit } = window.FB;
 
         const unsubAuth = onAuthStateChanged(auth, (u) => {
           if (u) {
@@ -636,23 +650,26 @@
           }
         });
 
+        // Servidor 1 (db): Usuarios, Posts e Historias
         const unsubUsers = onSnapshot(collection(db, "users"), (snap) => {
           setUsers(snap.docs.map(d => ({ id: d.id, ...d.data() })));
         });
 
-        const unsubPosts = onSnapshot(query(collection(db, "posts"), orderBy("createdAt", "desc")), (snap) => {
+        const unsubPosts = onSnapshot(query(collection(db, "posts"), orderBy("createdAt", "desc"), limit(150)), (snap) => {
           setPosts(snap.docs.map(d => ({ id: d.id, ...d.data() })));
         });
 
-        const unsubStories = onSnapshot(query(collection(db, "stories"), orderBy("createdAt", "asc")), (snap) => {
+        const unsubStories = onSnapshot(query(collection(db, "stories"), orderBy("createdAt", "asc"), limit(120)), (snap) => {
           setStories(snap.docs.map(d => ({ id: d.id, ...d.data() })));
         });
 
-        const unsubMessages = onSnapshot(query(collection(db, "messages"), orderBy("createdAt", "asc")), (snap) => {
-          setMessages(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+        // Servidor 2 (chatDb): Mensajes de Chat y Campanita de Notificaciones
+        const unsubMessages = onSnapshot(query(collection(chatDb, "messages"), orderBy("createdAt", "desc"), limit(120)), (snap) => {
+          const list = snap.docs.map(d => ({ id: d.id, ...d.data() })).reverse();
+          setMessages(list);
         });
 
-        const unsubNotifs = onSnapshot(query(collection(db, "notifications"), orderBy("createdAt", "desc")), (snap) => {
+        const unsubNotifs = onSnapshot(query(collection(chatDb, "notifications"), orderBy("createdAt", "desc"), limit(120)), (snap) => {
           setNotifications(snap.docs.map(d => ({ id: d.id, ...d.data() })));
         });
 
@@ -671,7 +688,6 @@
         return emailToCheck === ADMIN_EMAIL;
       }, [currentUserDoc, authSession]);
 
-      // Mis notificaciones recibidas en la campanita
       const myNotifications = useMemo(() => {
         if (!currentUserDoc) return [];
         return notifications.filter(n => n.toUid === currentUserDoc.uid);
@@ -681,51 +697,47 @@
         return myNotifications.filter(n => !n.read).length;
       }, [myNotifications]);
 
-      // Mis Matches recibidos (para la Cajita Secreta de Matches en Mi Perfil)
       const myReceivedMatches = useMemo(() => {
         if (!currentUserDoc) return [];
         return Array.isArray(currentUserDoc.matchesReceived) ? [...currentUserDoc.matchesReceived].reverse() : [];
       }, [currentUserDoc]);
 
-      // Carta de Match pendiente que se muestra automáticamente cuando el dueño entra a su Perfil
       const pendingMatchCard = useMemo(() => {
         if (!currentUserDoc) return null;
         const list = Array.isArray(currentUserDoc.matchesReceived) ? currentUserDoc.matchesReceived : [];
         return list.find(m => m.status === "pending") || null;
       }, [currentUserDoc]);
 
-      // Función auxiliar para enviar notificaciones a la campanita de cualquier usuario
+      // Enviar notificación usando el 2do Firebase (chatDb) para no gastar cuota del primero
       const sendNotification = async ({ toUid, type, text, postId = null, storyUserId = null, status = null }) => {
         if (!currentUserDoc || !window.FB || !toUid || toUid === currentUserDoc.uid) return;
-        const { db, collection, addDoc } = window.FB;
+        const { chatDb, collection, addDoc } = window.FB;
         try {
-          await addDoc(collection(db, "notifications"), {
+          await addDoc(collection(chatDb, "notifications"), {
             toUid,
             fromUid: currentUserDoc.uid,
             fromUsername: currentUserDoc.username,
             fromAvatar: currentUserDoc.avatar,
-            type, // 'friend_request' | 'friend_accepted' | 'match_received' | 'match_accepted' | 'friend_post' | 'friend_story' | 'like' | 'comment' | 'reaction'
+            type,
             text,
             postId,
             storyUserId,
-            status: status || "info", // 'pending' | 'accepted' | 'denied' | 'info'
+            status: status || "info",
             read: false,
             createdAt: Date.now()
           });
         } catch (e) {}
       };
 
-      // Marcar notificaciones como leídas al abrir la campanita
       const handleOpenBellModal = async () => {
         setNotifModalOpen(true);
         if (!currentUserDoc || !window.FB) return;
-        const { db, doc, updateDoc } = window.FB;
+        const { chatDb, doc, updateDoc } = window.FB;
         myNotifications.filter(n => !n.read).forEach(n => {
-          updateDoc(doc(db, "notifications", n.id), { read: true }).catch(() => {});
+          updateDoc(doc(chatDb, "notifications", n.id), { read: true }).catch(() => {});
         });
       };
 
-      // Agrupar Historias por Persona
       const storyGroups = useMemo(() => {
         const map = new Map();
         stories.forEach((st) => {
@@ -743,7 +755,6 @@
         return Array.from(map.values());
       }, [stories, users]);
 
-      // Temporizador de Historias con Pausa Real
       useEffect(() => {
         if (!storyViewer.open) return;
         const currentGroup = storyGroups[storyViewer.groupIndex];
@@ -844,11 +855,11 @@
       const handleSendStoryReply = async (e, storyGroup, storyItem) => {
         e.preventDefault();
         if (!storyReplyText.trim() || !currentUserDoc || !window.FB) return;
-        const { db, collection, addDoc } = window.FB;
+        const { chatDb, collection, addDoc } = window.FB;
         const chatKey = [currentUserDoc.uid, storyGroup.userId].sort().join("__");
 
         try {
-          await addDoc(collection(db, "messages"), {
+          await addDoc(collection(chatDb, "messages"), {
             chatKey,
             senderId: currentUserDoc.uid,
             senderName: currentUserDoc.username,
@@ -892,7 +903,7 @@
         setStoryMenuOpen(false);
       };
 
-      // Latido Online
+      // Latido Online Optimizado (Cada 4 minutos para ahorrar 85% de cuota de Firebase)
       useEffect(() => {
         if (!currentUserDoc || !window.FB) return;
         const { db, doc, updateDoc } = window.FB;
@@ -900,7 +911,7 @@
         const beat = () => updateDoc(ref, { isOnline: true, lastSeen: Date.now() }).catch(() => {});
         const off = () => updateDoc(ref, { isOnline: false, lastSeen: Date.now() }).catch(() => {});
         beat();
-        const intv = setInterval(beat, 35000);
+        const intv = setInterval(beat, 240000);
         window.addEventListener("beforeunload", off);
         return () => {
           clearInterval(intv);
@@ -908,7 +919,7 @@
         };
       }, [currentUserDoc?.uid]);
 
-      // Notificaciones flotantes en vivo para Mensajes y Campanita
+      // Notificaciones flotantes en vivo
       useEffect(() => {
         if (!currentUserDoc) return;
         if (prevMessagesLenRef.current !== null && messages.length > prevMessagesLenRef.current) {
@@ -1011,7 +1022,6 @@
         return "none";
       };
 
-      // Enviar solicitud de amistad o eliminar amigo
       const handleFriendAction = async (targetUser) => {
         if (!currentUserDoc || !window.FB || !targetUser) return;
         const { db, doc, updateDoc, arrayRemove } = window.FB;
@@ -1055,12 +1065,11 @@
         });
       };
 
-      // Aceptar o Denegar Solicitud de Amistad desde la Campanita
       const handleRespondFriendRequest = async (notif, accept) => {
         if (!currentUserDoc || !window.FB) return;
-        const { db, doc, updateDoc, arrayUnion } = window.FB;
+        const { db, chatDb, doc, updateDoc, arrayUnion } = window.FB;
         try {
-          await updateDoc(doc(db, "notifications", notif.id), {
+          await updateDoc(doc(chatDb, "notifications", notif.id), {
             status: accept ? "accepted" : "denied",
             read: true
           });
@@ -1089,7 +1098,6 @@
         } catch (e) {}
       };
 
-      // Tocar el Fueguito de Match (🔥) en el perfil de otra persona
       const handleSendFireMatch = async (targetUser) => {
         if (!currentUserDoc || !targetUser || !window.FB) return;
         const existingMatches = Array.isArray(targetUser.matchesReceived) ? targetUser.matchesReceived : [];
@@ -1104,7 +1112,7 @@
           fromUid: currentUserDoc.uid,
           fromUsername: currentUserDoc.username,
           fromAvatar: currentUserDoc.avatar,
-          status: "pending", // 'pending' | 'accepted' | 'denied'
+          status: "pending",
           createdAt: Date.now()
         };
 
@@ -1128,7 +1136,6 @@
         } catch (e) {}
       };
 
-      // Aceptar o Denegar la Carta de Match en Mi Perfil (o desde la Cajita de Matches)
       const handleRespondMatchCard = async (matchEntry, accept) => {
         if (!currentUserDoc || !window.FB || !matchEntry) return;
         const { db, doc, updateDoc, arrayUnion } = window.FB;
@@ -1189,7 +1196,7 @@
         try {
           await window.FB.signInWithPopup(window.FB.auth, window.FB.googleProvider);
         } catch (err) {
-          setAuthError("Para usar el botón de Google en un dominio nuevo, agrégalo en Firebase > Authentication > Dominios autorizados, o entra abajo con tu @usuario y contraseña.");
+          setAuthError("Para usar el botón de Google en un dominio nuevo, agrégalo en Firebase > Authentication > Dominios autorizados, o entra abajo con tu nombre de usuario y contraseña.");
         }
       };
 
@@ -1200,7 +1207,7 @@
         const cleanPass = loginPassword.trim();
 
         if (cleanUser.length < 3 || cleanPass.length < 4) {
-          setAuthError("El @usuario debe tener mínimo 3 caracteres y la contraseña mínimo 4.");
+          setAuthError("El nombre de usuario debe tener mínimo 3 caracteres y la contraseña mínimo 4.");
           return;
         }
 
@@ -1211,7 +1218,7 @@
 
         if (authMode === "login") {
           if (!matchedUser) {
-            setAuthError(`No encontramos a @${cleanUser}. Usa la pestaña "Registrar @Usuario".`);
+            setAuthError(`No encontramos a @${cleanUser}. Usa la pestaña "Registrar Usuario".`);
             return;
           }
           if (matchedUser.password && matchedUser.password !== cleanPass) {
@@ -1237,7 +1244,7 @@
           let avatarVal = setupAvatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(cleanUser)}`;
 
           if (setupAvatar && setupAvatar.startsWith("data:")) {
-            try { avatarVal = await uploadToCloudinary(setupAvatar, "image"); } catch (e) {}
+            try { avatarVal = await uploadMediaFile(setupAvatar, "image"); } catch (e) {}
           }
 
           const newProfile = {
@@ -1260,7 +1267,7 @@
             localStorage.setItem("sunset_vibes_session", JSON.stringify(sessionObj));
             setAuthSession(sessionObj);
           } catch (err) {
-            setAuthError("Error al registrar usuario en Firestore.");
+            setAuthError("Error al registrar usuario.");
           }
         }
       };
@@ -1272,7 +1279,7 @@
         const cleanPass = setupPassword.trim();
 
         if (cleanUser.length < 3) {
-          setSetupError("El @usuario debe tener al menos 3 caracteres.");
+          setSetupError("El nombre de usuario debe tener al menos 3 caracteres.");
           return;
         }
         if (cleanPass.length < 4) {
@@ -1289,7 +1296,7 @@
 
         let finalAvatar = setupAvatar || authSession.defaultAvatar;
         if (setupAvatar && setupAvatar.startsWith("data:")) {
-          try { finalAvatar = await uploadToCloudinary(setupAvatar, "image"); } catch (e) {}
+          try { finalAvatar = await uploadMediaFile(setupAvatar, "image"); } catch (e) {}
         }
 
         const profileData = {
@@ -1333,15 +1340,16 @@
       };
 
       // ====================================================================
-      // ESTUDIO DE SUBIDA Y NOTIFICACIÓN AUTOMÁTICA A AMIGOS
+      // ESTUDIO DE SUBIDA CON HERRAMIENTAS EN BOTONES Y STICKERS FLUIDOS
       // ====================================================================
       const resetUploadStudio = () => {
         setRawMediaUrl("");
         setRawVideoFile(null);
         setMediaType("image");
         setVideoDuration(0);
+        setActiveStudioTool(null);
+        setUploadBorderCrop({ top: 0, bottom: 0, left: 0, right: 0 });
         setSelectedFilter(MEDIA_FILTERS[0]);
-        setSelectedCrop(CROP_RATIOS[0]);
         setOverlayText("");
         setOverlayColor(TEXT_COLORS[0]);
         setOverlayYPos(50);
@@ -1353,10 +1361,10 @@
       };
 
       const addStickerToCanvas = (emoji) => {
-        const offset = (placedStickers.length * 9) % 40;
+        const offset = (placedStickers.length * 8) % 36;
         setPlacedStickers(prev => [
           ...prev,
-          { id: "st_" + Date.now() + "_" + Math.random().toString(36).slice(2, 5), emoji, x: 30 + offset, y: 25 + offset }
+          { id: "st_" + Date.now() + "_" + Math.random().toString(36).slice(2, 5), emoji, x: 35 + offset, y: 30 + offset }
         ]);
       };
 
@@ -1364,13 +1372,14 @@
         setPlacedStickers(prev => prev.filter(s => s.id !== id));
       };
 
+      // Movimiento de precisión con PointerEvents para que el sticker se mueva suave con el dedo
       const handleStickerPointerMove = (clientX, clientY) => {
         if (!draggingStickerId || !previewBoxRef.current) return;
         const rect = previewBoxRef.current.getBoundingClientRect();
-        const xPct = Math.max(8, Math.min(92, ((clientX - rect.left) / rect.width) * 100));
-        const yPct = Math.max(8, Math.min(92, ((clientY - rect.top) / rect.height) * 100));
+        const xPct = Math.max(6, Math.min(94, ((clientX - rect.left) / rect.width) * 100));
+        const yPct = Math.max(6, Math.min(94, ((clientY - rect.top) / rect.height) * 100));
         setPlacedStickers(prev =>
-          prev.map(st => st.id === draggingStickerId ? { ...st, x: Math.round(xPct), y: Math.round(yPct) } : st)
+          prev.map(st => st.id === draggingStickerId ? { ...st, x: Math.round(xPct * 10) / 10, y: Math.round(yPct * 10) / 10 } : st)
         );
       };
 
@@ -1417,21 +1426,21 @@
           if (mediaType === "image") {
             const hdBakedDataUrl = await bakeEditedImage(rawMediaUrl, {
               filterCss: selectedFilter.css,
-              cropRatio: selectedCrop.ratio,
+              borderCrop: uploadBorderCrop,
               overlayText,
               textColorObj: overlayColor,
               textYPos: overlayYPos,
               stickers: placedStickers,
-              maxDim: 1920,
-              quality: 0.92
+              maxDim: 1600,
+              quality: 0.86
             });
 
             try {
-              finalCloudUrl = await uploadToCloudinary(hdBakedDataUrl, "image", (pct) => setUploadProgress(pct));
+              finalCloudUrl = await uploadMediaFile(hdBakedDataUrl, "image", (pct) => setUploadProgress(pct));
             } catch (cloudErr) {
               finalCloudUrl = await bakeEditedImage(rawMediaUrl, {
                 filterCss: selectedFilter.css,
-                cropRatio: selectedCrop.ratio,
+                borderCrop: uploadBorderCrop,
                 overlayText,
                 textColorObj: overlayColor,
                 textYPos: overlayYPos,
@@ -1442,7 +1451,7 @@
             }
           } else {
             const videoSource = rawVideoFile || rawMediaUrl;
-            finalCloudUrl = await uploadToCloudinary(videoSource, "video", (pct) => setUploadProgress(pct));
+            finalCloudUrl = await uploadMediaFile(videoSource, "video", (pct) => setUploadProgress(pct));
           }
 
           const basePayload = {
@@ -1453,7 +1462,7 @@
             mediaType,
             videoDuration: mediaType === "video" ? videoDuration : null,
             filterId: mediaType === "video" ? selectedFilter.id : "normal",
-            cropId: selectedCrop.id,
+            borderCrop: mediaType === "video" ? uploadBorderCrop : { top: 0, bottom: 0, left: 0, right: 0 },
             overlayText: mediaType === "video" ? overlayText.trim() : "",
             overlayColorId: overlayColor.id,
             overlayYPos,
@@ -1466,7 +1475,6 @@
 
           if (uploadModal.type === "story") {
             await addDoc(collection(db, "stories"), basePayload);
-            // Notificar a todos los amigos que subió una nueva historia
             myFriendsList.forEach(friendUid => {
               sendNotification({
                 toUid: friendUid,
@@ -1484,7 +1492,6 @@
               reactions: {},
               comments: []
             });
-            // Notificar a todos los amigos que subió una nueva publicación
             myFriendsList.forEach(friendUid => {
               sendNotification({
                 toUid: friendUid,
@@ -1509,26 +1516,31 @@
         if (!cropModalPost || isCroppingPost || !window.FB) return;
         setIsCroppingPost(true);
         try {
-          const croppedDataUrl = await cropImageByBorders(cropModalPost.mediaUrl, borderCrop);
-          let finalUrl = croppedDataUrl;
-          try {
-            finalUrl = await uploadToCloudinary(croppedDataUrl, "image");
-          } catch (e) {}
-
-          await window.FB.updateDoc(window.FB.doc(window.FB.db, "posts", cropModalPost.id), {
-            mediaUrl: finalUrl
-          });
+          if (cropModalPost.mediaType === "video") {
+            await window.FB.updateDoc(window.FB.doc(window.FB.db, "posts", cropModalPost.id), {
+              borderCrop
+            });
+          } else {
+            const croppedDataUrl = await cropImageByBorders(cropModalPost.mediaUrl, borderCrop);
+            let finalUrl = croppedDataUrl;
+            try {
+              finalUrl = await uploadMediaFile(croppedDataUrl, "image");
+            } catch (e) {}
+            await window.FB.updateDoc(window.FB.doc(window.FB.db, "posts", cropModalPost.id), {
+              mediaUrl: finalUrl
+            });
+          }
           setCropModalPost(null);
           setBorderCrop({ top: 0, bottom: 0, left: 0, right: 0 });
         } catch (err) {
-          alert("No se pudo recortar la imagen.");
+          alert("No se pudo aplicar el recorte.");
         } finally {
           setIsCroppingPost(false);
         }
       };
 
       // ====================================================================
-      // LIKES, REACCIONES, COMENTARIOS (CON AVISO A LA CAMPANITA)
+      // LIKES, REACCIONES, COMENTARIOS Y MENSAJES (USANDO chatDb)
       // ====================================================================
       const toggleLike = async (post) => {
         if (!currentUserDoc || !window.FB) return;
@@ -1650,7 +1662,7 @@
         if (msg.senderId !== currentUserDoc.uid && !isAdmin) return;
         if (!confirm("¿Borrar este mensaje del chat?")) return;
         try {
-          await window.FB.deleteDoc(window.FB.doc(window.FB.db, "messages", msg.id));
+          await window.FB.deleteDoc(window.FB.doc(window.FB.chatDb, "messages", msg.id));
         } catch (e) {}
       };
 
@@ -1682,14 +1694,14 @@
       const handleSendMessage = async (e) => {
         e.preventDefault();
         if (!chatText.trim() || !currentUserDoc || !window.FB) return;
-        const { db, collection, addDoc } = window.FB;
+        const { chatDb, collection, addDoc } = window.FB;
         const isGroup = chatSubTab === "group" || !activeChatFriend;
         const chatKey = isGroup
           ? "GLOBAL_GROUP"
           : [currentUserDoc.uid, activeChatFriend.uid].sort().join("__");
 
         try {
-          await addDoc(collection(db, "messages"), {
+          await addDoc(collection(chatDb, "messages"), {
             chatKey,
             senderId: currentUserDoc.uid,
             senderName: currentUserDoc.username,
@@ -1706,13 +1718,13 @@
 
       const handleSendPostToChat = async (targetType, targetFriend = null) => {
         if (!shareModalPost || !currentUserDoc || !window.FB) return;
-        const { db, collection, addDoc } = window.FB;
+        const { chatDb, collection, addDoc } = window.FB;
         const chatKey = targetType === "group"
           ? "GLOBAL_GROUP"
           : [currentUserDoc.uid, targetFriend.uid].sort().join("__");
 
         try {
-          await addDoc(collection(db, "messages"), {
+          await addDoc(collection(chatDb, "messages"), {
             chatKey,
             senderId: currentUserDoc.uid,
             senderName: currentUserDoc.username,
@@ -1760,7 +1772,7 @@
 
         const cleanU = (newProfileUsername || currentUserDoc.username).trim().replace(/^@/, "").replace(/\s+/g, "_");
         if (cleanU.length < 3) {
-          setProfileEditError("El @usuario debe tener al menos 3 caracteres.");
+          setProfileEditError("El nombre de usuario debe tener al menos 3 caracteres.");
           return;
         }
         const isTaken = users.some(
@@ -1774,7 +1786,7 @@
         let finalAvatarUrl = newProfileAvatar || currentUserDoc.avatar;
         if (newProfileAvatar && newProfileAvatar.startsWith("data:")) {
           try {
-            finalAvatarUrl = await uploadToCloudinary(newProfileAvatar, "image");
+            finalAvatarUrl = await uploadMediaFile(newProfileAvatar, "image");
           } catch (e) {}
         }
 
@@ -1828,8 +1840,8 @@
           .filter(u => u.username)
           .filter(u => !q || u.username.toLowerCase().includes(q));
       }, [users, searchQuery]);
-      // ====================================================================
-      // PANTALLA 1: BIENVENIDA E INICIO DE SESIÓN
+            // ====================================================================
+      // PANTALLA 1: BIENVENIDA E INICIO DE SESIÓN (CAMPOS LIMPIOS)
       // ====================================================================
       if (!authSession) {
         return (
@@ -1868,7 +1880,7 @@
                 <div className="my-4 flex items-center gap-3">
                   <div className="h-px flex-1 bg-nude-300/25"></div>
                   <span className="text-[10px] uppercase tracking-wider text-nude-300 font-bold">
-                    O con @usuario y contraseña
+                    O con usuario y contraseña
                   </span>
                   <div className="h-px flex-1 bg-nude-300/25"></div>
                 </div>
@@ -1890,7 +1902,7 @@
                       authMode === "register" ? "nude-btn" : "text-nude-200"
                     }`}
                   >
-                    Registrar @Usuario
+                    Registrar Usuario
                   </button>
                 </div>
 
@@ -1921,14 +1933,14 @@
 
                   <div>
                     <label className="text-xs text-nude-200 font-bold ml-1">
-                      {authMode === "login" ? "Tu @usuario único" : "Elige tu @usuario único (no repetible)"}
+                      Nombre de usuario
                     </label>
                     <div className="relative mt-1">
                       <span className="absolute left-3.5 top-3 text-nude-300 font-bold text-sm">@</span>
                       <input
                         type="text"
                         required
-                        placeholder="ej. joel_sunset"
+                        placeholder="Nombre de usuario"
                         value={loginUsername}
                         onChange={(e) => setLoginUsername(e.target.value)}
                         className="w-full pl-8 pr-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/40 text-white text-sm focus:outline-none focus:border-nude-300"
@@ -1937,11 +1949,11 @@
                   </div>
 
                   <div>
-                    <label className="text-xs text-nude-200 font-bold ml-1">Contraseña única</label>
+                    <label className="text-xs text-nude-200 font-bold ml-1">Contraseña</label>
                     <input
                       type="password"
                       required
-                      placeholder="••••••••"
+                      placeholder="Contraseña"
                       value={loginPassword}
                       onChange={(e) => setLoginPassword(e.target.value)}
                       className="w-full mt-1 px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/40 text-white text-sm focus:outline-none focus:border-nude-300"
@@ -1965,16 +1977,16 @@
       }
 
       // ====================================================================
-      // PANTALLA 2: COMPLETAR @USUARIO Y CONTRASEÑA TRAS GOOGLE LOGIN
+      // PANTALLA 2: COMPLETAR USUARIO Y CONTRASEÑA TRAS GOOGLE LOGIN
       // ====================================================================
       if (!currentUserDoc) {
         const previewAvatar = setupAvatar || authSession.defaultAvatar;
         return (
           <div className="min-h-screen flex items-center justify-center p-6">
             <div className="glass-card rounded-3xl max-w-md w-full p-7 border border-nude-300/40 space-y-5 text-center">
-              <h2 className="font-serif text-2xl font-bold text-white">Elige tu @Usuario Único</h2>
+              <h2 className="font-serif text-2xl font-bold text-white">Completa tu Registro</h2>
               <p className="text-xs text-nude-200">
-                Tu correo <strong>jamás será visible</strong>. Crea tu <strong>@usuario</strong> y contraseña para tu perfil de la fiesta.
+                Tu correo es privado y nunca será visible. Elige tu <strong>nombre de usuario único</strong> y tu contraseña.
               </p>
 
               <form onSubmit={handleCompleteGoogleProfile} className="space-y-4 text-left">
@@ -1997,13 +2009,13 @@
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-nude-200 ml-1">Nombre de Usuario Único</label>
+                  <label className="text-xs font-bold text-nude-200 ml-1">Nombre de usuario</label>
                   <div className="relative mt-1">
                     <span className="absolute left-3.5 top-3 text-nude-300 font-bold text-sm">@</span>
                     <input
                       type="text"
                       required
-                      placeholder="ej. valentina_sunset"
+                      placeholder="Nombre de usuario"
                       value={setupUsername}
                       onChange={(e) => setSetupUsername(e.target.value)}
                       className="w-full pl-8 pr-4 py-3 rounded-xl bg-burgundy-950 border border-nude-300/40 text-white text-sm focus:outline-none"
@@ -2012,11 +2024,11 @@
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-nude-200 ml-1">Crea tu Contraseña Única</label>
+                  <label className="text-xs font-bold text-nude-200 ml-1">Contraseña</label>
                   <input
                     type="password"
                     required
-                    placeholder="Mínimo 4 caracteres"
+                    placeholder="Contraseña"
                     value={setupPassword}
                     onChange={(e) => setSetupPassword(e.target.value)}
                     className="w-full mt-1 px-4 py-3 rounded-xl bg-burgundy-950 border border-nude-300/40 text-white text-sm focus:outline-none"
@@ -2055,7 +2067,7 @@
       return (
         <div className="min-h-screen pb-24 max-w-lg mx-auto relative">
 
-          {/* NOTIFICACIÓN EN VIVO DENTRO DE LA APP (TOAST) */}
+          {/* NOTIFICACIÓN EN VIVO DENTRO DE LA APP */}
           {inAppToast && (
             <div
               onClick={inAppToast.action}
@@ -2095,7 +2107,6 @@
             </div>
 
             <div className="flex items-center gap-2">
-              {/* CAMPANITA DE NOTIFICACIONES (🔔) */}
               <button
                 onClick={handleOpenBellModal}
                 className="relative w-9 h-9 rounded-full bg-burgundy-800 border border-nude-300/40 flex items-center justify-center text-base shadow"
@@ -2129,7 +2140,7 @@
           {/* ========================================================== */}
           {activeTab === "feed" && !viewedProfileUser && (
             <div className="p-4 space-y-5">
-              {/* BURBUJA OVALADA DE ALTO CONTRASTE DETRÁS DE LAS HISTORIAS */}
+              {/* BURBUJA OVALADA DETRÁS DE LAS HISTORIAS */}
               <div className="stories-oval-bubble rounded-full px-5 py-3.5 flex items-center gap-3.5 overflow-x-auto no-scrollbar">
                 <button
                   onClick={() => {
@@ -2229,7 +2240,7 @@
                 <div className="glass-card rounded-3xl p-8 text-center">
                   <p className="text-3xl mb-2">🌅</p>
                   <p className="text-base font-bold text-white">¡Sé el primero en inaugurar el muro!</p>
-                  <p className="text-xs text-nude-200 mt-1">Sube una foto o video Full HD de 15s con filtros y stickers.</p>
+                  <p className="text-xs text-nude-200 mt-1">Comparte tus fotos y videos de hasta 15 segundos con toda la fiesta.</p>
                 </div>
               ) : (
                 posts.map((post) => {
@@ -2237,7 +2248,6 @@
                   const canManage = post.userId === currentUserDoc.uid || isAdmin;
                   const authorObj = users.find(u => u.uid === post.userId);
                   const online = isUserOnline(authorObj);
-                  const cropObj = CROP_RATIOS.find(c => c.id === post.cropId) || CROP_RATIOS[0];
                   const postReactions = post.reactions || {};
 
                   return (
@@ -2288,7 +2298,7 @@
                       <div className="bg-black flex items-center justify-center overflow-hidden">
                         <MediaRenderer
                           item={post}
-                          className={`w-full ${cropObj.class} cursor-pointer`}
+                          className="w-full max-h-[460px] object-contain cursor-pointer"
                           onDoubleClick={() => toggleLike(post)}
                         />
                       </div>
@@ -2424,7 +2434,7 @@
                   <span className="absolute left-3.5 top-3 text-nude-300 font-bold text-sm">@</span>
                   <input
                     type="text"
-                    placeholder="Buscar @usuario..."
+                    placeholder="Nombre de usuario"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full pl-8 pr-4 py-2.5 rounded-2xl bg-burgundy-950 border border-nude-300/40 text-sm text-white focus:outline-none"
@@ -2849,7 +2859,6 @@
                   </div>
                 </div>
 
-                {/* BOTÓN ESPECIAL DE FUEGO DE MATCH (🔥) EN EL PERFIL DE CADA PERSONA */}
                 <button
                   onClick={() => handleSendFireMatch(viewedProfileUser)}
                   className="mt-5 w-full py-3.5 rounded-2xl fire-match-btn font-extrabold text-sm flex items-center justify-center gap-2 shadow-2xl"
@@ -3032,7 +3041,7 @@
                   }}
                   className="mt-3 px-4 py-1.5 rounded-full nude-btn text-xs shadow"
                 >
-                  ✏️ Editar Foto / @Usuario / Contraseña
+                  ✏️ Editar Foto / Usuario / Contraseña
                 </button>
 
                 <div className="grid grid-cols-4 gap-2 mt-5 pt-4 border-t border-nude-300/20">
@@ -3218,18 +3227,16 @@
                         <div className="p-2.5 flex items-center justify-between text-xs">
                           <span>❤️ {p.likes?.length || 0} • 💬 {p.comments?.length || 0}</span>
                           <div className="flex items-center gap-1.5">
-                            {p.mediaType !== "video" && (
-                              <button
-                                onClick={() => {
-                                  setBorderCrop({ top: 0, bottom: 0, left: 0, right: 0 });
-                                  setCropModalPost(p);
-                                }}
-                                title="Recortar bordes de la foto"
-                                className="px-1.5 py-0.5 rounded bg-nude-300 text-[#090105] font-extrabold text-[10px]"
-                              >
-                                ✂️
-                              </button>
-                            )}
+                            <button
+                              onClick={() => {
+                                setBorderCrop(p.borderCrop || { top: 0, bottom: 0, left: 0, right: 0 });
+                                setCropModalPost(p);
+                              }}
+                              title="Recortar bordes"
+                              className="px-1.5 py-0.5 rounded bg-nude-300 text-[#090105] font-extrabold text-[10px]"
+                            >
+                              ✂️
+                            </button>
                             <button onClick={() => setAdminEditPost({ ...p })} className="text-nude-200">✏️</button>
                             <button onClick={() => handleDeletePost(p)} className="text-rose-300 font-bold">🗑️</button>
                           </div>
@@ -3485,7 +3492,6 @@
                           )}
                         </div>
 
-                        {/* Botones Aceptar / Denegar si es una Solicitud de Amistad pendiente */}
                         {n.type === "friend_request" && n.status === "pending" && (
                           <div className="flex items-center gap-2 pt-1">
                             <button
@@ -3714,22 +3720,26 @@
           )}
 
           {/* ========================================================== */}
-          {/* MODAL: CUADRO DE RECORTE DE BORDES PARA FOTOS SUBIDAS      */}
+          {/* MODAL: CUADRO DE RECORTE DE BORDES PARA FOTOS/VIDEOS       */}
           {/* ========================================================== */}
           {cropModalPost && (
             <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md p-4 flex items-center justify-center overflow-y-auto">
               <div className="glass-card rounded-3xl max-w-md w-full p-5 border border-nude-300/40 space-y-4 my-auto">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-serif text-xl font-bold text-white">✂️ Recortar Bordes de la Foto</h3>
+                  <h3 className="font-serif text-xl font-bold text-white">✂️ Recortar Bordes</h3>
                   <button onClick={() => setCropModalPost(null)} className="text-nude-300 font-bold">✕</button>
                 </div>
 
                 <p className="text-xs text-nude-200">
-                  Ajusta el cuadro guía para elegir qué bordes deseas cortar de tu publicación.
+                  Ajusta los deslizadores para elegir qué bordes cortar de tu publicación.
                 </p>
 
                 <div className="relative w-full h-64 bg-black rounded-2xl overflow-hidden flex items-center justify-center border border-nude-300/30">
-                  <img src={cropModalPost.mediaUrl} alt="" className="w-full h-full object-contain" />
+                  {cropModalPost.mediaType === "video" ? (
+                    <video src={cropModalPost.mediaUrl} className="w-full h-full object-contain" muted autoPlay loop />
+                  ) : (
+                    <img src={cropModalPost.mediaUrl} alt="" className="w-full h-full object-contain" />
+                  )}
                   <div
                     style={{
                       top: `${borderCrop.top}%`,
@@ -3737,13 +3747,13 @@
                       left: `${borderCrop.left}%`,
                       right: `${borderCrop.right}%`
                     }}
-                    className="absolute border-2 border-amber-300 shadow-[0_0_0_9999px_rgba(0,0,0,0.65)] pointer-events-none rounded-lg"
+                    className="absolute border-2 border-amber-300 shadow-[0_0_0_9999px_rgba(0,0,0,0.68)] pointer-events-none rounded-lg"
                   ></div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3 text-xs bg-burgundy-950 p-3.5 rounded-2xl border border-nude-300/20">
                   <div>
-                    <label className="font-bold text-nude-200">Borde Superior ({borderCrop.top}%)</label>
+                    <label className="font-bold text-nude-200">Arriba ({borderCrop.top}%)</label>
                     <input
                       type="range" min="0" max="40"
                       value={borderCrop.top}
@@ -3752,7 +3762,7 @@
                     />
                   </div>
                   <div>
-                    <label className="font-bold text-nude-200">Borde Inferior ({borderCrop.bottom}%)</label>
+                    <label className="font-bold text-nude-200">Abajo ({borderCrop.bottom}%)</label>
                     <input
                       type="range" min="0" max="40"
                       value={borderCrop.bottom}
@@ -3761,7 +3771,7 @@
                     />
                   </div>
                   <div>
-                    <label className="font-bold text-nude-200">Borde Izquierdo ({borderCrop.left}%)</label>
+                    <label className="font-bold text-nude-200">Izquierda ({borderCrop.left}%)</label>
                     <input
                       type="range" min="0" max="40"
                       value={borderCrop.left}
@@ -3770,7 +3780,7 @@
                     />
                   </div>
                   <div>
-                    <label className="font-bold text-nude-200">Borde Derecho ({borderCrop.right}%)</label>
+                    <label className="font-bold text-nude-200">Derecha ({borderCrop.right}%)</label>
                     <input
                       type="range" min="0" max="40"
                       value={borderCrop.right}
@@ -3785,7 +3795,7 @@
                   disabled={isCroppingPost}
                   className="w-full py-3.5 rounded-xl nude-btn text-xs shadow-lg"
                 >
-                  {isCroppingPost ? "Aplicando recorte..." : "Guardar Foto Recortada ✨"}
+                  {isCroppingPost ? "Aplicando recorte..." : "Guardar Recorte ✨"}
                 </button>
               </div>
             </div>
@@ -3806,10 +3816,10 @@
                     <span className="text-sm font-bold text-white hover:underline">@{fullscreenPost.userName}</span>
                   </button>
                   <div className="flex items-center gap-2">
-                    {(fullscreenPost.userId === currentUserDoc.uid || isAdmin) && fullscreenPost.mediaType !== "video" && (
+                    {(fullscreenPost.userId === currentUserDoc.uid || isAdmin) && (
                       <button
                         onClick={() => {
-                          setBorderCrop({ top: 0, bottom: 0, left: 0, right: 0 });
+                          setBorderCrop(fullscreenPost.borderCrop || { top: 0, bottom: 0, left: 0, right: 0 });
                           setCropModalPost(fullscreenPost);
                         }}
                         className="px-2.5 py-1 rounded-full bg-burgundy-800 border border-nude-300/40 text-xs text-nude-200 font-bold"
@@ -3926,28 +3936,23 @@
           )}
 
           {/* ========================================================== */}
-          {/* MODAL: ESTUDIO DE CREACIÓN CON 4 CUENTAS CLOUDINARY        */}
+          {/* MODAL: ESTUDIO DE EDICIÓN CON HERRAMIENTAS EN BOTONES      */}
           {/* ========================================================== */}
           {uploadModal.open && (
             <div
               className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md overflow-y-auto p-4 flex items-center justify-center"
-              onMouseMove={(e) => draggingStickerId && handleStickerPointerMove(e.clientX, e.clientY)}
-              onMouseUp={() => setDraggingStickerId(null)}
-              onTouchMove={(e) => {
-                if (draggingStickerId && e.touches[0]) {
-                  handleStickerPointerMove(e.touches[0].clientX, e.touches[0].clientY);
-                }
-              }}
-              onTouchEnd={() => setDraggingStickerId(null)}
+              onPointerMove={(e) => draggingStickerId && handleStickerPointerMove(e.clientX, e.clientY)}
+              onPointerUp={() => setDraggingStickerId(null)}
+              onPointerCancel={() => setDraggingStickerId(null)}
             >
               <div className="glass-card rounded-3xl max-w-md w-full p-5 border border-nude-300/40 space-y-4 my-auto">
                 <div className="flex items-center justify-between">
                   <h3 className="font-serif text-xl font-bold text-white">
                     {uploadModal.type === "story"
-                      ? "Estudio de Historia Full HD"
+                      ? "Subir Historia"
                       : uploadModal.withChallenge
                       ? `Reto: ${currentChallenge.title}`
-                      : "Estudio Foto y Video Full HD (15s)"}
+                      : "Subir Foto o Video"}
                   </h3>
                   <button
                     onClick={() => {
@@ -3961,6 +3966,7 @@
                 </div>
 
                 <form onSubmit={handlePublishEditedMedia} className="space-y-3.5">
+                  {/* Lienzo de Previsualización con Recorte por Bordes y Stickers Arrastrables */}
                   <div
                     ref={previewBoxRef}
                     className="w-full h-64 rounded-2xl border-2 border-dashed border-nude-300/50 bg-black flex items-center justify-center overflow-hidden relative"
@@ -3970,31 +3976,51 @@
                         {mediaType === "video" ? (
                           <video
                             src={rawMediaUrl}
-                            controls
+                            controls={activeStudioTool !== "crop"}
                             style={{ filter: selectedFilter.css }}
-                            className={`w-full h-full ${selectedCrop.class}`}
+                            className="w-full h-full object-contain"
                           />
                         ) : (
                           <img
                             src={rawMediaUrl}
                             alt="Preview"
                             style={{ filter: selectedFilter.css }}
-                            className={`w-full h-full ${selectedCrop.class}`}
+                            className="w-full h-full object-contain"
                           />
                         )}
 
+                        {/* Cuadro de Recorte por Bordes superpuesto */}
+                        {(uploadBorderCrop.top > 0 || uploadBorderCrop.bottom > 0 || uploadBorderCrop.left > 0 || uploadBorderCrop.right > 0 || activeStudioTool === "crop") && (
+                          <div
+                            style={{
+                              top: `${uploadBorderCrop.top}%`,
+                              bottom: `${uploadBorderCrop.bottom}%`,
+                              left: `${uploadBorderCrop.left}%`,
+                              right: `${uploadBorderCrop.right}%`
+                            }}
+                            className="absolute border-2 border-amber-300 shadow-[0_0_0_9999px_rgba(0,0,0,0.68)] pointer-events-none rounded-lg z-10"
+                          ></div>
+                        )}
+
+                        {/* Stickers con movimiento táctil fluido */}
                         {placedStickers.map((st) => (
                           <div
                             key={st.id}
                             style={{ left: `${st.x}%`, top: `${st.y}%` }}
-                            onMouseDown={(e) => { e.stopPropagation(); setDraggingStickerId(st.id); }}
-                            onTouchStart={(e) => { e.stopPropagation(); setDraggingStickerId(st.id); }}
-                            className="absolute -translate-x-1/2 -translate-y-1/2 text-4xl cursor-move select-none drop-shadow-xl"
+                            onPointerDown={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setDraggingStickerId(st.id);
+                            }}
+                            className="sticker-draggable absolute -translate-x-1/2 -translate-y-1/2 text-4xl cursor-grab active:cursor-grabbing active:scale-125 transition-transform drop-shadow-xl z-20"
                           >
                             <span>{st.emoji}</span>
                             <button
                               type="button"
-                              onClick={(e) => { e.stopPropagation(); removeStickerFromCanvas(st.id); }}
+                              onPointerDown={(e) => {
+                                e.stopPropagation();
+                                removeStickerFromCanvas(st.id);
+                              }}
                               className="-top-2 -right-2 absolute w-4 h-4 rounded-full bg-rose-600 text-white text-[9px] flex items-center justify-center font-bold"
                             >
                               ✕
@@ -4009,7 +4035,7 @@
                               backgroundColor: overlayColor.bg,
                               color: overlayColor.hex
                             }}
-                            className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-1.5 rounded-xl font-extrabold text-sm text-center pointer-events-none shadow-xl max-w-[88%]"
+                            className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-1.5 rounded-xl font-extrabold text-sm text-center pointer-events-none shadow-xl max-w-[88%] z-20"
                           >
                             {overlayText}
                           </div>
@@ -4017,12 +4043,12 @@
                       </div>
                     ) : (
                       <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer text-center p-4">
-                        <span className="text-3xl">📸 🎥 🎨</span>
+                        <span className="text-3xl">📸 🎥</span>
                         <p className="text-xs font-bold text-white mt-2">
-                          Toca para elegir o grabar Foto Full HD o Video (Máx 15s)
+                          Toca aquí para tomar Foto o grabar Video (Máx 15s)
                         </p>
                         <p className="text-[11px] text-nude-300 mt-1">
-                          4 Cuentas Cloudinary Activas (100 GB • Alta Calidad sin límites)
+                          Luego usa los botones de abajo para recortar bordes, poner filtros, texto o stickers
                         </p>
                         <input
                           type="file"
@@ -4034,101 +4060,191 @@
                     )}
                   </div>
 
+                  {/* BARRA DE 4 BOTONES DE EDICIÓN (APARECE AL ELEGIR FOTO O VIDEO) */}
                   {rawMediaUrl && (
-                    <div className="space-y-3 bg-burgundy-950/90 p-3.5 rounded-2xl border border-nude-300/25">
-                      <div>
-                        <p className="text-[10px] uppercase tracking-wider text-nude-300 font-bold mb-1.5">
-                          1. Filtros Sunset
-                        </p>
-                        <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
-                          {MEDIA_FILTERS.map(f => (
-                            <button
-                              type="button"
-                              key={f.id}
-                              onClick={() => setSelectedFilter(f)}
-                              className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 ${
-                                selectedFilter.id === f.id ? "nude-btn" : "bg-burgundy-900 text-nude-200"
-                              }`}
-                            >
-                              {f.name}
-                            </button>
-                          ))}
-                        </div>
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-4 gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => setActiveStudioTool(activeStudioTool === "crop" ? null : "crop")}
+                          className={`py-2.5 px-2 rounded-xl text-xs font-extrabold flex flex-col items-center gap-1 border transition ${
+                            activeStudioTool === "crop"
+                              ? "nude-btn border-white"
+                              : "bg-burgundy-950 text-nude-200 border-nude-300/30"
+                          }`}
+                        >
+                          <span>✂️</span>
+                          <span className="text-[10px]">Recortar</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setActiveStudioTool(activeStudioTool === "filter" ? null : "filter")}
+                          className={`py-2.5 px-2 rounded-xl text-xs font-extrabold flex flex-col items-center gap-1 border transition ${
+                            activeStudioTool === "filter"
+                              ? "nude-btn border-white"
+                              : "bg-burgundy-950 text-nude-200 border-nude-300/30"
+                          }`}
+                        >
+                          <span>🎨</span>
+                          <span className="text-[10px]">Filtros</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setActiveStudioTool(activeStudioTool === "text" ? null : "text")}
+                          className={`py-2.5 px-2 rounded-xl text-xs font-extrabold flex flex-col items-center gap-1 border transition ${
+                            activeStudioTool === "text"
+                              ? "nude-btn border-white"
+                              : "bg-burgundy-950 text-nude-200 border-nude-300/30"
+                          }`}
+                        >
+                          <span>🔤</span>
+                          <span className="text-[10px]">Texto</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setActiveStudioTool(activeStudioTool === "stickers" ? null : "stickers")}
+                          className={`py-2.5 px-2 rounded-xl text-xs font-extrabold flex flex-col items-center gap-1 border transition ${
+                            activeStudioTool === "stickers"
+                              ? "nude-btn border-white"
+                              : "bg-burgundy-950 text-nude-200 border-nude-300/30"
+                          }`}
+                        >
+                          <span>✨</span>
+                          <span className="text-[10px]">Stickers</span>
+                        </button>
                       </div>
 
-                      <div>
-                        <p className="text-[10px] uppercase tracking-wider text-nude-300 font-bold mb-1.5">
-                          2. Formato de Recorte
-                        </p>
-                        <div className="grid grid-cols-4 gap-1.5">
-                          {CROP_RATIOS.map(cr => (
+                      {/* PANEL DESPLEGABLE SEGÚN EL BOTÓN SELECCIONADO */}
+                      {activeStudioTool === "crop" && (
+                        <div className="bg-burgundy-950 p-3.5 rounded-2xl border border-nude-300/30 space-y-2.5 text-xs">
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-amber-300">✂️ Ajusta los bordes que deseas cortar</span>
                             <button
                               type="button"
-                              key={cr.id}
-                              onClick={() => setSelectedCrop(cr)}
-                              className={`py-1.5 rounded-xl text-[11px] font-bold ${
-                                selectedCrop.id === cr.id ? "nude-btn" : "bg-burgundy-900 text-nude-200"
-                              }`}
+                              onClick={() => setUploadBorderCrop({ top: 0, bottom: 0, left: 0, right: 0 })}
+                              className="text-[10px] text-nude-300 underline"
                             >
-                              {cr.label}
+                              Restablecer
                             </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <p className="text-[10px] uppercase tracking-wider text-nude-300 font-bold">
-                          3. Texto superpuesto
-                        </p>
-                        <input
-                          type="text"
-                          placeholder="Escribe texto sobre la imagen..."
-                          value={overlayText}
-                          onChange={(e) => setOverlayText(e.target.value)}
-                          className="w-full px-3 py-2 rounded-xl bg-burgundy-900 border border-nude-300/30 text-xs text-white"
-                        />
-                        {overlayText.trim() && (
-                          <div className="flex items-center justify-between gap-3">
-                            <div className="flex gap-1.5">
-                              {TEXT_COLORS.map(tc => (
-                                <button
-                                  type="button"
-                                  key={tc.id}
-                                  onClick={() => setOverlayColor(tc)}
-                                  style={{ backgroundColor: tc.hex }}
-                                  className={`w-6 h-6 rounded-full border-2 ${
-                                    overlayColor.id === tc.id ? "border-amber-400 scale-110" : "border-white/30"
-                                  }`}
-                                ></button>
-                              ))}
-                            </div>
-                            <input
-                              type="range" min="15" max="85"
-                              value={overlayYPos}
-                              onChange={(e) => setOverlayYPos(Number(e.target.value))}
-                              className="flex-1 accent-nude-300"
-                            />
                           </div>
-                        )}
-                      </div>
-
-                      <div>
-                        <p className="text-[10px] uppercase tracking-wider text-nude-300 font-bold mb-1">
-                          4. Agrega varios Stickers y arrástralos con el dedo ({placedStickers.length})
-                        </p>
-                        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-                          {STICKERS.map(st => (
-                            <button
-                              type="button"
-                              key={st}
-                              onClick={() => addStickerToCanvas(st)}
-                              className="text-lg px-2.5 py-1 rounded-lg bg-burgundy-900 hover:bg-burgundy-800 shrink-0"
-                            >
-                              +{st}
-                            </button>
-                          ))}
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <label className="text-[11px] text-nude-200 font-semibold">Arriba ({uploadBorderCrop.top}%)</label>
+                              <input
+                                type="range" min="0" max="40"
+                                value={uploadBorderCrop.top}
+                                onChange={(e) => setUploadBorderCrop({ ...uploadBorderCrop, top: Number(e.target.value) })}
+                                className="w-full accent-nude-300"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[11px] text-nude-200 font-semibold">Abajo ({uploadBorderCrop.bottom}%)</label>
+                              <input
+                                type="range" min="0" max="40"
+                                value={uploadBorderCrop.bottom}
+                                onChange={(e) => setUploadBorderCrop({ ...uploadBorderCrop, bottom: Number(e.target.value) })}
+                                className="w-full accent-nude-300"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[11px] text-nude-200 font-semibold">Izquierda ({uploadBorderCrop.left}%)</label>
+                              <input
+                                type="range" min="0" max="40"
+                                value={uploadBorderCrop.left}
+                                onChange={(e) => setUploadBorderCrop({ ...uploadBorderCrop, left: Number(e.target.value) })}
+                                className="w-full accent-nude-300"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[11px] text-nude-200 font-semibold">Derecha ({uploadBorderCrop.right}%)</label>
+                              <input
+                                type="range" min="0" max="40"
+                                value={uploadBorderCrop.right}
+                                onChange={(e) => setUploadBorderCrop({ ...uploadBorderCrop, right: Number(e.target.value) })}
+                                className="w-full accent-nude-300"
+                              />
+                            </div>
+                          </div>
                         </div>
-                      </div>
+                      )}
+
+                      {activeStudioTool === "filter" && (
+                        <div className="bg-burgundy-950 p-3.5 rounded-2xl border border-nude-300/30">
+                          <p className="text-[11px] font-bold text-nude-200 mb-2">Elige un filtro de color:</p>
+                          <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
+                            {MEDIA_FILTERS.map(f => (
+                              <button
+                                type="button"
+                                key={f.id}
+                                onClick={() => setSelectedFilter(f)}
+                                className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 ${
+                                  selectedFilter.id === f.id ? "nude-btn" : "bg-burgundy-900 text-nude-200"
+                                }`}
+                              >
+                                {f.name}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {activeStudioTool === "text" && (
+                        <div className="bg-burgundy-950 p-3.5 rounded-2xl border border-nude-300/30 space-y-2.5">
+                          <input
+                            type="text"
+                            placeholder="Escribe el texto para mostrar sobre la imagen..."
+                            value={overlayText}
+                            onChange={(e) => setOverlayText(e.target.value)}
+                            className="w-full px-3 py-2 rounded-xl bg-burgundy-900 border border-nude-300/30 text-xs text-white"
+                          />
+                          {overlayText.trim() && (
+                            <div className="flex items-center justify-between gap-3">
+                              <div className="flex gap-1.5">
+                                {TEXT_COLORS.map(tc => (
+                                  <button
+                                    type="button"
+                                    key={tc.id}
+                                    onClick={() => setOverlayColor(tc)}
+                                    style={{ backgroundColor: tc.hex }}
+                                    className={`w-6 h-6 rounded-full border-2 ${
+                                      overlayColor.id === tc.id ? "border-amber-400 scale-110" : "border-white/30"
+                                    }`}
+                                  ></button>
+                                ))}
+                              </div>
+                              <input
+                                type="range" min="15" max="85"
+                                value={overlayYPos}
+                                onChange={(e) => setOverlayYPos(Number(e.target.value))}
+                                className="flex-1 accent-nude-300"
+                              />
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {activeStudioTool === "stickers" && (
+                        <div className="bg-burgundy-950 p-3.5 rounded-2xl border border-nude-300/30">
+                          <p className="text-[11px] font-bold text-nude-200 mb-2">
+                            Toca un sticker para agregarlo y arrástralo con el dedo sobre la imagen:
+                          </p>
+                          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+                            {STICKERS.map(st => (
+                              <button
+                                type="button"
+                                key={st}
+                                onClick={() => addStickerToCanvas(st)}
+                                className="text-lg px-2.5 py-1 rounded-lg bg-burgundy-900 hover:bg-burgundy-800 shrink-0"
+                              >
+                                +{st}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -4144,14 +4260,14 @@
                         <div className="h-full bg-nude-300 transition-all" style={{ width: `${uploadProgress}%` }}></div>
                       </div>
                       <p className="text-[11px] text-center text-nude-200 font-bold">
-                        Subiendo en Full HD a la nube... {uploadProgress}%
+                        Procesando publicación... {uploadProgress}%
                       </p>
                     </div>
                   )}
 
                   <input
                     type="text"
-                    placeholder="Pie de foto o descripción..."
+                    placeholder="Escribe un pie de foto o descripción..."
                     value={caption}
                     onChange={(e) => setCaption(e.target.value)}
                     className="w-full px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/35 text-xs text-white"
@@ -4162,7 +4278,7 @@
                     disabled={!rawMediaUrl || isSubmitting}
                     className="w-full py-3.5 rounded-xl nude-btn text-sm disabled:opacity-40 shadow-lg"
                   >
-                    {isSubmitting ? `Subiendo (${uploadProgress}%)...` : "Publicar Ahora ✨"}
+                    {isSubmitting ? `Publicando (${uploadProgress}%)...` : "Publicar Ahora ✨"}
                   </button>
                 </form>
               </div>
@@ -4254,7 +4370,7 @@
                 </div>
                 <form onSubmit={handleAdminSaveUser} className="space-y-3">
                   <div>
-                    <label className="text-xs font-bold text-nude-200">@Usuario</label>
+                    <label className="text-xs font-bold text-nude-200">Nombre de usuario</label>
                     <input
                       type="text"
                       value={adminEditUser.username || ""}
@@ -4303,7 +4419,7 @@
                   </div>
 
                   <div>
-                    <label className="text-xs text-nude-200 font-bold">Tu @usuario único</label>
+                    <label className="text-xs text-nude-200 font-bold">Nombre de usuario</label>
                     <input
                       type="text"
                       required
@@ -4317,7 +4433,7 @@
                     <label className="text-xs text-nude-200 font-bold">Nueva contraseña (opcional)</label>
                     <input
                       type="password"
-                      placeholder="Dejar vacío para mantener la actual"
+                      placeholder="Contraseña"
                       value={newProfilePassword}
                       onChange={(e) => setNewProfilePassword(e.target.value)}
                       className="w-full mt-1 px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/40 text-sm text-white"
@@ -4461,3 +4577,4 @@
   </script>
 </body>
 </html>
+

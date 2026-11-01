@@ -124,7 +124,7 @@
   <!-- Babel -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  <!-- Firebase Modular SDK (Arquitectura Dual: Muro Principal + Servidor de Chat/Notificaciones/Eventos en Vivo) -->
+  <!-- Firebase Modular SDK (Arquitectura Dual de Alta Disponibilidad) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { 
@@ -192,7 +192,7 @@
 
     const ADMIN_EMAIL = "joellpethers@gmail.com";
 
-    // Clúster de 6 Cuentas en Balanceo Automático Silencioso
+    // Clúster de 6 Cuentas Cloudinary en Balanceo Automático
     const CLOUDINARY_ACCOUNTS = [
       { cloudName: "i1uvypzh", uploadPreset: "sunset_vibes" },
       { cloudName: "uzr7jcxh", uploadPreset: "sunset_vibes" },
@@ -252,7 +252,7 @@
       throw lastErr || new Error("No se pudo subir el archivo. Verifica tu señal de internet.");
     };
 
-    // Generador de Sonido Real Sintetizado ("Campana Cristal Sunset")
+    // Sonido Real Sintetizado (No falla jamás ni requiere MP3 externos)
     const playNotificationSound = (type = "bell") => {
       try {
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -289,6 +289,7 @@
       } catch (e) {}
     };
 
+    // 20 RETOS FOTOGRÁFICOS OFICIALES (10 Originales + 10 Nuevos)
     const PHOTO_CHALLENGES = [
       { id: 1, title: "El Brindis Dorado", desc: "Sube una foto o video corto chocando tu copa con el atardecer.", emoji: "🥂" },
       { id: 2, title: "Silueta contra el Sol", desc: "Captura la silueta de alguien bailando frente a la luz del cielo.", emoji: "🌅" },
@@ -299,7 +300,17 @@
       { id: 7, title: "El Rincón más Aesthetic", desc: "Muestra la decoración, luces o tu rincón favorito del evento.", emoji: "✨" },
       { id: 8, title: "Foto Grupal Épica", desc: "Reúne a 3 o más personas y hagan su pose más creativa.", emoji: "📸" },
       { id: 9, title: "Reflejos del Atardecer", desc: "Una toma de cerca donde se vea reflejada la fiesta o las luces.", emoji: "🔥" },
-      { id: 10, title: "El Rey o Reina de la Pista", desc: "Foto o video de máximo 15s de los mejores pasos prohibidos.", emoji: "💃" }
+      { id: 10, title: "El Rey o Reina de la Pista", desc: "Foto o video de máximo 15s de los mejores pasos prohibidos.", emoji: "💃" },
+      { id: 11, title: "Cazando al DJ", desc: "Saca una toma épica de la cabina musical mientras suena un temazo.", emoji: "🎧" },
+      { id: 12, title: "Duelo de Miradas", desc: "Foto mirándote fijamente con un amigo intentando no reírse.", emoji: "👀" },
+      { id: 13, title: "El Trago más Fotogénico", desc: "Primer plano artístico de tu bebida con las luces de fondo.", emoji: "🍹" },
+      { id: 14, title: "Salto en el Aire", desc: "Congela el momento exacto en que tú o tu grupo saltan al mismo tiempo.", emoji: "🚀" },
+      { id: 15, title: "Abrazo de Fiesta", desc: "Captura el abrazo más genuino con esa persona especial del evento.", emoji: "🫂" },
+      { id: 16, title: "Calzado en la Pista", desc: "Foto grupal apuntando hacia abajo mostrando los zapatos de todos.", emoji: "👟" },
+      { id: 17, title: "Cara de Viernes en Domingo", desc: "Tu gesto más loco o divertido disfrutando del Sunset.", emoji: "🤪" },
+      { id: 18, title: "Mesa VIP Completa", desc: "Selfie panorámica con todos los integrantes de tu mesa o sector.", emoji: "🍾" },
+      { id: 19, title: "Susurro al Oído", desc: "Foto contando un secreto en medio del ruido de la música.", emoji: "🤫" },
+      { id: 20, title: "Los Indestructibles", desc: "Foto demostrando quiénes siguen con la energía al 100%.", emoji: "👑" }
     ];
 
     const REACTION_EMOJIS = ["🔥", "🥂", "😍", "👏"];
@@ -332,13 +343,23 @@
       { id: "cyber", name: "Neon Night", css: "saturate(1.85) contrast(1.18) hue-rotate(15deg)" }
     ];
 
+    // Marcos Oficiales (#1: Polaroid Clásica, Gold VIP, Magazine y Film)
+    const PHOTO_FRAMES = [
+      { id: "none", name: "Sin Marco" },
+      { id: "polaroid", name: "📸 Polaroid Sunset" },
+      { id: "vip_gold", name: "👑 Marco Dorado VIP" },
+      { id: "magazine", name: "✨ Portada Revista" },
+      { id: "cinema", name: "🎬 Cine Retro" }
+    ];
+
     const STICKERS = ["🌅", "🥂", "🔥", "✨", "💃", "🕶️", "❤️", "👑", "🎶", "🍾", "🪩", "🌴"];
 
     const VIP_STAMPS = [
       "🌅 SUNSET VIBES • VIP",
       "🔥 MATCH NIGHT • OFICIAL",
       "🥂 GOLDEN HOUR CLUB",
-      "📍 NOCHE ÉPICA 2026"
+      "📍 NOCHE ÉPICA 2026",
+      "📸 PAPARAZZI IN FRAGANTI"
     ];
 
     const TEXT_COLORS = [
@@ -365,8 +386,8 @@
       return "Ayer";
     };
 
-    // Hornear imagen con Recorte por 4 Bordes + Filtros + Texto + Stickers y Sellos VIP
-    const bakeEditedImage = (rawDataUrl, { filterCss, borderCrop, overlayText, textColorObj, textYPos, stickers = [], maxDim = 1600, quality = 0.86 }) => {
+    // Hornear imagen con Recorte 4 Bordes + Filtros + Marcos Polaroid/VIP + Stickers Escalables + Texto Movible/Escalable
+    const bakeEditedImage = (rawDataUrl, { filterCss, borderCrop, frameId = "none", overlayText, textColorObj, textPos = { x: 50, y: 50 }, textScale = 1, stickers = [], maxDim = 1600, quality = 0.86 }) => {
       return new Promise((resolve, reject) => {
         const img = new Image();
         img.crossOrigin = "anonymous";
@@ -382,34 +403,86 @@
           const srcW = Math.max(40, Math.round(((100 - leftPct - rightPct) / 100) * img.width));
           const srcH = Math.max(40, Math.round(((100 - topPct - bottomPct) / 100) * img.height));
 
-          let outW = srcW, outH = srcH;
-          if (outW > maxDim) { outH = Math.round((outH * maxDim) / outW); outW = maxDim; }
-          if (outH > maxDim) { outW = Math.round((outW * maxDim) / outH); outH = maxDim; }
+          let baseW = srcW, baseH = srcH;
+          if (baseW > maxDim) { baseH = Math.round((baseH * maxDim) / baseW); baseW = maxDim; }
+          if (baseH > maxDim) { baseW = Math.round((baseW * maxDim) / baseH); baseH = maxDim; }
+
+          const isPolaroid = frameId === "polaroid";
+          const padSide = isPolaroid ? Math.round(baseW * 0.06) : 0;
+          const padTop = isPolaroid ? Math.round(baseW * 0.06) : 0;
+          const padBot = isPolaroid ? Math.round(baseW * 0.22) : 0;
+
+          const outW = baseW + padSide * 2;
+          const outH = baseH + padTop + padBot;
 
           const canvas = document.createElement("canvas");
           canvas.width = outW;
           canvas.height = outH;
           const ctx = canvas.getContext("2d");
 
+          if (isPolaroid) {
+            ctx.fillStyle = "#FDF4F5";
+            ctx.fillRect(0, 0, outW, outH);
+          }
+
           if (filterCss && filterCss !== "none") {
             ctx.filter = filterCss;
           }
-          ctx.drawImage(img, srcX, srcY, srcW, srcH, 0, 0, outW, outH);
+          ctx.drawImage(img, srcX, srcY, srcW, srcH, padSide, padTop, baseW, baseH);
           ctx.filter = "none";
 
+          // Marcos Decorativos (#1)
+          if (isPolaroid) {
+            ctx.fillStyle = "#2E071B";
+            ctx.font = `700 ${Math.max(22, Math.round(baseW * 0.048))}px "Playfair Display", serif`;
+            ctx.textAlign = "center";
+            ctx.fillText("🌅 Sunset Vibes • Recuerdo Oficial", outW / 2, baseH + padTop + Math.round(padBot * 0.58));
+          } else if (frameId === "vip_gold") {
+            const bWidth = Math.max(12, Math.round(outW * 0.024));
+            ctx.strokeStyle = "#FBBF24";
+            ctx.lineWidth = bWidth;
+            ctx.strokeRect(bWidth / 2, bWidth / 2, outW - bWidth, outH - bWidth);
+            ctx.fillStyle = "rgba(9, 1, 5, 0.85)";
+            ctx.fillRect(0, outH - Math.round(outW * 0.08), outW, Math.round(outW * 0.08));
+            ctx.fillStyle = "#FBBF24";
+            ctx.font = `800 ${Math.max(18, Math.round(outW * 0.032))}px "Plus Jakarta Sans", sans-serif`;
+            ctx.textAlign = "center";
+            ctx.fillText("👑 SUNSET VIBES • EDICIÓN VIP 👑", outW / 2, outH - Math.round(outW * 0.03));
+          } else if (frameId === "magazine") {
+            ctx.strokeStyle = "rgba(255,255,255,0.85)";
+            ctx.lineWidth = Math.max(6, Math.round(outW * 0.012));
+            const m = Math.round(outW * 0.035);
+            ctx.strokeRect(m, m, outW - m * 2, outH - m * 2);
+            ctx.fillStyle = "rgba(255,255,255,0.92)";
+            ctx.font = `700 ${Math.max(28, Math.round(outW * 0.075))}px "Playfair Display", serif`;
+            ctx.textAlign = "center";
+            ctx.fillText("SUNSET VIBES", outW / 2, m + Math.round(outW * 0.085));
+          } else if (frameId === "cinema") {
+            const barH = Math.round(outH * 0.1);
+            ctx.fillStyle = "#000000";
+            ctx.fillRect(0, 0, outW, barH);
+            ctx.fillRect(0, outH - barH, outW, barH);
+            ctx.fillStyle = "#FBBF24";
+            ctx.font = `600 italic ${Math.max(16, Math.round(outW * 0.028))}px "Plus Jakarta Sans", sans-serif`;
+            ctx.textAlign = "center";
+            ctx.fillText("“Una noche para recordar siempre” • Sunset Vibes", outW / 2, outH - Math.round(barH * 0.38));
+          }
+
+          // Stickers y Sellos con posición X/Y y Escala personalizada
           if (Array.isArray(stickers) && stickers.length > 0) {
             stickers.forEach((st) => {
-              const sx = (st.x / 100) * outW;
-              const sy = (st.y / 100) * outH;
+              const sx = padSide + (st.x / 100) * baseW;
+              const sy = padTop + (st.y / 100) * baseH;
+              const sc = st.scale || 1;
               if (st.emoji.length > 4) {
-                const stampFont = Math.max(16, Math.round(outW * 0.032));
+                const stampFont = Math.max(14, Math.round(baseW * 0.032 * sc));
                 ctx.font = `800 ${stampFont}px "Plus Jakarta Sans", sans-serif`;
                 ctx.textAlign = "center";
                 ctx.textBaseline = "middle";
                 const m = ctx.measureText(st.emoji);
-                const bw = m.width + 28;
-                const bh = stampFont + 18;
-                ctx.fillStyle = "rgba(9, 1, 5, 0.85)";
+                const bw = m.width + 26 * sc;
+                const bh = stampFont + 16 * sc;
+                ctx.fillStyle = "rgba(9, 1, 5, 0.86)";
                 ctx.beginPath();
                 ctx.roundRect(sx - bw / 2, sy - bh / 2, bw, bh, 12);
                 ctx.fill();
@@ -419,7 +492,7 @@
                 ctx.fillStyle = "#FBBF24";
                 ctx.fillText(st.emoji, sx, sy);
               } else {
-                const stickerSize = Math.round(outW * 0.11);
+                const stickerSize = Math.round(baseW * 0.11 * sc);
                 ctx.font = `${stickerSize}px sans-serif`;
                 ctx.textAlign = "center";
                 ctx.textBaseline = "middle";
@@ -428,26 +501,29 @@
             });
           }
 
+          // Texto Superpuesto con Posición X/Y y Escala personalizada
           if (overlayText && overlayText.trim()) {
-            const fontSize = Math.max(22, Math.round(outW * 0.048));
+            const tScale = textScale || 1;
+            const fontSize = Math.max(18, Math.round(baseW * 0.045 * tScale));
             ctx.font = `800 ${fontSize}px "Plus Jakarta Sans", sans-serif`;
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
 
-            const yCoord = Math.round((textYPos / 100) * outH);
+            const xCoord = padSide + Math.round(((textPos?.x ?? 50) / 100) * baseW);
+            const yCoord = padTop + Math.round(((textPos?.y ?? 50) / 100) * baseH);
             const textStr = overlayText.trim();
             const metrics = ctx.measureText(textStr);
-            const padX = Math.round(outW * 0.03), padY = Math.round(outW * 0.018);
-            const boxW = Math.min(outW - 24, metrics.width + padX * 2);
+            const padX = Math.round(baseW * 0.03 * tScale), padY = Math.round(baseW * 0.016 * tScale);
+            const boxW = Math.min(baseW - 16, metrics.width + padX * 2);
             const boxH = fontSize + padY * 2;
 
-            ctx.fillStyle = textColorObj?.bg || "rgba(9, 1, 5, 0.8)";
+            ctx.fillStyle = textColorObj?.bg || "rgba(9, 1, 5, 0.82)";
             ctx.beginPath();
-            ctx.roundRect((outW - boxW) / 2, yCoord - boxH / 2, boxW, boxH, 16);
+            ctx.roundRect(xCoord - boxW / 2, yCoord - boxH / 2, boxW, boxH, 14);
             ctx.fill();
 
             ctx.fillStyle = textColorObj?.hex || "#FFFFFF";
-            ctx.fillText(textStr, outW / 2, yCoord, outW - 40);
+            ctx.fillText(textStr, xCoord, yCoord, baseW - 24);
           }
 
           resolve(canvas.toDataURL("image/jpeg", quality));
@@ -478,7 +554,116 @@
       });
     };
 
-    // Generador de Póster Mosaico Oficial de Fin de Fiesta (#4)
+    // Generador de Tarjeta Descargable "Mi Resumen Personal — Sunset Wrapped" (#2)
+    const generatePersonalWrappedDataUrl = async (userDoc, myPosts, myLikesCount, myFriendsCount, myMatchesCount) => {
+      const canvas = document.createElement("canvas");
+      const W = 1080, H = 1920;
+      canvas.width = W;
+      canvas.height = H;
+      const ctx = canvas.getContext("2d");
+
+      const grad = ctx.createLinearGradient(0, 0, W, H);
+      grad.addColorStop(0, "#4B0E2E");
+      grad.addColorStop(0.5, "#16030C");
+      grad.addColorStop(1, "#090105");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, W, H);
+
+      ctx.strokeStyle = "#FBBF24";
+      ctx.lineWidth = 6;
+      ctx.strokeRect(45, 45, W - 90, H - 90);
+
+      ctx.fillStyle = "#FBBF24";
+      ctx.font = '800 28px "Plus Jakarta Sans", sans-serif';
+      ctx.textAlign = "center";
+      ctx.fillText("✨ MI RESUMEN OFICIAL DE LA NOCHE ✨", W / 2, 140);
+
+      ctx.fillStyle = "#FFFFFF";
+      ctx.font = '700 78px "Playfair Display", serif';
+      ctx.fillText("SUNSET WRAPPED", W / 2, 235);
+
+      const loadImg = (url) => new Promise((res) => {
+        const im = new Image();
+        im.crossOrigin = "anonymous";
+        im.onload = () => res(im);
+        im.onerror = () => res(null);
+        im.src = url;
+      });
+
+      const avatarImg = await loadImg(userDoc.avatar);
+      if (avatarImg) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(W / 2, 430, 130, 0, Math.PI * 2);
+        ctx.clip();
+        ctx.drawImage(avatarImg, W / 2 - 130, 300, 260, 260);
+        ctx.restore();
+      }
+      ctx.strokeStyle = "#FBBF24";
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.arc(W / 2, 430, 132, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.fillStyle = "#FFFFFF";
+      ctx.font = '800 48px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText(`@${userDoc.username}`, W / 2, 635);
+
+      ctx.fillStyle = "#E8B4B8";
+      ctx.font = '700 30px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText(userDoc.vibeStatus || "🥂 Alma de la Fiesta", W / 2, 690);
+
+      const stats = [
+        { label: "FOTOS Y VIDEOS", val: `${myPosts.length} 📸` },
+        { label: "LIKES RECIBIDOS", val: `${myLikesCount} ❤️` },
+        { label: "AMIGOS EN EL SUNSET", val: `${myFriendsCount} 🥂` },
+        { label: "FUEGOS DE MATCH", val: `${myMatchesCount} 🔥` }
+      ];
+
+      stats.forEach((st, idx) => {
+        const bx = idx % 2 === 0 ? 95 : 565;
+        const by = idx < 2 ? 780 : 1030;
+        ctx.fillStyle = "rgba(46, 7, 27, 0.9)";
+        ctx.beginPath();
+        ctx.roundRect(bx, by, 420, 200, 28);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(232, 180, 184, 0.45)";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        ctx.fillStyle = "#FBBF24";
+        ctx.font = '800 54px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText(st.val, bx + 210, by + 100);
+
+        ctx.fillStyle = "#FDF4F5";
+        ctx.font = '700 22px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText(st.label, bx + 210, by + 155);
+      });
+
+      const bestPost = [...myPosts].filter(p => p.mediaType !== "video").sort((a, b) => (b.likes?.length || 0) - (a.likes?.length || 0))[0];
+      if (bestPost) {
+        const postIm = await loadImg(bestPost.mediaUrl);
+        if (postIm) {
+          ctx.fillStyle = "#FBBF24";
+          ctx.font = '800 26px "Plus Jakarta Sans", sans-serif';
+          ctx.fillText("🌟 MI FOTO MÁS VOTADA DE LA NOCHE 🌟", W / 2, 1315);
+          ctx.save();
+          ctx.beginPath();
+          ctx.roundRect(W / 2 - 220, 1345, 440, 380, 26);
+          ctx.clip();
+          ctx.drawImage(postIm, W / 2 - 220, 1345, 440, 380);
+          ctx.restore();
+        }
+      }
+
+      ctx.fillStyle = "#E8B4B8";
+      ctx.font = '700 28px "Playfair Display", serif';
+      ctx.fillText("🌅 Sunset Vibes • Recuerdo Oficial 2026", W / 2, 1825);
+
+      return canvas.toDataURL("image/jpeg", 0.9);
+    };
+
+    // Generador de Póster Mosaico Oficial de Fin de Fiesta (#3)
     const generateMosaicPosterDataUrl = async (usersList, postsList) => {
       const canvas = document.createElement("canvas");
       const W = 1080, H = 1480;
@@ -610,7 +795,7 @@
       return (Date.now() - u.lastSeen) < 360000;
     };
 
-    // Texto inteligente que convierte cualquier @usuario en un botón dorado clicable que lleva a su perfil
+    // Texto inteligente que convierte cualquier @usuario en un botón dorado clicable hacia su perfil
     function RichMentionText({ text, users, onOpenProfile }) {
       if (!text) return null;
       const parts = text.split(/(@[a-zA-Z0-9_]+)/g);
@@ -639,8 +824,45 @@
       );
     }
 
-    // Renderizador Multimedia con Doble Toque Táctil (Corazón Gigante), Auto-Play/Pause al hacer Scroll y Portada de Video
-    function MediaRenderer({ item, className = "w-full max-h-[460px] object-contain", onDoubleTapLike, autoPlay = false, controls = false, paused = false }) {
+    // Barra Universal de Autocompletado cuando se escribe @ en cualquier campo de la aplicación
+    function MentionAutocompleteBar({ value, onChange, users, label = "Etiquetar invitado:" }) {
+      if (!value) return null;
+      const match = value.match(/@([a-zA-Z0-9_]*)$/);
+      if (!match) return null;
+      const queryStr = match[1].toLowerCase();
+      const candidates = users
+        .filter(u => u.username && u.username.toLowerCase().includes(queryStr))
+        .slice(0, 8);
+
+      if (candidates.length === 0) return null;
+
+      return (
+        <div className="my-1.5 p-2 rounded-2xl bg-burgundy-900 border border-amber-300/60 shadow-2xl space-y-1 z-30">
+          <p className="text-[10px] font-extrabold text-amber-300 px-1">{label}</p>
+          <div className="flex gap-2 overflow-x-auto no-scrollbar py-1">
+            {candidates.map(u => (
+              <button
+                type="button"
+                key={u.uid}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  const replaced = value.replace(/@([a-zA-Z0-9_]*)$/, `@${u.username} `);
+                  onChange(replaced);
+                }}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-burgundy-950 border border-nude-300/40 shrink-0 hover:border-amber-300"
+              >
+                <img src={u.avatar} alt="" className="w-5 h-5 rounded-full object-cover" />
+                <span className="text-xs font-bold text-white">@{u.username}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    // Renderizador Multimedia con Botón de Pantalla Completa, Doble Toque Táctil y Escala de Stickers/Texto
+    function MediaRenderer({ item, className = "w-full max-h-[460px] object-contain", onDoubleTapLike, onOpenFullscreen, autoPlay = false, controls = false, paused = false }) {
       const videoRef = useRef(null);
       const [isMuted, setIsMuted] = useState(true);
       const [showHeartBurst, setShowHeartBurst] = useState(false);
@@ -698,10 +920,15 @@
         ? item.mediaUrl.replace(/\.[^/.]+$/, ".jpg")
         : undefined;
 
+      const tPos = item.overlayPos || { x: 50, y: item.overlayYPos || 50 };
+      const tScale = item.overlayScale || 1;
+
       return (
         <div
           onClick={handleTap}
-          className="relative w-full h-full flex items-center justify-center bg-black overflow-hidden select-none"
+          className={`relative w-full h-full flex items-center justify-center bg-black overflow-hidden select-none ${
+            item.mediaType === "video" && item.frameId === "vip_gold" ? "border-4 border-amber-400" : ""
+          }`}
         >
           {item.mediaType === "video" ? (
             <>
@@ -728,10 +955,14 @@
               {stickersList.map((st) => (
                 <span
                   key={st.id}
-                  style={{ left: `${st.x}%`, top: `${st.y}%` }}
-                  className={`absolute -translate-x-1/2 -translate-y-1/2 pointer-events-none drop-shadow-lg z-10 ${
+                  style={{
+                    left: `${st.x}%`,
+                    top: `${st.y}%`,
+                    transform: `translate(-50%, -50%) scale(${st.scale || 1})`
+                  }}
+                  className={`absolute pointer-events-none drop-shadow-lg z-10 ${
                     st.emoji.length > 4
-                      ? "px-2.5 py-1 rounded-lg bg-black/80 border border-amber-400 text-amber-300 font-extrabold text-[10px]"
+                      ? "px-2.5 py-1 rounded-lg bg-black/85 border border-amber-400 text-amber-300 font-extrabold text-[10px] whitespace-nowrap"
                       : "text-4xl"
                   }`}
                 >
@@ -741,11 +972,13 @@
               {item.overlayText && (
                 <div
                   style={{
-                    top: `${item.overlayYPos || 50}%`,
+                    left: `${tPos.x}%`,
+                    top: `${tPos.y}%`,
+                    transform: `translate(-50%, -50%) scale(${tScale})`,
                     backgroundColor: textColorObj.bg,
                     color: textColorObj.hex
                   }}
-                  className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-1.5 rounded-xl font-extrabold text-sm text-center pointer-events-none shadow-lg max-w-[88%] z-10"
+                  className="absolute px-4 py-1.5 rounded-xl font-extrabold text-sm text-center pointer-events-none shadow-lg max-w-[88%] z-10"
                 >
                   {item.overlayText}
                 </div>
@@ -757,6 +990,17 @@
               alt={item.caption || "Sunset Vibes"}
               className={className}
             />
+          )}
+
+          {onOpenFullscreen && (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onOpenFullscreen(); }}
+              className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/75 border border-white/35 text-white text-xs font-extrabold flex items-center justify-center shadow-lg z-20 hover:scale-110 transition"
+              title="Ver en pantalla completa"
+            >
+              ⤢
+            </button>
           )}
 
           {showHeartBurst && (
@@ -778,14 +1022,15 @@
       const [partyState, setPartyState] = useState({});
       const [djSongs, setDjSongs] = useState([]);
       const [confessions, setConfessions] = useState([]);
+      const [destinyLetters, setDestinyLetters] = useState([]);
 
       // Navegación Principal
       const [activeTab, setActiveTab] = useState("feed"); // feed | search | party | chat | profile | admin
       const [feedFilter, setFeedFilter] = useState("recent"); // recent | trending | friends | challenge
       const [selectedChallengeFilter, setSelectedChallengeFilter] = useState(null);
-      const [partySubTab, setPartySubTab] = useState("dj"); // dj | secrets | mosaic
+      const [partySubTab, setPartySubTab] = useState("dj"); // dj | secrets | destiny | paparazzi | mosaic
       const [chatSubTab, setChatSubTab] = useState("group"); // group | private
-      const [adminSubTab, setAdminSubTab] = useState("controls"); // controls | guests | challenges
+      const [adminSubTab, setAdminSubTab] = useState("controls"); // controls | guests | challenges | godmode
       const [activeChatFriend, setActiveChatFriend] = useState(null);
       const [searchQuery, setSearchQuery] = useState("");
       const [quoteIndex, setQuoteIndex] = useState(0);
@@ -793,41 +1038,50 @@
       // Modales e Interacciones
       const [notifModalOpen, setNotifModalOpen] = useState(false);
       const [matchBoxOpen, setMatchBoxOpen] = useState(false);
+      const [destinyBoxOpen, setDestinyBoxOpen] = useState(false);
       const [viewedProfileUid, setViewedProfileUid] = useState(null);
       const [fullscreenPostId, setFullscreenPostId] = useState(null);
       const [likesViewerList, setLikesViewerList] = useState(null);
       const [storyViewsModal, setStoryViewsModal] = useState(null);
 
-      // Estado de Ruleta Sincronizada en las 100 Pantallas y Mosaico Final
+      // Estado de Ruleta Sincronizada (#4), Mosaico (#3) y Resumen Personal Wrapped (#2)
       const [wheelModalState, setWheelModalState] = useState({ open: false, spinning: false, displayIndex: 0, spinData: null });
       const [mosaicPosterImg, setMosaicPosterImg] = useState("");
       const [isGeneratingPoster, setIsGeneratingPoster] = useState(false);
+      const [wrappedModalOpen, setWrappedModalOpen] = useState(false);
+      const [wrappedDataUrl, setWrappedDataUrl] = useState("");
+      const [isGeneratingWrapped, setIsGeneratingWrapped] = useState(false);
       const lastSeenSpinIdRef = useRef(null);
 
-      // Inputs del Admin para Ruleta, Encuesta Relámpago y Anuncio Fijado
+      // Inputs del Admin para Ruleta, Encuesta Relámpago (#5) y Anuncio Fijado
       const [adminWheelPrize, setAdminWheelPrize] = useState("🍾 1 Trago VIP / Premio Sorpresa");
       const [adminPinInput, setAdminPinInput] = useState("");
       const [pollQuestionInput, setPollQuestionInput] = useState("");
       const [pollOpt1Input, setPollOpt1Input] = useState("");
       const [pollOpt2Input, setPollOpt2Input] = useState("");
       const [pollOpt3Input, setPollOpt3Input] = useState("");
+      const [adminEditExtra, setAdminEditExtra] = useState(null);
 
-      // Inputs de Cabina DJ y Confesiones Secretas
+      // Inputs de Cabina DJ, Confesiones Secretas, Cartas al Destino (#6) y Modo Paparazzi (#7)
       const [djSongTitle, setDjSongTitle] = useState("");
       const [djSongDedicated, setDjSongDedicated] = useState("");
       const [secretText, setSecretText] = useState("");
+      const [destinyTargetUser, setDestinyTargetUser] = useState("");
+      const [destinyMessage, setDestinyMessage] = useState("");
+      const [destinyIsAnon, setDestinyIsAnon] = useState(true);
+      const [paparazziTarget, setPaparazziTarget] = useState(null);
 
       // Modal de Recorte por Bordes de Posts ya subidos
       const [cropModalPost, setCropModalPost] = useState(null);
       const [borderCrop, setBorderCrop] = useState({ top: 0, bottom: 0, left: 0, right: 0 });
       const [isCroppingPost, setIsCroppingPost] = useState(false);
 
-      // Retos Secuenciales del 1 al 10
+      // Retos Secuenciales del 1 al 20
       const [challengeIndex, setChallengeIndex] = useState(0);
       const currentChallenge = PHOTO_CHALLENGES[challengeIndex];
 
       // Modales Generales
-      const [uploadModal, setUploadModal] = useState({ open: false, type: "post", withChallenge: false });
+      const [uploadModal, setUploadModal] = useState({ open: false, type: "post", withChallenge: false, isPaparazzi: false });
       const [qrModalOpen, setQrModalOpen] = useState(false);
       const [shareModalPost, setShareModalPost] = useState(null);
       const [editProfileModal, setEditProfileModal] = useState(false);
@@ -845,19 +1099,22 @@
       const [setupAvatar, setSetupAvatar] = useState("");
       const [setupError, setSetupError] = useState("");
 
-      // Estudio de Subida con Herramientas en Botones + Arrastre de Texto y Stickers
+      // Estudio de Subida con Marcos (#1), Escala/Movimiento X/Y de Stickers y Texto
       const [rawMediaUrl, setRawMediaUrl] = useState("");
       const [rawVideoFile, setRawVideoFile] = useState(null);
       const [mediaType, setMediaType] = useState("image");
       const [videoDuration, setVideoDuration] = useState(0);
-      const [activeStudioTool, setActiveStudioTool] = useState(null); // 'crop' | 'filter' | 'text' | 'stickers'
+      const [activeStudioTool, setActiveStudioTool] = useState(null); // 'crop' | 'filter' | 'frame' | 'text' | 'stickers'
       const [uploadBorderCrop, setUploadBorderCrop] = useState({ top: 0, bottom: 0, left: 0, right: 0 });
       const [selectedFilter, setSelectedFilter] = useState(MEDIA_FILTERS[0]);
+      const [selectedFrame, setSelectedFrame] = useState(PHOTO_FRAMES[0]);
       const [overlayText, setOverlayText] = useState("");
       const [overlayColor, setOverlayColor] = useState(TEXT_COLORS[0]);
-      const [overlayYPos, setOverlayYPos] = useState(50);
+      const [overlayPos, setOverlayPos] = useState({ x: 50, y: 50 });
+      const [overlayScale, setOverlayScale] = useState(1);
       const [draggingText, setDraggingText] = useState(false);
       const [placedStickers, setPlacedStickers] = useState([]);
+      const [selectedStickerId, setSelectedStickerId] = useState(null);
       const [draggingStickerId, setDraggingStickerId] = useState(null);
       const previewBoxRef = useRef(null);
       const [caption, setCaption] = useState("");
@@ -875,12 +1132,14 @@
       const longPressTimerRef = useRef(null);
       const wasLongPressRef = useRef(false);
 
-      // Comentarios y Chat (con Reply y Foto en Chat)
+      // Comentarios y Chat (Con Long Press para Responder)
       const [commentInputs, setCommentInputs] = useState({});
+      const commentInputRefs = useRef({});
       const [chatText, setChatText] = useState("");
       const [replyingToMsg, setReplyingToMsg] = useState(null);
       const [chatImageUploading, setChatImageUploading] = useState(false);
       const chatEndRef = useRef(null);
+      const msgLongPressTimerRef = useRef(null);
 
       // Editar Perfil
       const [newProfileAvatar, setNewProfileAvatar] = useState("");
@@ -895,25 +1154,26 @@
       const prevMessagesLenRef = useRef(null);
       const prevNotifsLenRef = useRef(null);
 
-      // Botón "Atrás" del celular domesticado para cerrar ventanas en vez de salir de la web
+      // Botón "Atrás" del celular domesticado para cerrar modales sin salir de la web
       useEffect(() => {
         const handlePopState = () => {
           if (storyViewer.open) setStoryViewer(prev => ({ ...prev, open: false }));
           else if (fullscreenPostId) setFullscreenPostId(null);
+          else if (wrappedModalOpen) setWrappedModalOpen(false);
           else if (notifModalOpen) setNotifModalOpen(false);
           else if (editProfileModal) setEditProfileModal(false);
           else if (qrModalOpen) setQrModalOpen(false);
           else if (cropModalPost) setCropModalPost(null);
           else if (shareModalPost) setShareModalPost(null);
           else if (viewedProfileUid) setViewedProfileUid(null);
-          else if (uploadModal.open) setUploadModal({ open: false, type: "post", withChallenge: false });
+          else if (uploadModal.open) setUploadModal({ open: false, type: "post", withChallenge: false, isPaparazzi: false });
           else if (activeTab !== "feed") setActiveTab("feed");
           window.history.pushState({ sunset: true }, "");
         };
         window.history.pushState({ sunset: true }, "");
         window.addEventListener("popstate", handlePopState);
         return () => window.removeEventListener("popstate", handlePopState);
-      }, [storyViewer.open, fullscreenPostId, notifModalOpen, editProfileModal, qrModalOpen, cropModalPost, shareModalPost, viewedProfileUid, uploadModal.open, activeTab]);
+      }, [storyViewer.open, fullscreenPostId, wrappedModalOpen, notifModalOpen, editProfileModal, qrModalOpen, cropModalPost, shareModalPost, viewedProfileUid, uploadModal.open, activeTab]);
 
       const isStoryEffectivelyPaused = storyViewer.paused || storyMenuOpen || storyInputFocused || !!storyViewsModal;
       useEffect(() => { storyPausedRef.current = isStoryEffectivelyPaused; }, [isStoryEffectivelyPaused]);
@@ -956,24 +1216,25 @@
           setUsers(snap.docs.map(d => ({ id: d.id, ...d.data() })));
         });
 
-        const unsubPosts = onSnapshot(query(collection(db, "posts"), orderBy("createdAt", "desc"), limit(140)), (snap) => {
+        const unsubPosts = onSnapshot(query(collection(db, "posts"), orderBy("createdAt", "desc"), limit(150)), (snap) => {
           setPosts(snap.docs.map(d => ({ id: d.id, ...d.data() })));
         });
 
-        const unsubStories = onSnapshot(query(collection(db, "stories"), orderBy("createdAt", "asc"), limit(110)), (snap) => {
+        const unsubStories = onSnapshot(query(collection(db, "stories"), orderBy("createdAt", "asc"), limit(120)), (snap) => {
           setStories(snap.docs.map(d => ({ id: d.id, ...d.data() })));
         });
 
-        const unsubMessages = onSnapshot(query(collection(chatDb, "messages"), orderBy("createdAt", "desc"), limit(85)), (snap) => {
+        const unsubMessages = onSnapshot(query(collection(chatDb, "messages"), orderBy("createdAt", "desc"), limit(100)), (snap) => {
           const list = snap.docs.map(d => ({ id: d.id, ...d.data() })).reverse();
           setMessages(list);
         });
 
-        const unsubNotifs = onSnapshot(query(collection(chatDb, "notifications"), orderBy("createdAt", "desc"), limit(120)), (snap) => {
+        const unsubNotifs = onSnapshot(query(collection(chatDb, "notifications"), orderBy("createdAt", "desc"), limit(150)), (snap) => {
           const allNotifs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
           setNotifications(allNotifs.filter(n => !n.isPartyExtra));
           setDjSongs(allNotifs.filter(n => n.extraType === "dj_song"));
           setConfessions(allNotifs.filter(n => n.extraType === "secret_confession"));
+          setDestinyLetters(allNotifs.filter(n => n.extraType === "destiny_letter"));
           const stateDoc = allNotifs.find(n => n.extraType === "global_party_state");
           if (stateDoc && stateDoc.partyPayload) {
             setPartyState(stateDoc.partyPayload);
@@ -985,7 +1246,7 @@
         };
       }, [fbReady]);
 
-      // Sincronizar Ruleta en Vivo en las 100 Pantallas cuando el Admin la lanza
+      // Sincronizar Ruleta en Vivo en las 100 Pantallas (#4)
       useEffect(() => {
         const wheelSpin = partyState?.wheelSpin;
         if (!wheelSpin || !wheelSpin.id) return;
@@ -1077,15 +1338,37 @@
         return map;
       }, [users, posts]);
 
-      // Termómetro de Energía del Sunset
+      // Barra de Energía del Sunset: Empieza en 0% real y sube únicamente con la actividad de la fiesta
       const sunsetEnergyPct = useMemo(() => {
-        const totalInteractions = (posts.length * 4) + (stories.length * 3) + messages.length + (notifications.length * 2);
-        return Math.min(100, Math.max(12, Math.round((totalInteractions / 250) * 100)));
-      }, [posts.length, stories.length, messages.length, notifications.length]);
+        const totalLikes = posts.reduce((acc, p) => acc + (p.likes?.length || 0), 0);
+        const totalComments = posts.reduce((acc, p) => acc + (p.comments?.length || 0), 0);
+        const totalInteractions =
+          (posts.length * 3) +
+          (stories.length * 2) +
+          totalLikes +
+          totalComments +
+          messages.length +
+          djSongs.length +
+          confessions.length +
+          destinyLetters.length;
+        if (totalInteractions === 0) return 0;
+        return Math.min(100, Math.round((totalInteractions / 200) * 100));
+      }, [posts, stories.length, messages.length, djSongs.length, confessions.length, destinyLetters.length]);
 
+      // Notificaciones sin duplicados para el usuario actual
       const myNotifications = useMemo(() => {
         if (!currentUserDoc) return [];
-        return notifications.filter(n => n.toUid === currentUserDoc.uid);
+        const raw = notifications.filter(n => n.toUid === currentUserDoc.uid);
+        const seenKeys = new Set();
+        const deduped = [];
+        for (const n of raw) {
+          const key = `${n.fromUid}_${n.type}_${n.postId || ""}_${n.storyId || ""}_${n.text}`;
+          if (!seenKeys.has(key)) {
+            seenKeys.add(key);
+            deduped.push(n);
+          }
+        }
+        return deduped;
       }, [notifications, currentUserDoc]);
 
       const unreadBellCount = useMemo(() => myNotifications.filter(n => !n.read).length, [myNotifications]);
@@ -1100,6 +1383,11 @@
         const list = Array.isArray(currentUserDoc.matchesReceived) ? currentUserDoc.matchesReceived : [];
         return list.find(m => m.status === "pending") || null;
       }, [currentUserDoc]);
+
+      const myReceivedDestinyLetters = useMemo(() => {
+        if (!currentUserDoc) return [];
+        return destinyLetters.filter(l => l.toUid === currentUserDoc.uid);
+      }, [destinyLetters, currentUserDoc]);
 
       // Alerta Externa con Sonido Real + Vibración + Notificación del Sistema
       const triggerExternalAlert = (title, bodyText, soundType = "bell") => {
@@ -1131,37 +1419,57 @@
             id: Date.now(),
             icon: "🔔",
             title: "¡Alertas y Sonido Activados!",
-            text: "Te avisaremos con sonido cuando recibas un Match o mensaje.",
+            text: "Te avisaremos con sonido cuando recibas un Match, Carta o mensaje.",
             action: () => setInAppToast(null)
           });
         }
       };
 
-      const sendNotification = async ({ toUid, type, text, postId = null, storyUserId = null, status = null }) => {
+      // Envío de Notificaciones con ID Determinístico para que NUNCA se repitan
+      const sendNotification = async ({ toUid, type, text, postId = null, storyId = null, storyUserId = null, status = null, customDocId = null }) => {
         if (!currentUserDoc || !window.FB || !toUid || toUid === currentUserDoc.uid) return;
-        const { chatDb, collection, addDoc } = window.FB;
+        const { chatDb, collection, doc, setDoc, addDoc } = window.FB;
+        const payload = {
+          toUid,
+          fromUid: currentUserDoc.uid,
+          fromUsername: currentUserDoc.username,
+          fromAvatar: currentUserDoc.avatar,
+          type,
+          text,
+          postId,
+          storyId,
+          storyUserId,
+          status: status || "info",
+          read: false,
+          createdAt: Date.now()
+        };
+
         try {
-          await addDoc(collection(chatDb, "notifications"), {
-            toUid,
-            fromUid: currentUserDoc.uid,
-            fromUsername: currentUserDoc.username,
-            fromAvatar: currentUserDoc.avatar,
-            type,
-            text,
-            postId,
-            storyUserId,
-            status: status || "info",
-            read: false,
-            createdAt: Date.now()
-          });
+          if (customDocId) {
+            await setDoc(doc(chatDb, "notifications", customDocId), payload, { merge: true });
+          } else if (type === "like" && postId) {
+            const deterministicId = `like_${currentUserDoc.uid}_${postId}`;
+            await setDoc(doc(chatDb, "notifications", deterministicId), payload, { merge: true });
+          } else if (type === "reaction" && postId) {
+            const deterministicId = `react_${currentUserDoc.uid}_${postId}`;
+            await setDoc(doc(chatDb, "notifications", deterministicId), payload, { merge: true });
+          } else if (type === "story_reaction" && storyId) {
+            const deterministicId = `streact_${currentUserDoc.uid}_${storyId}`;
+            await setDoc(doc(chatDb, "notifications", deterministicId), payload, { merge: true });
+          } else if (type === "friend_request") {
+            const deterministicId = `freq_${currentUserDoc.uid}_${toUid}`;
+            await setDoc(doc(chatDb, "notifications", deterministicId), payload, { merge: true });
+          } else {
+            await addDoc(collection(chatDb, "notifications"), payload);
+          }
         } catch (e) {}
       };
 
       const notifyMentionedUsers = (rawText, contextLabel, postId = null) => {
         if (!rawText || !currentUserDoc) return;
         const matches = rawText.match(/@([a-zA-Z0-9_]+)/g) || [];
-        matches.forEach(m => {
-          const clean = m.slice(1).toLowerCase();
+        const uniqueMentions = Array.from(new Set(matches.map(m => m.slice(1).toLowerCase())));
+        uniqueMentions.forEach(clean => {
           const target = users.find(u => (u.username || "").toLowerCase() === clean);
           if (target && target.uid !== currentUserDoc.uid) {
             sendNotification({
@@ -1302,31 +1610,53 @@
         }
       };
 
+      // Reacciones y Respuestas en Historias (Guarda reacción en la historia, envía mensaje y notifica sin duplicar)
       const handleSendStoryReply = async (e, storyGroup, storyItem, quickEmoji = null) => {
         if (e) e.preventDefault();
         const textToSend = quickEmoji || storyReplyText.trim();
         if (!textToSend || !currentUserDoc || !window.FB) return;
-        const { chatDb, collection, addDoc } = window.FB;
-        const chatKey = [currentUserDoc.uid, storyGroup.userId].sort().join("__");
+        const { db, chatDb, collection, doc, addDoc, updateDoc } = window.FB;
 
         try {
-          await addDoc(collection(chatDb, "messages"), {
-            chatKey,
-            senderId: currentUserDoc.uid,
-            senderName: currentUserDoc.username,
-            senderAvatar: currentUserDoc.avatar,
-            receiverId: storyGroup.userId,
-            text: `Respondió a tu historia: "${textToSend}"`,
-            sharedMediaUrl: storyItem.mediaUrl,
-            sharedMediaType: storyItem.mediaType || "image",
-            createdAt: Date.now()
-          });
+          if (quickEmoji) {
+            const currentReacts = storyItem.reactions ? { ...storyItem.reactions } : {};
+            const arr = Array.isArray(currentReacts[quickEmoji]) ? [...currentReacts[quickEmoji]] : [];
+            if (!arr.includes(currentUserDoc.uid)) arr.push(currentUserDoc.uid);
+            currentReacts[quickEmoji] = arr;
+            await updateDoc(doc(db, "stories", storyItem.id), { reactions: currentReacts }).catch(() => {});
+
+            if (storyGroup.userId !== currentUserDoc.uid) {
+              await sendNotification({
+                toUid: storyGroup.userId,
+                type: "story_reaction",
+                text: `reaccionó con ${quickEmoji} a tu historia.`,
+                storyId: storyItem.id,
+                storyUserId: storyGroup.userId
+              });
+            }
+          } else if (storyGroup.userId !== currentUserDoc.uid) {
+            const chatKey = [currentUserDoc.uid, storyGroup.userId].sort().join("__");
+            await addDoc(collection(chatDb, "messages"), {
+              chatKey,
+              senderId: currentUserDoc.uid,
+              senderName: currentUserDoc.username,
+              senderAvatar: currentUserDoc.avatar,
+              receiverId: storyGroup.userId,
+              text: `Respondió a tu historia: "${textToSend}"`,
+              sharedMediaUrl: storyItem.mediaUrl,
+              sharedMediaType: storyItem.mediaType || "image",
+              createdAt: Date.now()
+            });
+            notifyMentionedUsers(textToSend, "una respuesta de historia");
+          }
+
+          if (navigator.vibrate) navigator.vibrate(40);
           setStoryReplyText("");
           setStoryInputFocused(false);
           setInAppToast({
             id: Date.now(),
-            icon: "✅",
-            title: `Enviado a @${storyGroup.userName}`,
+            icon: quickEmoji || "✅",
+            title: quickEmoji ? `Reaccionaste con ${quickEmoji}` : `Enviado a @${storyGroup.userName}`,
             text: textToSend,
             action: () => setInAppToast(null)
           });
@@ -1364,7 +1694,7 @@
         };
       }, [currentUserDoc?.uid]);
 
-      // Detector de Mensajes y Notificaciones Entrantes (Dispara Sonido + Vibración + Alerta Externa)
+      // Detector de Mensajes y Notificaciones Entrantes
       useEffect(() => {
         if (!currentUserDoc) return;
         const realMessages = messages.filter(m => m.chatKey !== "LIVE_PARTY_STATE");
@@ -1408,7 +1738,7 @@
         if (prevNotifsLenRef.current !== null && myNotifications.length > prevNotifsLenRef.current) {
           const newest = myNotifications[0];
           if (newest && !newest.read) {
-            const isMatch = newest.type?.includes("match");
+            const isMatch = newest.type?.includes("match") || newest.type === "destiny_letter";
             triggerExternalAlert(
               `🌅 Sunset Vibes • @${newest.fromUsername}`,
               newest.text,
@@ -1416,7 +1746,7 @@
             );
             setInAppToast({
               id: Date.now(),
-              icon: isMatch ? "🔥" : "🔔",
+              icon: isMatch ? "💌" : "🔔",
               title: `@${newest.fromUsername}`,
               text: newest.text,
               action: () => {
@@ -1459,7 +1789,7 @@
         setChallengeIndex((prev) => (prev + 1) % PHOTO_CHALLENGES.length);
       };
       // ====================================================================
-      // CONTROLES EXCLUSIVOS DEL SUPER ADMIN (RULETA, ENCUESTA #6 Y MOSAICO #4)
+      // CONTROLES EXCLUSIVOS DEL SUPER ADMIN (RULETA, ENCUESTA #5, MOSAICO #3, MODO DIOS)
       // ====================================================================
       const saveGlobalPartyState = async (newPartialState) => {
         if (!isAdmin || !window.FB) return;
@@ -1571,7 +1901,35 @@
         }
       };
 
-      // Cabina DJ (Con soporte de arrobar @usuario y notificarle) + Confesiones Anónimas
+      // Resumen Personal — Sunset Wrapped (#2)
+      const handleOpenMyWrapped = async () => {
+        if (!currentUserDoc) return;
+        setWrappedModalOpen(true);
+        setIsGeneratingWrapped(true);
+        try {
+          const myP = posts.filter(p => p.userId === currentUserDoc.uid);
+          const myL = myP.reduce((s, p) => s + (p.likes?.length || 0), 0);
+          const myF = (currentUserDoc.friends || []).length;
+          const myM = (currentUserDoc.matchesReceived || []).length;
+          const url = await generatePersonalWrappedDataUrl(currentUserDoc, myP, myL, myF, myM);
+          setWrappedDataUrl(url);
+        } catch (e) {}
+        finally {
+          setIsGeneratingWrapped(false);
+        }
+      };
+
+      const handleDownloadMyWrapped = () => {
+        if (!wrappedDataUrl) return;
+        const a = document.createElement("a");
+        a.href = wrappedDataUrl;
+        a.download = `Sunset-Wrapped-${currentUserDoc?.username || "invitado"}.jpg`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      };
+
+      // Cabina DJ, Confesiones Anónimas (Con autor real para Admin), Cartas al Destino (#6) y Modo Paparazzi (#7)
       const handleAddDjSong = async (e) => {
         e.preventDefault();
         if (!djSongTitle.trim() || !currentUserDoc || !window.FB) return;
@@ -1622,12 +1980,15 @@
           await window.FB.addDoc(window.FB.collection(window.FB.chatDb, "notifications"), {
             isPartyExtra: true,
             extraType: "secret_confession",
+            fromUid: currentUserDoc.uid,
+            fromUsername: currentUserDoc.username,
+            fromAvatar: currentUserDoc.avatar,
             alias,
             text: secretText.trim(),
             fires: [],
             createdAt: Date.now()
           });
-          notifyMentionedUsers(secretText.trim(), "una Confesión Anónima 🤫");
+          notifyMentionedUsers(secretText.trim(), "una Confesión del Sunset 🤫");
           setSecretText("");
         } catch (e) {}
       };
@@ -1642,13 +2003,88 @@
         } catch (e) {}
       };
 
+      // Buzón de Cartas al Destino (#6)
+      const handleSendDestinyLetter = async (e) => {
+        e.preventDefault();
+        if (!destinyTargetUser.trim() || !destinyMessage.trim() || !currentUserDoc || !window.FB) return;
+        const cleanTarget = destinyTargetUser.trim().replace(/^@/, "").toLowerCase();
+        const targetObj = users.find(u => (u.username || "").toLowerCase() === cleanTarget);
+        if (!targetObj) {
+          alert(`No encontramos a @${cleanTarget} en la lista de invitados.`);
+          return;
+        }
+        try {
+          await window.FB.addDoc(window.FB.collection(window.FB.chatDb, "notifications"), {
+            isPartyExtra: true,
+            extraType: "destiny_letter",
+            fromUid: currentUserDoc.uid,
+            fromUsername: currentUserDoc.username,
+            fromAvatar: currentUserDoc.avatar,
+            toUid: targetObj.uid,
+            toUsername: targetObj.username,
+            isAnonymous: destinyIsAnon,
+            text: destinyMessage.trim(),
+            createdAt: Date.now()
+          });
+          await sendNotification({
+            toUid: targetObj.uid,
+            type: "destiny_letter",
+            text: `💌 ¡Recibiste una Carta al Destino ${destinyIsAnon ? "secreta" : `de @${currentUserDoc.username}`}! Ábrela en la pestaña Fiesta o en tu Perfil.`
+          });
+          notifyMentionedUsers(destinyMessage.trim(), "una Carta al Destino 💌");
+          setDestinyTargetUser("");
+          setDestinyMessage("");
+          setInAppToast({
+            id: Date.now(),
+            icon: "💌",
+            title: `¡Carta enviada a @${targetObj.username}!`,
+            text: destinyIsAnon ? "Enviada en modo secreto" : `Firmada por @${currentUserDoc.username}`,
+            action: () => setInAppToast(null)
+          });
+        } catch (e) {}
+      };
+
+      // Modo Paparazzi In Fraganti (#7)
+      const handleAssignPaparazziTarget = () => {
+        const others = users.filter(u => u.username && u.uid !== currentUserDoc?.uid);
+        if (others.length === 0) {
+          alert("Espera a que haya más invitados conectados para asignarte un objetivo.");
+          return;
+        }
+        const chosen = others[Math.floor(Math.random() * others.length)];
+        setPaparazziTarget(chosen);
+      };
+
+      // Borrar o Editar cualquier elemento extra (DJ, Confesiones, Cartas, Notificaciones) por el Admin
+      const handleAdminDeleteExtraDoc = async (docId) => {
+        if (!isAdmin || !window.FB) return;
+        if (!confirm("¿Eliminar este registro permanentemente?")) return;
+        try {
+          await window.FB.deleteDoc(window.FB.doc(window.FB.chatDb, "notifications", docId));
+        } catch (e) {}
+      };
+
+      const handleAdminSaveExtraDoc = async (e) => {
+        e.preventDefault();
+        if (!isAdmin || !adminEditExtra || !window.FB) return;
+        const payload = {};
+        if (adminEditExtra.songTitle !== undefined) payload.songTitle = adminEditExtra.songTitle;
+        if (adminEditExtra.dedicatedTo !== undefined) payload.dedicatedTo = adminEditExtra.dedicatedTo;
+        if (adminEditExtra.text !== undefined) payload.text = adminEditExtra.text;
+        try {
+          await window.FB.updateDoc(window.FB.doc(window.FB.chatDb, "notifications", adminEditExtra.id), payload);
+          setAdminEditExtra(null);
+        } catch (e) {}
+      };
+
       const handleSendQuickWink = async (targetUser, winkLabel) => {
         if (!currentUserDoc || !targetUser) return;
         await sendNotification({
           toUid: targetUser.uid,
           type: "wink",
           text: `te envió un toque en la fiesta: "${winkLabel}"`,
-          status: "info"
+          status: "info",
+          customDocId: `wink_${currentUserDoc.uid}_${targetUser.uid}`
         });
         setInAppToast({
           id: Date.now(),
@@ -1734,14 +2170,16 @@
               toUid: notif.fromUid,
               type: "friend_accepted",
               text: `aceptó tu solicitud de amistad. ¡Ya son amigos y pueden chatear en privado! 🎉`,
-              status: "info"
+              status: "info",
+              customDocId: `facc_${currentUserDoc.uid}_${notif.fromUid}`
             });
           } else {
             await sendNotification({
               toUid: notif.fromUid,
               type: "friend_denied",
               text: `denegó la solicitud de amistad.`,
-              status: "info"
+              status: "info",
+              customDocId: `fden_${currentUserDoc.uid}_${notif.fromUid}`
             });
           }
         } catch (e) {}
@@ -1772,7 +2210,8 @@
             toUid: targetUser.uid,
             type: "match_received",
             text: `🔥 ¡Te dio un Fuego de Match en tu perfil! Entra a tu perfil para abrir tu Carta Especial.`,
-            status: "info"
+            status: "info",
+            customDocId: `match_${currentUserDoc.uid}_${targetUser.uid}`
           });
           playNotificationSound("match");
           setInAppToast({
@@ -1804,7 +2243,8 @@
               toUid: matchEntry.fromUid,
               type: "match_accepted",
               text: `🔥💖 ¡Aceptó tu Carta de Match! Ahora son amigos oficialmente y tienen el chat privado habilitado.`,
-              status: "info"
+              status: "info",
+              customDocId: `macc_${currentUserDoc.uid}_${matchEntry.fromUid}`
             });
             playNotificationSound("match");
             setInAppToast({
@@ -1827,7 +2267,8 @@
               toUid: matchEntry.fromUid,
               type: "match_denied",
               text: `vio tu carta de Match pero decidió pasar por ahora.`,
-              status: "info"
+              status: "info",
+              customDocId: `mden_${currentUserDoc.uid}_${matchEntry.fromUid}`
             });
           }
         } catch (e) {}
@@ -1978,7 +2419,7 @@
       };
 
       // ====================================================================
-      // ESTUDIO DE SUBIDA (RECORTE 4 BORDES EN VIVO, FILTROS, TEXTO MOVIBLE, STICKERS)
+      // ESTUDIO DE SUBIDA (MARCOS #1, RECORTE 4 BORDES, ESCALA Y MOVIMIENTO X/Y)
       // ====================================================================
       const resetUploadStudio = () => {
         setRawMediaUrl("");
@@ -1988,11 +2429,14 @@
         setActiveStudioTool(null);
         setUploadBorderCrop({ top: 0, bottom: 0, left: 0, right: 0 });
         setSelectedFilter(MEDIA_FILTERS[0]);
+        setSelectedFrame(PHOTO_FRAMES[0]);
         setOverlayText("");
         setOverlayColor(TEXT_COLORS[0]);
-        setOverlayYPos(50);
+        setOverlayPos({ x: 50, y: 50 });
+        setOverlayScale(1);
         setDraggingText(false);
         setPlacedStickers([]);
+        setSelectedStickerId(null);
         setDraggingStickerId(null);
         setCaption("");
         setMediaError("");
@@ -2001,17 +2445,27 @@
 
       const addStickerToCanvas = (emoji) => {
         const offset = (placedStickers.length * 8) % 36;
+        const newId = "st_" + Date.now() + "_" + Math.random().toString(36).slice(2, 5);
         setPlacedStickers(prev => [
           ...prev,
-          { id: "st_" + Date.now() + "_" + Math.random().toString(36).slice(2, 5), emoji, x: 35 + offset, y: 30 + offset }
+          { id: newId, emoji, x: 35 + offset, y: 30 + offset, scale: 1 }
         ]);
+        setSelectedStickerId(newId);
+      };
+
+      const updateSelectedStickerScale = (delta) => {
+        if (!selectedStickerId) return;
+        setPlacedStickers(prev =>
+          prev.map(st => st.id === selectedStickerId ? { ...st, scale: Math.max(0.4, Math.min(2.6, Math.round(((st.scale || 1) + delta) * 10) / 10)) } : st)
+        );
       };
 
       const removeStickerFromCanvas = (id) => {
         setPlacedStickers(prev => prev.filter(s => s.id !== id));
+        if (selectedStickerId === id) setSelectedStickerId(null);
       };
 
-      // Mover tanto Stickers como el Texto Superpuesto con el dedo en el lienzo
+      // Mover tanto Stickers como Texto en X e Y libremente con el dedo
       const handleCanvasPointerMove = (clientX, clientY) => {
         if (!previewBoxRef.current) return;
         const rect = previewBoxRef.current.getBoundingClientRect();
@@ -2023,7 +2477,7 @@
             prev.map(st => st.id === draggingStickerId ? { ...st, x: Math.round(xPct * 10) / 10, y: Math.round(yPct * 10) / 10 } : st)
           );
         } else if (draggingText) {
-          setOverlayYPos(Math.round(yPct));
+          setOverlayPos({ x: Math.round(xPct), y: Math.round(yPct) });
         }
       };
 
@@ -2071,9 +2525,11 @@
             const hdBakedDataUrl = await bakeEditedImage(rawMediaUrl, {
               filterCss: selectedFilter.css,
               borderCrop: uploadBorderCrop,
+              frameId: selectedFrame.id,
               overlayText,
               textColorObj: overlayColor,
-              textYPos: overlayYPos,
+              textPos: overlayPos,
+              textScale: overlayScale,
               stickers: placedStickers,
               maxDim: 1600,
               quality: 0.86
@@ -2085,9 +2541,11 @@
               finalCloudUrl = await bakeEditedImage(rawMediaUrl, {
                 filterCss: selectedFilter.css,
                 borderCrop: uploadBorderCrop,
+                frameId: selectedFrame.id,
                 overlayText,
                 textColorObj: overlayColor,
-                textYPos: overlayYPos,
+                textPos: overlayPos,
+                textScale: overlayScale,
                 stickers: placedStickers,
                 maxDim: 820,
                 quality: 0.74
@@ -2106,10 +2564,13 @@
             mediaType,
             videoDuration: mediaType === "video" ? videoDuration : null,
             filterId: mediaType === "video" ? selectedFilter.id : "normal",
+            frameId: mediaType === "video" ? selectedFrame.id : "none",
             borderCrop: mediaType === "video" ? uploadBorderCrop : { top: 0, bottom: 0, left: 0, right: 0 },
             overlayText: mediaType === "video" ? overlayText.trim() : "",
             overlayColorId: overlayColor.id,
-            overlayYPos,
+            overlayPos: overlayPos,
+            overlayYPos: overlayPos.y,
+            overlayScale: overlayScale,
             overlayStickers: mediaType === "video" ? placedStickers : [],
             caption: caption.trim(),
             createdAt: Date.now()
@@ -2128,14 +2589,31 @@
               });
             });
           } else {
+            const chTitle = uploadModal.isPaparazzi && paparazziTarget
+              ? `📸 Paparazzi In Fraganti: @${paparazziTarget.username}`
+              : uploadModal.withChallenge
+                ? `${currentChallenge.emoji} ${currentChallenge.title}`
+                : null;
+
             const createdDoc = await addDoc(collection(db, "posts"), {
               ...basePayload,
               challengeId: uploadModal.withChallenge ? currentChallenge.id : null,
-              challengeTitle: uploadModal.withChallenge ? `${currentChallenge.emoji} ${currentChallenge.title}` : null,
+              challengeTitle: chTitle,
               likes: [],
               reactions: {},
               comments: []
             });
+
+            if (uploadModal.isPaparazzi && paparazziTarget) {
+              sendNotification({
+                toUid: paparazziTarget.uid,
+                type: "paparazzi",
+                text: `📸 ¡Te capturó en modo Paparazzi In Fraganti en el Muro!`,
+                postId: createdDoc.id
+              });
+              setPaparazziTarget(null);
+            }
+
             notifyMentionedUsers(caption.trim(), "una publicación", createdDoc.id);
             myFriendsList.forEach(friendUid => {
               sendNotification({
@@ -2148,7 +2626,7 @@
           }
 
           resetUploadStudio();
-          setUploadModal({ open: false, type: "post", withChallenge: false });
+          setUploadModal({ open: false, type: "post", withChallenge: false, isPaparazzi: false });
         } catch (err) {
           setMediaError(err.message || "Error al subir el archivo.");
         } finally {
@@ -2320,16 +2798,88 @@
         } catch (e) {}
       };
 
+      // BORRADO EN CASCADA TOTAL DE UN INVITADO POR EL SUPER ADMIN (Borra usuario, posts, stories, chats, notificaciones, likes, comentarios, matches)
       const handleAdminDeleteUser = async (targetUser) => {
         if (!isAdmin || !window.FB) return;
-        if (!confirm(`¿Eliminar el perfil de @${targetUser.username} y todo su contenido?`)) return;
-        const { db, doc, deleteDoc } = window.FB;
+        if (!confirm(`⚠️ ¿Eliminar por completo a @${targetUser.username}? Se borrarán su perfil, sus fotos, historias, mensajes de chat, notificaciones, likes y comentarios en toda la app.`)) return;
+        const { db, chatDb, doc, deleteDoc, updateDoc, arrayRemove } = window.FB;
+        const tUid = targetUser.uid;
+
         try {
-          await deleteDoc(doc(db, "users", targetUser.uid));
-          posts.filter(p => p.userId === targetUser.uid).forEach(p => deleteDoc(doc(db, "posts", p.id)));
-          stories.filter(s => s.userId === targetUser.uid).forEach(s => deleteDoc(doc(db, "stories", s.id)));
-          if (viewedProfileUid === targetUser.uid) setViewedProfileUid(null);
+          // 1. Borrar documento de usuario
+          await deleteDoc(doc(db, "users", tUid));
+
+          // 2. Borrar todos sus posts y limpiar sus likes/comentarios en posts de otros
+          posts.forEach(p => {
+            if (p.userId === tUid) {
+              deleteDoc(doc(db, "posts", p.id)).catch(() => {});
+            } else {
+              const hasLike = (p.likes || []).includes(tUid);
+              const hasComm = (p.comments || []).some(c => c.userId === tUid);
+              if (hasLike || hasComm) {
+                const newLikes = (p.likes || []).filter(id => id !== tUid);
+                const newComms = (p.comments || []).filter(c => c.userId !== tUid);
+                updateDoc(doc(db, "posts", p.id), { likes: newLikes, comments: newComms }).catch(() => {});
+              }
+            }
+          });
+
+          // 3. Borrar todas sus historias
+          stories.filter(s => s.userId === tUid).forEach(s => {
+            deleteDoc(doc(db, "stories", s.id)).catch(() => {});
+          });
+
+          // 4. Borrar todos sus mensajes de chat (grupales y privados)
+          messages.filter(m => m.senderId === tUid || m.receiverId === tUid).forEach(m => {
+            deleteDoc(doc(chatDb, "messages", m.id)).catch(() => {});
+          });
+
+          // 5. Borrar todas sus notificaciones, canciones DJ, confesiones y cartas al destino
+          [...notifications, ...djSongs, ...confessions, ...destinyLetters]
+            .filter(n => n.fromUid === tUid || n.toUid === tUid)
+            .forEach(n => {
+              deleteDoc(doc(chatDb, "notifications", n.id)).catch(() => {});
+            });
+
+          // 6. Quitarlo de las listas de amigos y matches de los demás usuarios
+          users.forEach(u => {
+            if (u.uid !== tUid) {
+              const inFriends = (u.friends || []).includes(tUid);
+              const inMatches = (u.matchesReceived || []).some(m => m.fromUid === tUid);
+              if (inFriends || inMatches) {
+                updateDoc(doc(db, "users", u.uid), {
+                  friends: arrayRemove(tUid),
+                  matchesReceived: (u.matchesReceived || []).filter(m => m.fromUid !== tUid)
+                }).catch(() => {});
+              }
+            }
+          });
+
+          if (viewedProfileUid === tUid) setViewedProfileUid(null);
+          setInAppToast({
+            id: Date.now(),
+            icon: "🗑️",
+            title: `@${targetUser.username} eliminado por completo`,
+            text: "Todos sus registros fueron limpiados de la base de datos.",
+            action: () => setInAppToast(null)
+          });
         } catch (e) {}
+      };
+
+      // Mantener apretado un mensaje en el chat para responder (Long Press)
+      const startMessageLongPress = (msg) => {
+        if (msgLongPressTimerRef.current) clearTimeout(msgLongPressTimerRef.current);
+        msgLongPressTimerRef.current = setTimeout(() => {
+          if (navigator.vibrate) navigator.vibrate(65);
+          setReplyingToMsg(msg);
+        }, 430);
+      };
+
+      const cancelMessageLongPress = () => {
+        if (msgLongPressTimerRef.current) {
+          clearTimeout(msgLongPressTimerRef.current);
+          msgLongPressTimerRef.current = null;
+        }
       };
 
       const handleSendMessage = async (e, customImgUrl = null) => {
@@ -2510,22 +3060,8 @@
         const q = searchQuery.trim().replace(/^@/, "").toLowerCase();
         return users.filter(u => u.username).filter(u => !q || u.username.toLowerCase().includes(q));
       }, [users, searchQuery]);
-
-      // Detector de autocompletado de @usuario en Dedicatorias del DJ
-      const djMentionQuery = useMemo(() => {
-        const m = djSongDedicated.match(/@([a-zA-Z0-9_]*)$/);
-        if (!m) return null;
-        return m[1].toLowerCase();
-      }, [djSongDedicated]);
-
-      const djMentionCandidates = useMemo(() => {
-        if (djMentionQuery === null) return [];
-        return users
-          .filter(u => u.username && u.username.toLowerCase().includes(djMentionQuery))
-          .slice(0, 6);
-      }, [users, djMentionQuery]);
       // ====================================================================
-      // RENDERIZADO VISUAL COMPLETO CON TODOS LOS MODALES ACTIVOS
+      // RENDERIZADO VISUAL COMPLETO Y DEFINITIVO
       // ====================================================================
       if (!authSession) {
         return (
@@ -2646,7 +3182,7 @@
       return (
         <div className="min-h-screen pb-24 max-w-lg mx-auto relative select-none">
 
-          {/* NOTIFICACIÓN FLOTANTE DENTRO DE LA APP */}
+          {/* NOTIFICACIÓN FLOTANTE */}
           {inAppToast && (
             <div onClick={inAppToast.action} className="fixed top-4 left-1/2 z-50 w-[92%] max-w-md cursor-pointer toast-enter light-surface rounded-2xl p-3.5 shadow-2xl border-2 border-burgundy-800 flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -2660,7 +3196,7 @@
             </div>
           )}
 
-          {/* MODAL RULETA EN VIVO EN LAS 100 PANTALLAS (LANZADA POR EL ADMIN) */}
+          {/* MODAL RULETA EN VIVO EN LAS 100 PANTALLAS (#4) */}
           {wheelModalState.open && (
             <div className="fixed inset-0 z-50 bg-black/92 backdrop-blur-md flex items-center justify-center p-4">
               <div className="match-card-letter rounded-3xl max-w-md w-full p-7 text-center space-y-5 border-2 border-amber-300 shadow-2xl">
@@ -2692,7 +3228,7 @@
                       />
                     </div>
                     <div>
-                      <p className="text-xs text-nude-200 uppercase font-bold">¡La ganadora o ganador es!</p>
+                      <p className="text-xs text-nude-200 uppercase font-bold">¡El ganadora o ganador es!</p>
                       <h2 className="text-2xl font-extrabold text-amber-300 mt-1">
                         @{wheelModalState.spinData?.winnerUsername} 👑
                       </h2>
@@ -2712,7 +3248,37 @@
             </div>
           )}
 
-          {/* BARRA SUPERIOR CON CAMPANITA (🔔), SONIDO (🔊) Y QR */}
+          {/* MODAL RESUMEN PERSONAL SUNSET WRAPPED (#2) */}
+          {wrappedModalOpen && (
+            <div className="fixed inset-0 z-50 bg-black/92 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+              <div className="glass-card rounded-3xl max-w-md w-full p-6 text-center space-y-4 my-auto border-2 border-nude-300">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-serif text-xl font-bold text-white">✨ Tu Resumen Sunset Wrapped</h3>
+                  <button onClick={() => setWrappedModalOpen(false)} className="text-nude-300 font-bold">✕</button>
+                </div>
+
+                {isGeneratingWrapped ? (
+                  <div className="py-16 space-y-3">
+                    <div className="w-12 h-12 rounded-full border-4 border-amber-300 border-t-transparent animate-spin mx-auto"></div>
+                    <p className="text-xs font-bold text-nude-200 animate-pulse">Generando tu tarjeta de recuerdo...</p>
+                  </div>
+                ) : wrappedDataUrl ? (
+                  <div className="space-y-4">
+                    <div className="rounded-2xl overflow-hidden border border-nude-300/40 max-h-[60vh] flex items-center justify-center bg-black">
+                      <img src={wrappedDataUrl} alt="Sunset Wrapped" className="w-full max-h-[60vh] object-contain" />
+                    </div>
+                    <button onClick={handleDownloadMyWrapped} className="w-full py-3.5 rounded-2xl nude-btn font-extrabold text-xs shadow-xl">
+                      💾 Descargar Tarjeta Wrapped (.JPG)
+                    </button>
+                  </div>
+                ) : (
+                  <p className="text-xs text-rose-300">No se pudo generar el resumen.</p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* BARRA SUPERIOR CON CAMPANITA (🔔), AUDIO (🔊) Y QR */}
           <header className="sticky top-0 z-30 glass-nav px-4 py-3 flex items-center justify-between border-b border-nude-300/25">
             <div onClick={() => { setViewedProfileUid(null); setActiveTab("feed"); }} className="flex items-center gap-2.5 cursor-pointer">
               <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-burgundy-800 via-rose-500 to-amber-300 p-0.5 flex items-center justify-center">
@@ -2757,12 +3323,12 @@
           </header>
 
           {/* ========================================================== */}
-          {/* PESTAÑA 1: MURO PRINCIPAL + TERMÓMETRO + ENCUESTA #6       */}
+          {/* PESTAÑA 1: MURO PRINCIPAL + TERMÓMETRO (ARRANCA EN 0%)      */}
           {/* ========================================================== */}
           {activeTab === "feed" && !viewedProfileUser && (
             <div className="p-4 space-y-5">
 
-              {/* Banner si el Admin ya activó el Mosaico de Fin de Fiesta (#4) */}
+              {/* Banner si el Admin ya activó el Mosaico de Fin de Fiesta (#3) */}
               {partyState?.mosaicActive && (
                 <div
                   onClick={() => { setActiveTab("party"); setPartySubTab("mosaic"); }}
@@ -2779,7 +3345,7 @@
                 </div>
               )}
 
-              {/* Termómetro de Energía del Sunset */}
+              {/* Termómetro de Energía del Sunset (Arranca en 0% real) */}
               <div className="glass-card rounded-2xl p-3.5 border border-amber-400/30 flex items-center gap-3">
                 <span className="text-2xl animate-pulse">🔥</span>
                 <div className="flex-1">
@@ -2793,7 +3359,7 @@
                 </div>
               </div>
 
-              {/* Encuesta Relámpago en Vivo del Admin (#6) */}
+              {/* Encuesta Relámpago en Vivo del Admin (#5) */}
               {partyState?.livePoll?.active && (
                 <div className="match-card-letter rounded-3xl p-5 space-y-3">
                   <div className="flex items-center justify-between">
@@ -2847,7 +3413,7 @@
                 <button
                   onClick={() => {
                     resetUploadStudio();
-                    setUploadModal({ open: true, type: "story", withChallenge: false });
+                    setUploadModal({ open: true, type: "story", withChallenge: false, isPaparazzi: false });
                   }}
                   className="flex flex-col items-center shrink-0"
                 >
@@ -2893,10 +3459,10 @@
                 <button onClick={() => { setFeedFilter("friends"); setSelectedChallengeFilter(null); }} className={`py-2 rounded-xl font-bold transition ${feedFilter === "friends" ? "nude-btn" : "text-nude-200"}`}>🥂 Amigos</button>
               </div>
 
-              {/* Retos Secuenciales (1 al 10) */}
+              {/* Retos Secuenciales (1 al 20) */}
               <div className="glass-card rounded-2xl p-4 border border-nude-300/40">
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-[10px] uppercase tracking-widest px-2.5 py-0.5 rounded-full nude-btn">Reto {challengeIndex + 1} de 10</span>
+                  <span className="text-[10px] uppercase tracking-widest px-2.5 py-0.5 rounded-full nude-btn">Reto {challengeIndex + 1} de 20</span>
                   <button onClick={nextSequentialChallenge} className="text-xs text-nude-200 font-bold underline hover:text-white">⏭️ Siguiente reto</button>
                 </div>
                 <h3 className="text-base font-bold text-white flex items-center gap-2 mt-1">
@@ -2904,8 +3470,8 @@
                 </h3>
                 <p className="text-xs text-nude-100 mt-1 mb-3">{currentChallenge.desc}</p>
                 <div className="grid grid-cols-2 gap-2">
-                  <button onClick={() => { resetUploadStudio(); setUploadModal({ open: true, type: "post", withChallenge: true }); }} className="py-2.5 px-3 rounded-xl nude-btn text-xs shadow">📸 Subir con Reto</button>
-                  <button onClick={() => { resetUploadStudio(); setUploadModal({ open: true, type: "post", withChallenge: false }); }} className="py-2.5 px-3 rounded-xl bg-burgundy-800 border border-nude-300/40 text-white font-bold text-xs">✨ Subir Libre</button>
+                  <button onClick={() => { resetUploadStudio(); setUploadModal({ open: true, type: "post", withChallenge: true, isPaparazzi: false }); }} className="py-2.5 px-3 rounded-xl nude-btn text-xs shadow">📸 Subir con Reto</button>
+                  <button onClick={() => { resetUploadStudio(); setUploadModal({ open: true, type: "post", withChallenge: false, isPaparazzi: false }); }} className="py-2.5 px-3 rounded-xl bg-burgundy-800 border border-nude-300/40 text-white font-bold text-xs">✨ Subir Libre</button>
                 </div>
               </div>
 
@@ -2968,6 +3534,7 @@
                           item={post}
                           className="w-full max-h-[460px] object-contain cursor-pointer"
                           onDoubleTapLike={() => toggleLike(post)}
+                          onOpenFullscreen={() => setFullscreenPostId(post.id)}
                         />
                       </div>
 
@@ -2978,7 +3545,20 @@
                               <span>{isLiked ? "❤️" : "🤍"}</span>
                               <span onClick={(e) => { e.stopPropagation(); setLikesViewerList(post.likes || []); }} className="hover:underline">{post.likes?.length || 0}</span>
                             </button>
-                            <button onClick={() => setFullscreenPostId(post.id)} className="flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-full bg-burgundy-900 border border-nude-300/35 text-nude-100">
+                            {/* Botón de Comentarios que lleva directo a la caja de comentarios */}
+                            <button
+                              onClick={() => {
+                                const inputRef = commentInputRefs.current[post.id];
+                                if (inputRef) {
+                                  inputRef.focus();
+                                  inputRef.scrollIntoView({ behavior: "smooth", block: "center" });
+                                } else {
+                                  setFullscreenPostId(post.id);
+                                }
+                              }}
+                              className="flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-full bg-burgundy-900 border border-nude-300/35 text-nude-100"
+                              title="Ir a comentar"
+                            >
                               <span>💬</span><span>{post.comments?.length || 0}</span>
                             </button>
                             <button onClick={() => setShareModalPost(post)} className="flex items-center gap-1 text-xs font-extrabold px-3 py-1.5 rounded-full nude-btn">
@@ -3031,9 +3611,25 @@
                           </div>
                         )}
 
-                        <div className="flex items-center gap-2 pt-1">
-                          <input type="text" placeholder="Comenta o etiqueta con @usuario..." value={commentInputs[post.id] || ""} onChange={(e) => setCommentInputs(prev => ({ ...prev, [post.id]: e.target.value }))} onKeyDown={(e) => e.key === "Enter" && handleAddComment(post.id)} className="flex-1 px-3.5 py-2 rounded-full bg-burgundy-950 border border-nude-300/35 text-xs text-white placeholder-nude-300/50 focus:outline-none" />
-                          <button onClick={() => handleAddComment(post.id)} className="px-4 py-2 rounded-full nude-btn text-xs">Comentar</button>
+                        <div className="pt-1">
+                          <MentionAutocompleteBar
+                            value={commentInputs[post.id] || ""}
+                            onChange={(newVal) => setCommentInputs(prev => ({ ...prev, [post.id]: newVal }))}
+                            users={users}
+                            label="Arrobar en comentario:"
+                          />
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="text"
+                              ref={(el) => { if (el) commentInputRefs.current[post.id] = el; }}
+                              placeholder="Escribe un comentario o etiqueta con @usuario..."
+                              value={commentInputs[post.id] || ""}
+                              onChange={(e) => setCommentInputs(prev => ({ ...prev, [post.id]: e.target.value }))}
+                              onKeyDown={(e) => e.key === "Enter" && handleAddComment(post.id)}
+                              className="flex-1 px-3.5 py-2 rounded-full bg-burgundy-950 border border-nude-300/35 text-xs text-white placeholder-nude-300/50 focus:outline-none"
+                            />
+                            <button onClick={() => handleAddComment(post.id)} className="px-4 py-2 rounded-full nude-btn text-xs">Comentar</button>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -3098,66 +3694,36 @@
           )}
 
           {/* ========================================================== */}
-          {/* PESTAÑA 3: FIESTA (CABINA DJ CON @USUARIO + CONFESIONES + MOSAICO #4) */}
+          {/* PESTAÑA 3: FIESTA (CABINA DJ, BUZÓN CARTAS #6, PAPARAZZI #7) */}
           {/* ========================================================== */}
           {activeTab === "party" && !viewedProfileUser && (
             <div className="p-4 space-y-4">
-              <div className="grid grid-cols-3 gap-1.5 bg-burgundy-950 p-1.5 rounded-2xl border border-nude-300/30 text-xs">
-                <button onClick={() => setPartySubTab("dj")} className={`py-2.5 rounded-xl font-bold transition ${partySubTab === "dj" ? "nude-btn shadow" : "text-nude-200"}`}>🎵 Cabina DJ</button>
-                <button onClick={() => setPartySubTab("secrets")} className={`py-2.5 rounded-xl font-bold transition ${partySubTab === "secrets" ? "nude-btn shadow" : "text-nude-200"}`}>🤫 Confesiones</button>
-                <button onClick={() => setPartySubTab("mosaic")} className={`py-2.5 rounded-xl font-bold transition ${partySubTab === "mosaic" ? "nude-btn shadow" : "text-nude-200"}`}>✨ Mosaico 100</button>
+              <div className="grid grid-cols-4 gap-1 bg-burgundy-950 p-1.5 rounded-2xl border border-nude-300/30 text-[11px]">
+                <button onClick={() => setPartySubTab("dj")} className={`py-2 rounded-xl font-bold transition ${partySubTab === "dj" ? "nude-btn shadow" : "text-nude-200"}`}>🎵 DJ</button>
+                <button onClick={() => setPartySubTab("secrets")} className={`py-2 rounded-xl font-bold transition ${partySubTab === "secrets" ? "nude-btn shadow" : "text-nude-200"}`}>🤫 Confes.</button>
+                <button onClick={() => setPartySubTab("destiny")} className={`py-2 rounded-xl font-bold transition ${partySubTab === "destiny" ? "nude-btn shadow" : "text-nude-200"}`}>💌 Cartas</button>
+                <button onClick={() => setPartySubTab("paparazzi")} className={`py-2 rounded-xl font-bold transition ${partySubTab === "paparazzi" ? "nude-btn shadow" : "text-nude-200"}`}>📸 Paparazzi</button>
               </div>
+
+              {/* Botón rápido para ir al Mosaico de Fin de Fiesta si está activo */}
+              {partyState?.mosaicActive && (
+                <div onClick={() => setPartySubTab("mosaic")} className="match-card-letter rounded-2xl p-3 flex items-center justify-between cursor-pointer">
+                  <span className="text-xs font-bold text-amber-300">✨ ¡Mosaico de Fin de Fiesta Disponible!</span>
+                  <span className="px-2.5 py-0.5 rounded-full bg-amber-300 text-[#090105] text-[10px] font-extrabold">Ver</span>
+                </div>
+              )}
 
               {partySubTab === "dj" && (
                 <div className="space-y-4">
                   <div className="glass-card rounded-3xl p-5 space-y-3">
                     <h3 className="font-serif text-xl font-bold text-white">🎵 Pedidos Musicales y Dedicatorias</h3>
-                    <p className="text-xs text-nude-200">
-                      Pide un tema para que suene en la fiesta y escribe <strong>@</strong> en la dedicatoria para etiquetar a cualquier invitado (le llegará notificación).
-                    </p>
-                    <form onSubmit={handleAddDjSong} className="space-y-2.5 relative">
-                      <input
-                        type="text"
-                        required
-                        placeholder="Canción y artista (ej. Tití Me Preguntó - Bad Bunny)"
-                        value={djSongTitle}
-                        onChange={(e) => setDjSongTitle(e.target.value)}
-                        className="w-full px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/40 text-xs text-white"
-                      />
-
-                      <div className="relative">
-                        <input
-                          type="text"
-                          placeholder="Dedicatoria (escribe @ para arrobar a un invitado)..."
-                          value={djSongDedicated}
-                          onChange={(e) => setDjSongDedicated(e.target.value)}
-                          className="w-full px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/40 text-xs text-white"
-                        />
-
-                        {/* Barra de Autocompletado de @usuario en Dedicatorias del DJ */}
-                        {djMentionCandidates.length > 0 && (
-                          <div className="mt-1.5 p-2 rounded-2xl bg-burgundy-900 border border-amber-300/50 shadow-2xl space-y-1">
-                            <p className="text-[10px] font-bold text-amber-300 px-1">Toca para arrobar en tu dedicatoria:</p>
-                            <div className="flex gap-2 overflow-x-auto no-scrollbar py-1">
-                              {djMentionCandidates.map(u => (
-                                <button
-                                  type="button"
-                                  key={u.uid}
-                                  onClick={() => {
-                                    const replaced = djSongDedicated.replace(/@([a-zA-Z0-9_]*)$/, `@${u.username} `);
-                                    setDjSongDedicated(replaced);
-                                  }}
-                                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-burgundy-950 border border-nude-300/40 shrink-0"
-                                >
-                                  <img src={u.avatar} alt="" className="w-5 h-5 rounded-full object-cover" />
-                                  <span className="text-xs font-bold text-white">@{u.username}</span>
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        )}
+                    <p className="text-xs text-nude-200">Pide un tema y usa <strong>@</strong> para etiquetar a cualquier invitado en tu dedicatoria.</p>
+                    <form onSubmit={handleAddDjSong} className="space-y-2.5">
+                      <input type="text" required placeholder="Canción y artista..." value={djSongTitle} onChange={(e) => setDjSongTitle(e.target.value)} className="w-full px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/40 text-xs text-white" />
+                      <div>
+                        <input type="text" placeholder="Dedicatoria (puedes usar @usuario)..." value={djSongDedicated} onChange={(e) => setDjSongDedicated(e.target.value)} className="w-full px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/40 text-xs text-white" />
+                        <MentionAutocompleteBar value={djSongDedicated} onChange={setDjSongDedicated} users={users} label="Arrobar en dedicatoria:" />
                       </div>
-
                       <button type="submit" className="w-full py-3 rounded-xl nude-btn text-xs shadow">Pedir Canción al DJ 🎶</button>
                     </form>
                   </div>
@@ -3175,9 +3741,16 @@
                                 💌 Dedicatoria: <RichMentionText text={song.dedicatedTo} users={users} onOpenProfile={openUserProfile} />
                               </p>
                             )}
-                            <button onClick={() => openUserProfile(song.fromUid)} className="text-[10px] text-nude-300 hover:underline">
-                              Pedido por @{song.fromUsername}
-                            </button>
+                            <div className="flex items-center gap-2">
+                              <button onClick={() => openUserProfile(song.fromUid)} className="text-[10px] text-nude-300 hover:underline">
+                                Pedido por @{song.fromUsername}
+                              </button>
+                              {isAdmin && (
+                                <button onClick={() => handleAdminDeleteExtraDoc(song.id)} className="text-[10px] text-rose-300 hover:underline">
+                                  [Borrar Admin]
+                                </button>
+                              )}
+                            </div>
                           </div>
                           <button onClick={() => handleVoteDjSong(song)} className={`px-3.5 py-2 rounded-xl text-xs font-extrabold flex items-center gap-1.5 shrink-0 transition ${hasVoted ? "bg-amber-300 text-[#090105]" : "bg-burgundy-900 text-white border border-nude-300/30"}`}>
                             <span>🔥</span><span>{votesArr.length}</span>
@@ -3192,10 +3765,11 @@
               {partySubTab === "secrets" && (
                 <div className="space-y-4">
                   <div className="glass-card rounded-3xl p-5 space-y-3">
-                    <h3 className="font-serif text-xl font-bold text-white">🤫 Buzón de Confesiones Anónimas</h3>
-                    <p className="text-xs text-nude-200">Envía un mensaje secreto o menciona a alguien con <strong>@usuario</strong>. Tu identidad real nunca se verá.</p>
+                    <h3 className="font-serif text-xl font-bold text-white">🤫 Confesiones Anónimas</h3>
+                    <p className="text-xs text-nude-200">Envía un mensaje secreto o menciona a alguien con <strong>@usuario</strong>. Para ti como Admin nada es oculto.</p>
                     <form onSubmit={handleAddSecretConfession} className="space-y-2.5">
-                      <textarea required rows="2" placeholder="Escribe tu confesión secreta (puedes usar @usuario)..." value={secretText} onChange={(e) => setSecretText(e.target.value)} className="w-full px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/40 text-xs text-white resize-none"></textarea>
+                      <textarea required rows="2" placeholder="Escribe tu confesión..." value={secretText} onChange={(e) => setSecretText(e.target.value)} className="w-full px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/40 text-xs text-white resize-none"></textarea>
+                      <MentionAutocompleteBar value={secretText} onChange={setSecretText} users={users} label="Arrobar en confesión:" />
                       <button type="submit" className="w-full py-3 rounded-xl nude-btn text-xs shadow">Publicar Anónimo 🤫</button>
                     </form>
                   </div>
@@ -3207,8 +3781,13 @@
                       return (
                         <div key={conf.id} className="glass-card rounded-2xl p-4 space-y-2 border border-nude-300/30">
                           <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-amber-300">{conf.alias || "🦊 Anónimo"}</span>
-                            <span className="text-[10px] text-nude-300">{formatRelativeTime(conf.createdAt)}</span>
+                            <span className="text-xs font-bold text-amber-300">
+                              {conf.alias || "🦊 Anónimo"} {isAdmin && conf.fromUsername && <span className="text-[10px] text-rose-300 font-normal">(Autor real: @{conf.fromUsername})</span>}
+                            </span>
+                            <div className="flex items-center gap-2">
+                              {isAdmin && <button onClick={() => handleAdminDeleteExtraDoc(conf.id)} className="text-[10px] text-rose-300">Borrar</button>}
+                              <span className="text-[10px] text-nude-300">{formatRelativeTime(conf.createdAt)}</span>
+                            </div>
                           </div>
                           <p className="text-sm text-white italic">
                             “<RichMentionText text={conf.text} users={users} onOpenProfile={openUserProfile} />”
@@ -3225,7 +3804,84 @@
                 </div>
               )}
 
-              {/* MOSAICO GIGANTE (#4): Solo visible cuando el Admin toca el botón para activarlo */}
+              {/* BUZÓN DE CARTAS AL DESTINO (#6) */}
+              {partySubTab === "destiny" && (
+                <div className="space-y-4">
+                  <div className="glass-card rounded-3xl p-5 space-y-3">
+                    <h3 className="font-serif text-xl font-bold text-white">💌 Buzón de Cartas al Destino</h3>
+                    <p className="text-xs text-nude-200">Manda una carta secreta o con tu firma a cualquier invitado. Le llegará a su campanita.</p>
+                    <form onSubmit={handleSendDestinyLetter} className="space-y-2.5">
+                      <div>
+                        <input type="text" required placeholder="Destinatario (@usuario)..." value={destinyTargetUser} onChange={(e) => setDestinyTargetUser(e.target.value)} className="w-full px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/40 text-xs text-white" />
+                        <MentionAutocompleteBar value={destinyTargetUser} onChange={setDestinyTargetUser} users={users} label="Seleccionar destinatario:" />
+                      </div>
+                      <textarea required rows="3" placeholder="Escribe tu carta o mensaje..." value={destinyMessage} onChange={(e) => setDestinyMessage(e.target.value)} className="w-full px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/40 text-xs text-white resize-none"></textarea>
+                      <MentionAutocompleteBar value={destinyMessage} onChange={setDestinyMessage} users={users} label="Arrobar en tu carta:" />
+                      <div className="flex items-center gap-2 pt-1">
+                        <input type="checkbox" id="anonCheck" checked={destinyIsAnon} onChange={(e) => setDestinyIsAnon(e.target.checked)} className="accent-nude-300 w-4 h-4" />
+                        <label htmlFor="anonCheck" className="text-xs text-nude-200 cursor-pointer">Enviar en modo 100% Anónimo</label>
+                      </div>
+                      <button type="submit" className="w-full py-3 rounded-xl nude-btn text-xs shadow">Enviar Carta al Destino 💌</button>
+                    </form>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    <h4 className="text-xs font-extrabold uppercase text-nude-300">Mis Cartas Recibidas ({myReceivedDestinyLetters.length})</h4>
+                    {myReceivedDestinyLetters.length === 0 ? (
+                      <p className="text-xs text-nude-200/70 glass-card p-5 rounded-2xl text-center">Todavía no has recibido ninguna Carta al Destino.</p>
+                    ) : (
+                      myReceivedDestinyLetters.map(l => (
+                        <div key={l.id} className="match-card-letter rounded-2xl p-4 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-extrabold text-amber-300">💌 Carta para @{l.toUsername}</span>
+                            <span className="text-[10px] text-nude-100">{formatRelativeTime(l.createdAt)}</span>
+                          </div>
+                          <p className="text-sm text-white italic">“{l.text}”</p>
+                          <p className="text-[10px] text-right font-bold text-nude-200">
+                            {l.isAnonymous ? "— De: 🦊 Alguien Secreto" : `— De: @${l.fromUsername}`}
+                          </p>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* MODO PAPARAZZI IN FRAGANTI (#7) */}
+              {partySubTab === "paparazzi" && (
+                <div className="glass-card rounded-3xl p-6 text-center space-y-4">
+                  <div className="w-16 h-16 rounded-full fire-match-btn mx-auto flex items-center justify-center text-3xl shadow-xl">📸</div>
+                  <h3 className="font-serif text-2xl font-bold text-white">Modo Paparazzi In Fraganti</h3>
+                  <p className="text-xs text-nude-200 leading-relaxed">
+                    Obtén un objetivo al azar de la fiesta, búscalo por el salón, sácale una foto desprevenido y súbela al muro con insignia especial de Paparazzi.
+                  </p>
+
+                  {paparazziTarget ? (
+                    <div className="p-4 rounded-2xl bg-burgundy-950 border border-amber-300/50 space-y-3">
+                      <p className="text-xs text-nude-200 uppercase font-bold">Tu Objetivo Asignado:</p>
+                      <div className="flex items-center justify-center gap-3">
+                        <img src={paparazziTarget.avatar} alt="" className="w-14 h-14 rounded-full object-cover border-2 border-amber-300" />
+                        <span className="text-xl font-extrabold text-amber-300">@{paparazziTarget.username}</span>
+                      </div>
+                      <button
+                        onClick={() => {
+                          resetUploadStudio();
+                          setUploadModal({ open: true, type: "post", withChallenge: false, isPaparazzi: true });
+                        }}
+                        className="w-full py-3 rounded-xl nude-btn font-extrabold text-xs shadow-lg"
+                      >
+                        📸 ¡Ya lo encontré! Sacar foto
+                      </button>
+                    </div>
+                  ) : (
+                    <button onClick={handleAssignPaparazziTarget} className="w-full py-3.5 rounded-xl nude-btn font-extrabold text-xs shadow-xl">
+                      🎲 Asignarme un Objetivo Paparazzi
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* MOSAICO GIGANTE (#3) */}
               {partySubTab === "mosaic" && (
                 <div className="glass-card rounded-3xl p-6 text-center space-y-5">
                   <div className="w-16 h-16 rounded-full nude-btn mx-auto flex items-center justify-center text-3xl shadow-xl">✨</div>
@@ -3236,7 +3892,7 @@
                       <p className="text-lg">🔒</p>
                       <p className="text-sm font-bold text-amber-300">Se desbloqueará al final de la fiesta</p>
                       <p className="text-xs text-nude-200">
-                        Sigue subiendo tus mejores fotos al muro. Cuando el organizador active el cierre de la fiesta, aquí aparecerá el Mosaico Oficial con los 100 invitados para descargar.
+                        Sigue subiendo fotos al muro. Cuando el organizador active el cierre, aquí aparecerá el Mosaico Oficial de los 100 invitados.
                       </p>
                     </div>
                   ) : (
@@ -3245,7 +3901,6 @@
                         ¡El Mosaico de Fin de Fiesta está activo! Aquí están los rostros y las mejores fotos de esta noche épica.
                       </p>
 
-                      {/* Cuadrícula Visual en Vivo */}
                       <div className="grid grid-cols-5 gap-1.5 p-3 rounded-2xl bg-burgundy-950 border border-amber-300/40 max-h-72 overflow-y-auto no-scrollbar">
                         {users.filter(u => u.username).map(u => (
                           <img key={u.uid} src={u.avatar} alt={u.username} onClick={() => openUserProfile(u.uid)} className="w-full h-14 object-cover rounded-lg border border-nude-300/30 cursor-pointer" />
@@ -3270,7 +3925,7 @@
           )}
 
           {/* ========================================================== */}
-          {/* PESTAÑA 4: CHAT GRUPAL Y PRIVADO                           */}
+          {/* PESTAÑA 4: CHAT GRUPAL Y PRIVADO (LONG PRESS PARA REPLY)     */}
           {/* ========================================================== */}
           {activeTab === "chat" && !viewedProfileUser && (
             <div className="p-4 space-y-4">
@@ -3288,7 +3943,7 @@
                   <div className="p-3.5 bg-burgundy-950 border-b border-nude-300/25 flex items-center justify-between">
                     <div>
                       <h3 className="text-sm font-bold text-white">🔥 Chat Grupal Sunset Vibes</h3>
-                      <p className="text-[10px] text-nude-300">Toca un mensaje para responderlo</p>
+                      <p className="text-[10px] text-nude-300">Mantén presionado un mensaje para responderlo</p>
                     </div>
                     <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-500/40 font-bold">
                       🟢 {users.filter(u => isUserOnline(u)).length} online
@@ -3315,8 +3970,11 @@
                             )}
 
                             <div
-                              onClick={() => setReplyingToMsg(m)}
-                              className={`max-w-[78%] px-3.5 py-2.5 rounded-2xl text-xs relative cursor-pointer ${
+                              onMouseDown={() => startMessageLongPress(m)}
+                              onTouchStart={() => startMessageLongPress(m)}
+                              onMouseUp={cancelMessageLongPress}
+                              onTouchEnd={cancelMessageLongPress}
+                              className={`max-w-[78%] px-3.5 py-2.5 rounded-2xl text-xs relative select-none ${
                                 isMine ? "light-surface font-semibold rounded-br-none" : "bg-burgundy-900 border border-nude-300/30 text-white rounded-bl-none"
                               }`}
                             >
@@ -3363,30 +4021,33 @@
                     </div>
                   )}
 
-                  <form onSubmit={handleSendMessage} className="p-3 bg-burgundy-950 flex gap-2 items-center border-t border-nude-300/20">
-                    <label className="cursor-pointer text-xl p-1" title="Enviar foto en el chat">
-                      <span>📷</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={async (e) => {
-                          const f = e.target.files?.[0];
-                          if (!f) return;
-                          setChatImageUploading(true);
-                          try {
-                            const compressed = await compressSimpleImage(f, 900);
-                            const cloudUrl = await uploadMediaFile(compressed, "image");
-                            await handleSendMessage(null, cloudUrl);
-                          } catch (err) { alert("No se pudo enviar la imagen."); }
-                          finally { setChatImageUploading(false); }
-                        }}
-                        className="hidden"
-                      />
-                    </label>
+                  <div className="p-3 bg-burgundy-950 border-t border-nude-300/20">
+                    <MentionAutocompleteBar value={chatText} onChange={setChatText} users={users} label="Arrobar en el chat:" />
+                    <form onSubmit={handleSendMessage} className="flex gap-2 items-center pt-1">
+                      <label className="cursor-pointer text-xl p-1" title="Enviar foto en el chat">
+                        <span>📷</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={async (e) => {
+                            const f = e.target.files?.[0];
+                            if (!f) return;
+                            setChatImageUploading(true);
+                            try {
+                              const compressed = await compressSimpleImage(f, 900);
+                              const cloudUrl = await uploadMediaFile(compressed, "image");
+                              await handleSendMessage(null, cloudUrl);
+                            } catch (err) { alert("No se pudo enviar la imagen."); }
+                            finally { setChatImageUploading(false); }
+                          }}
+                          className="hidden"
+                        />
+                      </label>
 
-                    <input type="text" placeholder={chatImageUploading ? "Subiendo foto..." : "Escribe un mensaje o @usuario..."} value={chatText} onChange={(e) => setChatText(e.target.value)} className="flex-1 px-4 py-2.5 rounded-full bg-burgundy-900 border border-nude-300/35 text-xs text-white focus:outline-none" />
-                    <button type="submit" className="px-5 py-2.5 rounded-full nude-btn text-xs">Enviar</button>
-                  </form>
+                      <input type="text" placeholder={chatImageUploading ? "Subiendo foto..." : "Escribe un mensaje o @usuario..."} value={chatText} onChange={(e) => setChatText(e.target.value)} className="flex-1 px-4 py-2.5 rounded-full bg-burgundy-900 border border-nude-300/35 text-xs text-white focus:outline-none" />
+                      <button type="submit" className="px-5 py-2.5 rounded-full nude-btn text-xs">Enviar</button>
+                    </form>
+                  </div>
                 </div>
               )}
 
@@ -3416,7 +4077,13 @@
                           const canDelMsg = isMine || isAdmin;
                           return (
                             <div key={m.id} className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
-                              <div onClick={() => setReplyingToMsg(m)} className={`max-w-[78%] px-3.5 py-2.5 rounded-2xl text-xs cursor-pointer ${isMine ? "light-surface font-semibold rounded-br-none" : "bg-burgundy-900 border border-nude-300/30 text-white rounded-bl-none"}`}>
+                              <div
+                                onMouseDown={() => startMessageLongPress(m)}
+                                onTouchStart={() => startMessageLongPress(m)}
+                                onMouseUp={cancelMessageLongPress}
+                                TOUCH-END={cancelMessageLongPress}
+                                className={`max-w-[78%] px-3.5 py-2.5 rounded-2xl text-xs select-none ${isMine ? "light-surface font-semibold rounded-br-none" : "bg-burgundy-900 border border-nude-300/30 text-white rounded-bl-none"}`}
+                              >
                                 <div className="flex items-center justify-between gap-3 mb-0.5">
                                   <button onClick={(e) => { e.stopPropagation(); openUserProfile(m.senderId); }} className={`text-[10px] font-extrabold hover:underline ${isMine ? "text-[#2E071B]" : "text-nude-300"}`}>@{m.senderName}</button>
                                   {canDelMsg && <button onClick={(e) => { e.stopPropagation(); handleDeleteMessage(m); }} className={`text-[10px] font-bold ${isMine ? "text-rose-800" : "text-rose-300"}`}>🗑️</button>}
@@ -3441,27 +4108,30 @@
                       <div ref={chatEndRef} />
                     </div>
 
-                    <form onSubmit={handleSendMessage} className="p-3 bg-burgundy-950 flex gap-2 items-center border-t border-nude-300/20">
-                      <label className="cursor-pointer text-xl p-1" title="Enviar foto">
-                        <span>📷</span>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={async (e) => {
-                            const f = e.target.files?.[0];
-                            if (!f) return;
-                            try {
-                              const compressed = await compressSimpleImage(f, 900);
-                              const cloudUrl = await uploadMediaFile(compressed, "image");
-                              await handleSendMessage(null, cloudUrl);
-                            } catch (err) { alert("Error al subir foto."); }
-                          }}
-                          className="hidden"
-                        />
-                      </label>
-                      <input type="text" placeholder={`Mensaje para @${activeChatFriend.username}...`} value={chatText} onChange={(e) => setChatText(e.target.value)} className="flex-1 px-4 py-2.5 rounded-full bg-burgundy-900 border border-nude-300/35 text-xs text-white focus:outline-none" />
-                      <button type="submit" className="px-5 py-2.5 rounded-full nude-btn text-xs">Enviar</button>
-                    </form>
+                    <div className="p-3 bg-burgundy-950 border-t border-nude-300/20">
+                      <MentionAutocompleteBar value={chatText} onChange={setChatText} users={users} label="Arrobar en chat privado:" />
+                      <form onSubmit={handleSendMessage} className="flex gap-2 items-center pt-1">
+                        <label className="cursor-pointer text-xl p-1" title="Enviar foto">
+                          <span>📷</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={async (e) => {
+                              const f = e.target.files?.[0];
+                              if (!f) return;
+                              try {
+                                const compressed = await compressSimpleImage(f, 900);
+                                const cloudUrl = await uploadMediaFile(compressed, "image");
+                                await handleSendMessage(null, cloudUrl);
+                              } catch (err) { alert("Error al subir foto."); }
+                            }}
+                            className="hidden"
+                          />
+                        </label>
+                        <input type="text" placeholder={`Mensaje para @${activeChatFriend.username}...`} value={chatText} onChange={(e) => setChatText(e.target.value)} className="flex-1 px-4 py-2.5 rounded-full bg-burgundy-900 border border-nude-300/35 text-xs text-white focus:outline-none" />
+                        <button type="submit" className="px-5 py-2.5 rounded-full nude-btn text-xs">Enviar</button>
+                      </form>
+                    </div>
                   </div>
                 ) : (
                   <div className="space-y-2.5">
@@ -3496,7 +4166,7 @@
           )}
 
           {/* ========================================================== */}
-          {/* PESTAÑA 5: MI PERFIL (CON SELECTOR DE VIBE Y RECORTE ✂️)    */}
+          {/* PESTAÑA 5: MI PERFIL (SUNSET WRAPPED #2 + CARTAS DESTINO)    */}
           {/* ========================================================== */}
           {activeTab === "profile" && !viewedProfileUser && (
             <div className="p-4 space-y-5">
@@ -3530,7 +4200,6 @@
                   ))}
                 </h2>
 
-                {/* Selector Rápido de Etiqueta de Vibe en 1 Toque */}
                 <div className="mt-3">
                   <p className="text-[10px] uppercase tracking-wider text-nude-300 font-bold mb-1.5">Tu Vibe actual en la fiesta (Toca para cambiar):</p>
                   <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1 justify-start">
@@ -3550,6 +4219,14 @@
                   </div>
                 </div>
 
+                {/* Botón para ver y descargar el Resumen Personal Wrapped (#2) */}
+                <button
+                  onClick={handleOpenMyWrapped}
+                  className="mt-4 w-full py-3 rounded-2xl fire-match-btn font-extrabold text-xs shadow-xl flex items-center justify-center gap-2"
+                >
+                  <span>✨ Ver Mi Resumen Personal (Sunset Wrapped)</span>
+                </button>
+
                 <button
                   onClick={() => {
                     setNewProfileUsername(currentUserDoc.username);
@@ -3559,9 +4236,9 @@
                     setProfileEditError("");
                     setEditProfileModal(true);
                   }}
-                  className="mt-4 px-5 py-2 rounded-full nude-btn text-xs shadow-lg"
+                  className="mt-3 px-5 py-2 rounded-full nude-btn text-xs shadow-lg"
                 >
-                  ✏️ Editar Foto / Usuario / Contraseña
+                  ✏️ Editar Perfil y Clave
                 </button>
 
                 <div className="grid grid-cols-4 gap-2 mt-5 pt-4 border-t border-nude-300/20">
@@ -3572,8 +4249,8 @@
                 </div>
 
                 <div className="grid grid-cols-2 gap-2.5 mt-5">
-                  <button onClick={() => { resetUploadStudio(); setUploadModal({ open: true, type: "post", withChallenge: false }); }} className="py-2.5 rounded-xl nude-btn text-xs shadow">+ Subir Post</button>
-                  <button onClick={() => { resetUploadStudio(); setUploadModal({ open: true, type: "story", withChallenge: false }); }} className="py-2.5 rounded-xl bg-burgundy-800 border border-nude-300/40 text-white font-bold text-xs">+ Subir Story</button>
+                  <button onClick={() => { resetUploadStudio(); setUploadModal({ open: true, type: "post", withChallenge: false, isPaparazzi: false }); }} className="py-2.5 rounded-xl nude-btn text-xs shadow">+ Subir Post</button>
+                  <button onClick={() => { resetUploadStudio(); setUploadModal({ open: true, type: "story", withChallenge: false, isPaparazzi: false }); }} className="py-2.5 rounded-xl bg-burgundy-800 border border-nude-300/40 text-white font-bold text-xs">+ Subir Story</button>
                 </div>
               </div>
 
@@ -3612,6 +4289,37 @@
                               if (fObj) { setActiveTab("chat"); setChatSubTab("private"); setActiveChatFriend(fObj); }
                             }} className="px-3 py-1.5 rounded-xl nude-btn text-[11px]">💬 Chatear</button>
                           )}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Buzón de Cartas al Destino en el Perfil */}
+              <div className="glass-card rounded-3xl p-4 border border-nude-300/40">
+                <button onClick={() => setDestinyBoxOpen(prev => !prev)} className="w-full flex items-center justify-between text-left">
+                  <div className="flex items-center gap-3">
+                    <div className="w-11 h-11 rounded-2xl nude-btn flex items-center justify-center text-xl shadow-lg">💌</div>
+                    <div>
+                      <h3 className="text-sm font-extrabold text-white">Cartas al Destino Recibidas ({myReceivedDestinyLetters.length})</h3>
+                      <p className="text-[11px] text-nude-200">Toca para {destinyBoxOpen ? "ocultar" : "leer tus cartas secretas"}</p>
+                    </div>
+                  </div>
+                  <span className="px-3 py-1 rounded-full bg-burgundy-950 border border-nude-300/30 text-xs font-bold text-nude-200">{destinyBoxOpen ? "▲ Cerrar" : "▼ Abrir"}</span>
+                </button>
+
+                {destinyBoxOpen && (
+                  <div className="mt-4 pt-3 border-t border-nude-300/20 space-y-2.5">
+                    {myReceivedDestinyLetters.length === 0 ? (
+                      <p className="text-xs text-nude-200/70 text-center py-3">Aún no tienes Cartas al Destino guardadas.</p>
+                    ) : (
+                      myReceivedDestinyLetters.map(l => (
+                        <div key={l.id} className="p-3 rounded-2xl bg-burgundy-950 border border-amber-300/40 space-y-1">
+                          <p className="text-xs text-white italic">“{l.text}”</p>
+                          <p className="text-[10px] text-right font-bold text-amber-300">
+                            {l.isAnonymous ? "— De: 🦊 Anónimo" : `— De: @${l.fromUsername}`}
+                          </p>
                         </div>
                       ))
                     )}
@@ -3658,46 +4366,47 @@
           )}
 
           {/* ========================================================== */}
-          {/* PESTAÑA 6: PANEL ADMIN (RULETA, ENCUESTA #6, MOSAICO #4, INVITADOS) */}
+          {/* PESTAÑA 6: PANEL ADMIN (OMNISCIENTE + BORRADO EN CASCADA)  */}
           {/* ========================================================== */}
           {activeTab === "admin" && isAdmin && !viewedProfileUser && (
             <div className="p-4 space-y-4">
               <div className="glass-card rounded-3xl p-5 border border-amber-300/50 space-y-4">
                 <div>
-                  <span className="text-[10px] uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-amber-300 text-[#090105] font-extrabold">Super Administrador</span>
-                  <h2 className="font-serif text-2xl font-bold text-white mt-1">Panel de Control de la Fiesta</h2>
+                  <span className="text-[10px] uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-amber-300 text-[#090105] font-extrabold">Super Admin (Modo Dios)</span>
+                  <h2 className="font-serif text-2xl font-bold text-white mt-1">Control Absoluto de la App</h2>
                 </div>
 
-                <div className="grid grid-cols-3 gap-1.5 bg-burgundy-950 p-1.5 rounded-2xl border border-nude-300/25 text-xs">
-                  <button onClick={() => setAdminSubTab("controls")} className={`py-2 rounded-xl font-extrabold ${adminSubTab === "controls" ? "nude-btn" : "text-nude-200"}`}>🎰 Show en Vivo</button>
-                  <button onClick={() => setAdminSubTab("guests")} className={`py-2 rounded-xl font-extrabold ${adminSubTab === "guests" ? "nude-btn" : "text-nude-200"}`}>👥 Invitados ({guestStats.length})</button>
-                  <button onClick={() => setAdminSubTab("challenges")} className={`py-2 rounded-xl font-extrabold ${adminSubTab === "challenges" ? "nude-btn" : "text-nude-200"}`}>🎯 Retos (10)</button>
+                <div className="grid grid-cols-4 gap-1 bg-burgundy-950 p-1.5 rounded-2xl border border-nude-300/25 text-[11px]">
+                  <button onClick={() => setAdminSubTab("controls")} className={`py-2 rounded-xl font-extrabold ${adminSubTab === "controls" ? "nude-btn" : "text-nude-200"}`}>🎰 En Vivo</button>
+                  <button onClick={() => setAdminSubTab("guests")} className={`py-2 rounded-xl font-extrabold ${adminSubTab === "guests" ? "nude-btn" : "text-nude-200"}`}>👥 Invitados</button>
+                  <button onClick={() => setAdminSubTab("challenges")} className={`py-2 rounded-xl font-extrabold ${adminSubTab === "challenges" ? "nude-btn" : "text-nude-200"}`}>🎯 Retos</button>
+                  <button onClick={() => setAdminSubTab("godmode")} className={`py-2 rounded-xl font-extrabold ${adminSubTab === "godmode" ? "nude-btn" : "text-nude-200"}`}>👁️ Ojo Dios</button>
                 </div>
 
                 {adminSubTab === "controls" && (
                   <div className="space-y-4 pt-2">
-                    {/* Lanzar Ruleta en las 100 Pantallas */}
+                    {/* Lanzar Ruleta en las 100 Pantallas (#4) */}
                     <div className="p-4 rounded-2xl bg-burgundy-950 border border-amber-400/40 space-y-3">
                       <h4 className="text-sm font-extrabold text-amber-300 flex items-center gap-2"><span>🎰</span> Ruleta de Regalos en Vivo (100 Pantallas)</h4>
-                      <input type="text" placeholder="Premio (ej. 🍾 1 Trago VIP en la barra)" value={adminWheelPrize} onChange={(e) => setAdminWheelPrize(e.target.value)} className="w-full px-3.5 py-2.5 rounded-xl bg-burgundy-900 border border-nude-300/35 text-xs text-white" />
+                      <input type="text" placeholder="Premio (ej. 🍾 1 Trago VIP)" value={adminWheelPrize} onChange={(e) => setAdminWheelPrize(e.target.value)} className="w-full px-3.5 py-2.5 rounded-xl bg-burgundy-900 border border-nude-300/35 text-xs text-white" />
                       <button onClick={handleAdminLaunchWheel} className="w-full py-3 rounded-xl fire-match-btn font-extrabold text-xs shadow-xl">
                         Lanzar Ruleta en Todos los Celulares 🚀
                       </button>
                     </div>
 
-                    {/* Lanzar Encuesta Relámpago (#6) */}
+                    {/* Lanzar Encuesta Relámpago (#5) */}
                     <form onSubmit={handleAdminLaunchPoll} className="p-4 rounded-2xl bg-burgundy-950 border border-nude-300/30 space-y-2.5">
                       <div className="flex items-center justify-between">
-                        <h4 className="text-sm font-extrabold text-white flex items-center gap-2"><span>⚡</span> Encuesta Relámpago (#6)</h4>
+                        <h4 className="text-sm font-extrabold text-white flex items-center gap-2"><span>⚡</span> Encuesta Relámpago (#5)</h4>
                         {partyState?.livePoll?.active && (
                           <button type="button" onClick={() => saveGlobalPartyState({ livePoll: { ...partyState.livePoll, active: false } })} className="text-[10px] text-rose-300 underline font-bold">
                             Cerrar encuesta actual
                           </button>
                         )}
                       </div>
-                      <input type="text" required placeholder="Pregunta (ej. ¿Qué música ponemos ahora?)" value={pollQuestionInput} onChange={(e) => setPollQuestionInput(e.target.value)} className="w-full px-3 py-2 rounded-xl bg-burgundy-900 border border-nude-300/30 text-xs text-white" />
-                      <input type="text" required placeholder="Opción 1 (ej. 🔥 Reggaetón Viejo)" value={pollOpt1Input} onChange={(e) => setPollOpt1Input(e.target.value)} className="w-full px-3 py-2 rounded-xl bg-burgundy-900 border border-nude-300/30 text-xs text-white" />
-                      <input type="text" required placeholder="Opción 2 (ej. 💃 Cachengue / Cumbia)" value={pollOpt2Input} onChange={(e) => setPollOpt2Input(e.target.value)} className="w-full px-3 py-2 rounded-xl bg-burgundy-900 border border-nude-300/30 text-xs text-white" />
+                      <input type="text" required placeholder="Pregunta (ej. ¿Qué música ponemos?)" value={pollQuestionInput} onChange={(e) => setPollQuestionInput(e.target.value)} className="w-full px-3 py-2 rounded-xl bg-burgundy-900 border border-nude-300/30 text-xs text-white" />
+                      <input type="text" required placeholder="Opción 1" value={pollOpt1Input} onChange={(e) => setPollOpt1Input(e.target.value)} className="w-full px-3 py-2 rounded-xl bg-burgundy-900 border border-nude-300/30 text-xs text-white" />
+                      <input type="text" required placeholder="Opción 2" value={pollOpt2Input} onChange={(e) => setPollOpt2Input(e.target.value)} className="w-full px-3 py-2 rounded-xl bg-burgundy-900 border border-nude-300/30 text-xs text-white" />
                       <input type="text" placeholder="Opción 3 (opcional)" value={pollOpt3Input} onChange={(e) => setPollOpt3Input(e.target.value)} className="w-full px-3 py-2 rounded-xl bg-burgundy-900 border border-nude-300/30 text-xs text-white" />
                       <button type="submit" className="w-full py-2.5 rounded-xl nude-btn text-xs font-extrabold">Publicar Encuesta en Vivo ⚡</button>
                     </form>
@@ -3705,13 +4414,13 @@
                     {/* Fijar Anuncio en el Muro */}
                     <div className="p-4 rounded-2xl bg-burgundy-950 border border-nude-300/30 space-y-2.5">
                       <h4 className="text-sm font-extrabold text-white flex items-center gap-2"><span>📌</span> Fijar Aviso en el Muro</h4>
-                      <input type="text" placeholder="Escribe un anuncio (o déjalo vacío para quitarlo)..." value={adminPinInput} onChange={(e) => setAdminPinInput(e.target.value)} className="w-full px-3 py-2 rounded-xl bg-burgundy-900 border border-nude-300/30 text-xs text-white" />
+                      <input type="text" placeholder="Escribe un anuncio..." value={adminPinInput} onChange={(e) => setAdminPinInput(e.target.value)} className="w-full px-3 py-2 rounded-xl bg-burgundy-900 border border-nude-300/30 text-xs text-white" />
                       <button onClick={() => saveGlobalPartyState({ pinnedAnnouncement: adminPinInput.trim() })} className="w-full py-2.5 rounded-xl nude-btn text-xs font-extrabold">Actualizar Anuncio 📌</button>
                     </div>
 
-                    {/* Activar Póster Mosaico de Fin de Fiesta (#4) */}
+                    {/* Activar Póster Mosaico de Fin de Fiesta (#3) */}
                     <div className="p-4 rounded-2xl bg-burgundy-950 border border-amber-400/40 space-y-2.5 text-center">
-                      <h4 className="text-sm font-extrabold text-amber-300">✨ Mosaico de Fin de Fiesta (#4)</h4>
+                      <h4 className="text-sm font-extrabold text-amber-300">✨ Mosaico de Fin de Fiesta (#3)</h4>
                       <p className="text-[11px] text-nude-200">
                         Estado actual: <strong>{partyState?.mosaicActive ? "✅ ACTIVO PARA TODOS" : "🔒 OCULTO HASTA EL FINAL"}</strong>
                       </p>
@@ -3739,9 +4448,9 @@
                           </div>
                         </button>
                         <div className="flex items-center gap-1.5">
-                          <button onClick={() => setAdminEditUser({ ...g })} className="px-2.5 py-1 rounded-lg bg-burgundy-800 text-xs text-nude-200 font-bold">✏️ Clave/Nombre</button>
+                          <button onClick={() => setAdminEditUser({ ...g })} className="px-2.5 py-1 rounded-lg bg-burgundy-800 text-xs text-nude-200 font-bold">✏️ Clave</button>
                           {g.uid !== currentUserDoc.uid && (
-                            <button onClick={() => handleAdminDeleteUser(g)} className="px-2.5 py-1 rounded-lg bg-rose-950 text-xs text-rose-200 font-bold">🗑️</button>
+                            <button onClick={() => handleAdminDeleteUser(g)} className="px-2.5 py-1 rounded-lg bg-rose-950 text-xs text-rose-200 font-bold" title="Borrar en cascada total">🗑️ Borrar</button>
                           )}
                         </div>
                       </div>
@@ -3766,13 +4475,47 @@
                     })}
                   </div>
                 )}
+
+                {/* MODO DIOS OMNISCIENTE: Ve los autores reales de confesiones anónimas y puede editarlas o borrarlas */}
+                {adminSubTab === "godmode" && (
+                  <div className="space-y-3 pt-2 text-xs">
+                    <p className="text-amber-300 font-bold">👁️ Ojo de Dios: Aquí puedes ver a los autores reales de cada confesión anónima y borrar cualquier contenido de la web.</p>
+
+                    <div className="space-y-2">
+                      <p className="font-extrabold uppercase text-nude-300">Confesiones Anónimas Activas:</p>
+                      {confessions.map(c => (
+                        <div key={c.id} className="p-3 rounded-2xl bg-burgundy-950 border border-amber-300/30 space-y-1">
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-amber-200">Autor real: @{c.fromUsername || "Desconocido"}</span>
+                            <div className="flex gap-2">
+                              <button onClick={() => setAdminEditExtra({ id: c.id, text: c.text })} className="text-nude-300 underline">Editar</button>
+                              <button onClick={() => handleAdminDeleteExtraDoc(c.id)} className="text-rose-300 underline">Borrar</button>
+                            </div>
+                          </div>
+                          <p className="text-white">“{c.text}”</p>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="space-y-2 pt-3">
+                      <p className="font-extrabold uppercase text-nude-300">Pedidos de la Cabina DJ:</p>
+                      {djSongs.map(s => (
+                        <div key={s.id} className="p-3 rounded-2xl bg-burgundy-950 border border-nude-300/30 flex items-center justify-between">
+                          <div>
+                            <p className="font-bold text-white">🎵 {s.songTitle} (De @{s.fromUsername})</p>
+                            {s.dedicatedTo && <p className="text-amber-200">Dedicatoria: {s.dedicatedTo}</p>}
+                          </div>
+                          <button onClick={() => handleAdminDeleteExtraDoc(s.id)} className="text-rose-300 underline font-bold">Borrar</button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}
 
-          {/* ========================================================== */}
-          {/* VISTA DE PERFIL DE OTRO INVITADO                           */}
-          {/* ========================================================== */}
+          {/* VISTA DE PERFIL DE OTRO INVITADO */}
           {viewedProfileUser && (
             <div className="p-4 space-y-5">
               <button onClick={() => setViewedProfileUid(null)} className="px-4 py-1.5 rounded-full nude-btn text-xs shadow">← Volver</button>
@@ -3833,7 +4576,7 @@
           )}
 
           {/* ========================================================== */}
-          {/* MODAL 1: CENTRO DE NOTIFICACIONES (🔔 CAMPANITA REPARADA)  */}
+          {/* MODAL 1: CENTRO DE NOTIFICACIONES (🔔 CAMPANITA Y PERFIL)    */}
           {/* ========================================================== */}
           {notifModalOpen && (
             <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
@@ -3849,7 +4592,7 @@
                 <div className="flex-1 overflow-y-auto space-y-2.5 no-scrollbar pr-1">
                   {myNotifications.length === 0 ? (
                     <p className="text-xs text-nude-200/70 text-center py-10">
-                      Aún no tienes notificaciones. Aquí verás tus solicitudes de amistad, Matches 🔥, dedicatorias del DJ y menciones.
+                      Aún no tienes notificaciones. Aquí verás solicitudes de amistad, Matches 🔥, Cartas al Destino y menciones.
                     </p>
                   ) : (
                     myNotifications.map((n) => {
@@ -3859,7 +4602,7 @@
                       return (
                         <div key={n.id} className="p-3.5 rounded-2xl bg-burgundy-950/90 border border-nude-300/25 space-y-2">
                           <div className="flex items-center justify-between gap-2">
-                            <button onClick={() => openUserProfile(n.fromUid)} className="flex items-center gap-2.5 text-left">
+                            <button onClick={() => { setNotifModalOpen(false); openUserProfile(n.fromUid); }} className="flex items-center gap-2.5 text-left">
                               <img src={sAvatar} alt="" className="w-10 h-10 rounded-full object-cover border border-nude-300/50" />
                               <p className="text-xs text-white">
                                 <span className="font-extrabold text-nude-300 underline mr-1">@{sName}</span>
@@ -3894,7 +4637,7 @@
           )}
 
           {/* ========================================================== */}
-          {/* MODAL 2: ESTUDIO DE SUBIDA CON RECORTE 4 LADOS Y TEXTO MOVIBLE */}
+          {/* MODAL 2: ESTUDIO DE SUBIDA (MARCOS #1, RECORTE 4 LADOS Y ESCALA) */}
           {/* ========================================================== */}
           {uploadModal.open && (
             <div
@@ -3906,9 +4649,9 @@
               <div className="glass-card rounded-3xl max-w-md w-full p-5 border border-nude-300/40 space-y-4 my-auto">
                 <div className="flex items-center justify-between">
                   <h3 className="font-serif text-xl font-bold text-white">
-                    {uploadModal.type === "story" ? "Subir Historia" : uploadModal.withChallenge ? `Reto: ${currentChallenge.title}` : "Subir Foto o Video"}
+                    {uploadModal.type === "story" ? "Subir Historia" : uploadModal.isPaparazzi ? "📸 Paparazzi In Fraganti" : uploadModal.withChallenge ? `Reto: ${currentChallenge.title}` : "Subir Publicación"}
                   </h3>
-                  <button onClick={() => { resetUploadStudio(); setUploadModal({ open: false, type: "post", withChallenge: false }); }} className="text-nude-300 font-bold text-sm">✕ Cerrar</button>
+                  <button onClick={() => { resetUploadStudio(); setUploadModal({ open: false, type: "post", withChallenge: false, isPaparazzi: false }); }} className="text-nude-300 font-bold text-sm">✕ Cerrar</button>
                 </div>
 
                 <form onSubmit={handlePublishEditedMedia} className="space-y-3.5">
@@ -3921,7 +4664,7 @@
                           <img src={rawMediaUrl} alt="" style={{ filter: selectedFilter.css }} className="w-full h-full object-contain" />
                         )}
 
-                        {/* Marco visual en vivo de Recorte de los 4 Bordes */}
+                        {/* Marco visual en vivo de Recorte 4 Bordes */}
                         {(uploadBorderCrop.top > 0 || uploadBorderCrop.bottom > 0 || uploadBorderCrop.left > 0 || uploadBorderCrop.right > 0 || activeStudioTool === "crop") && (
                           <div
                             style={{
@@ -3934,13 +4677,17 @@
                           ></div>
                         )}
 
-                        {/* Stickers y Sellos VIP Arrastrables con el dedo */}
+                        {/* Stickers y Sellos con Escala ajustable */}
                         {placedStickers.map((st) => (
                           <div
                             key={st.id}
-                            style={{ left: `${st.x}%`, top: `${st.y}%` }}
-                            onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); setDraggingStickerId(st.id); }}
-                            className="sticker-draggable absolute -translate-x-1/2 -translate-y-1/2 cursor-grab active:scale-125 transition-transform z-20"
+                            style={{
+                              left: `${st.x}%`,
+                              top: `${st.y}%`,
+                              transform: `translate(-50%, -50%) scale(${st.scale || 1})`
+                            }}
+                            onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); setDraggingStickerId(st.id); setSelectedStickerId(st.id); }}
+                            className={`sticker-draggable absolute cursor-grab z-20 ${selectedStickerId === st.id ? "ring-2 ring-amber-400 rounded-xl p-0.5" : ""}`}
                           >
                             {st.emoji.length > 4 ? (
                               <span className="px-2.5 py-1 rounded-xl bg-burgundy-950/90 border border-amber-300 text-amber-300 font-extrabold text-[10px] shadow-xl whitespace-nowrap">{st.emoji}</span>
@@ -3957,16 +4704,18 @@
                           </div>
                         ))}
 
-                        {/* Texto Superpuesto Visible y Arrastrable con el Dedo */}
+                        {/* Texto Superpuesto Movible y Escalable con el Dedo */}
                         {overlayText.trim() && (
                           <div
                             style={{
-                              top: `${overlayYPos}%`,
+                              left: `${overlayPos.x}%`,
+                              top: `${overlayPos.y}%`,
+                              transform: `translate(-50%, -50%) scale(${overlayScale})`,
                               backgroundColor: overlayColor.bg,
                               color: overlayColor.hex
                             }}
                             onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); setDraggingText(true); }}
-                            className="sticker-draggable absolute left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-1.5 rounded-xl font-extrabold text-sm text-center cursor-grab shadow-xl max-w-[88%] z-20"
+                            className="sticker-draggable absolute px-4 py-1.5 rounded-xl font-extrabold text-sm text-center cursor-grab shadow-xl max-w-[88%] z-20 border border-white/20"
                           >
                             {overlayText}
                           </div>
@@ -3976,7 +4725,7 @@
                       <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer text-center p-4">
                         <span className="text-3xl">📸 🎥</span>
                         <p className="text-xs font-bold text-white mt-2">Toca aquí para elegir Foto o Video (Máx 15s)</p>
-                        <p className="text-[11px] text-nude-300 mt-1">Luego usa los botones de abajo para recortar bordes, poner filtros, texto o stickers</p>
+                        <p className="text-[11px] text-nude-300 mt-1">Usa los botones para marcos Polaroid, recorte, filtros y texto móvil</p>
                         <input type="file" accept="image/*,video/*" onChange={handleMediaFileChange} className="hidden" />
                       </label>
                     )}
@@ -3984,11 +4733,12 @@
 
                   {rawMediaUrl && (
                     <div className="space-y-3">
-                      <div className="grid grid-cols-4 gap-1.5">
-                        <button type="button" onClick={() => setActiveStudioTool(activeStudioTool === "crop" ? null : "crop")} className={`py-2 rounded-xl text-xs font-extrabold ${activeStudioTool === "crop" ? "nude-btn" : "bg-burgundy-950 text-nude-200 border border-nude-300/30"}`}>✂️ Recortar</button>
-                        <button type="button" onClick={() => setActiveStudioTool(activeStudioTool === "filter" ? null : "filter")} className={`py-2 rounded-xl text-xs font-extrabold ${activeStudioTool === "filter" ? "nude-btn" : "bg-burgundy-950 text-nude-200 border border-nude-300/30"}`}>🎨 Filtros</button>
-                        <button type="button" onClick={() => setActiveStudioTool(activeStudioTool === "text" ? null : "text")} className={`py-2 rounded-xl text-xs font-extrabold ${activeStudioTool === "text" ? "nude-btn" : "bg-burgundy-950 text-nude-200 border border-nude-300/30"}`}>🔤 Texto</button>
-                        <button type="button" onClick={() => setActiveStudioTool(activeStudioTool === "stickers" ? null : "stickers")} className={`py-2 rounded-xl text-xs font-extrabold ${activeStudioTool === "stickers" ? "nude-btn" : "bg-burgundy-950 text-nude-200 border border-nude-300/30"}`}>✨ Stickers</button>
+                      <div className="grid grid-cols-5 gap-1">
+                        <button type="button" onClick={() => setActiveStudioTool(activeStudioTool === "crop" ? null : "crop")} className={`py-2 rounded-xl text-[11px] font-extrabold ${activeStudioTool === "crop" ? "nude-btn" : "bg-burgundy-950 text-nude-200 border border-nude-300/30"}`}>✂️ Recorte</button>
+                        <button type="button" onClick={() => setActiveStudioTool(activeStudioTool === "filter" ? null : "filter")} className={`py-2 rounded-xl text-[11px] font-extrabold ${activeStudioTool === "filter" ? "nude-btn" : "bg-burgundy-950 text-nude-200 border border-nude-300/30"}`}>🎨 Filtros</button>
+                        <button type="button" onClick={() => setActiveStudioTool(activeStudioTool === "frame" ? null : "frame")} className={`py-2 rounded-xl text-[11px] font-extrabold ${activeStudioTool === "frame" ? "nude-btn" : "bg-burgundy-950 text-nude-200 border border-nude-300/30"}`}>🖼️ Marcos</button>
+                        <button type="button" onClick={() => setActiveStudioTool(activeStudioTool === "text" ? null : "text")} className={`py-2 rounded-xl text-[11px] font-extrabold ${activeStudioTool === "text" ? "nude-btn" : "bg-burgundy-950 text-nude-200 border border-nude-300/30"}`}>🔤 Texto</button>
+                        <button type="button" onClick={() => setActiveStudioTool(activeStudioTool === "stickers" ? null : "stickers")} className={`py-2 rounded-xl text-[11px] font-extrabold ${activeStudioTool === "stickers" ? "nude-btn" : "bg-burgundy-950 text-nude-200 border border-nude-300/30"}`}>✨ Sellos</button>
                       </div>
 
                       {activeStudioTool === "crop" && (
@@ -4014,23 +4764,46 @@
                         </div>
                       )}
 
+                      {activeStudioTool === "frame" && (
+                        <div className="bg-burgundy-950 p-3.5 rounded-2xl border border-nude-300/30 flex gap-1.5 overflow-x-auto no-scrollbar">
+                          {PHOTO_FRAMES.map(fr => (
+                            <button type="button" key={fr.id} onClick={() => setSelectedFrame(fr)} className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 ${selectedFrame.id === fr.id ? "nude-btn" : "bg-burgundy-900 text-nude-200"}`}>{fr.name}</button>
+                          ))}
+                        </div>
+                      )}
+
                       {activeStudioTool === "text" && (
                         <div className="bg-burgundy-950 p-3.5 rounded-2xl border border-nude-300/30 space-y-2.5">
-                          <input type="text" placeholder="Escribe el texto sobre la foto (arrástralo con el dedo)..." value={overlayText} onChange={(e) => setOverlayText(e.target.value)} className="w-full px-3 py-2 rounded-xl bg-burgundy-900 border border-nude-300/30 text-xs text-white" />
+                          <input type="text" placeholder="Escribe el texto (arrástralo con el dedo)..." value={overlayText} onChange={(e) => setOverlayText(e.target.value)} className="w-full px-3 py-2 rounded-xl bg-burgundy-900 border border-nude-300/30 text-xs text-white" />
                           <div className="flex items-center justify-between gap-3">
                             <div className="flex gap-1.5">
                               {TEXT_COLORS.map(tc => (
                                 <button type="button" key={tc.id} onClick={() => setOverlayColor(tc)} style={{ backgroundColor: tc.hex }} className={`w-6 h-6 rounded-full border-2 ${overlayColor.id === tc.id ? "border-amber-400 scale-110" : "border-white/30"}`}></button>
                               ))}
                             </div>
-                            <input type="range" min="10" max="90" value={overlayYPos} onChange={(e) => setOverlayYPos(Number(e.target.value))} className="flex-1 accent-nude-300" />
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-[10px] text-nude-200 font-bold">Tamaño:</span>
+                              <button type="button" onClick={() => setOverlayScale(Math.max(0.5, overlayScale - 0.2))} className="px-2 py-0.5 rounded bg-burgundy-900 text-xs font-bold">➖</button>
+                              <span className="text-xs font-extrabold text-amber-300">{Math.round(overlayScale * 100)}%</span>
+                              <button type="button" onClick={() => setOverlayScale(Math.min(2.2, overlayScale + 0.2))} className="px-2 py-0.5 rounded bg-burgundy-900 text-xs font-bold">➕</button>
+                            </div>
                           </div>
                         </div>
                       )}
 
                       {activeStudioTool === "stickers" && (
                         <div className="bg-burgundy-950 p-3.5 rounded-2xl border border-nude-300/30 space-y-2">
-                          <p className="text-[11px] font-bold text-nude-200">Toca para agregar y arrástralos con el dedo:</p>
+                          <div className="flex items-center justify-between">
+                            <p className="text-[11px] font-bold text-nude-200">Toca para agregar (arrástralos):</p>
+                            {selectedStickerId && (
+                              <div className="flex items-center gap-1">
+                                <span className="text-[10px] text-amber-300 font-bold">Escala:</span>
+                                <button type="button" onClick={() => updateSelectedStickerScale(-0.2)} className="px-2 py-0.5 rounded bg-burgundy-900 text-xs font-bold">➖</button>
+                                <button type="button" onClick={() => updateSelectedStickerScale(0.2)} className="px-2 py-0.5 rounded bg-burgundy-900 text-xs font-bold">➕</button>
+                                <button type="button" onClick={() => removeStickerFromCanvas(selectedStickerId)} className="px-2 py-0.5 rounded bg-rose-950 text-rose-200 text-xs font-bold">Borrar</button>
+                              </div>
+                            )}
+                          </div>
                           <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
                             {STICKERS.map(st => (
                               <button type="button" key={st} onClick={() => addStickerToCanvas(st)} className="text-lg px-2.5 py-1 rounded-lg bg-burgundy-900 shrink-0">+{st}</button>
@@ -4048,7 +4821,11 @@
 
                   {mediaError && <div className="p-3 rounded-xl bg-rose-950 border border-rose-400 text-xs text-rose-200 font-semibold">⚠️ {mediaError}</div>}
 
-                  <input type="text" placeholder="Pie de foto (etiqueta amigos con @usuario)..." value={caption} onChange={(e) => setCaption(e.target.value)} className="w-full px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/35 text-xs text-white" />
+                  <div>
+                    <input type="text" placeholder="Pie de foto (etiqueta amigos con @usuario)..." value={caption} onChange={(e) => setCaption(e.target.value)} className="w-full px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/35 text-xs text-white" />
+                    <MentionAutocompleteBar value={caption} onChange={setCaption} users={users} label="Arrobar en pie de foto:" />
+                  </div>
+
                   <button type="submit" disabled={!rawMediaUrl || isSubmitting} className="w-full py-3.5 rounded-xl nude-btn text-sm shadow-lg">{isSubmitting ? `Publicando (${uploadProgress}%)...` : "Publicar Ahora ✨"}</button>
                 </form>
               </div>
@@ -4143,7 +4920,7 @@
           )}
 
           {/* ========================================================== */}
-          {/* MODAL 5: CÓDIGO QR OFICIAL (REPARADO)                      */}
+          {/* MODAL 5: CÓDIGO QR OFICIAL                                 */}
           {/* ========================================================== */}
           {qrModalOpen && (
             <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
@@ -4368,7 +5145,7 @@
             <button onClick={() => { setViewedProfileUid(null); setActiveTab("search"); }} className={`flex flex-col items-center gap-0.5 text-[11px] font-bold ${activeTab === "search" && !viewedProfileUser ? "text-nude-300" : "text-white/60"}`}>
               <span className="text-lg">🔍</span><span>Amigos</span>
             </button>
-            <button onClick={() => { resetUploadStudio(); setUploadModal({ open: true, type: "post", withChallenge: false }); }} className="w-12 h-12 -mt-5 rounded-full nude-btn text-2xl shadow-2xl flex items-center justify-center border-2 border-burgundy-950">
+            <button onClick={() => { resetUploadStudio(); setUploadModal({ open: true, type: "post", withChallenge: false, isPaparazzi: false }); }} className="w-12 h-12 -mt-5 rounded-full nude-btn text-2xl shadow-2xl flex items-center justify-center border-2 border-burgundy-950">
               +
             </button>
             <button onClick={() => { setViewedProfileUid(null); setActiveTab("party"); }} className={`flex flex-col items-center gap-0.5 text-[11px] font-bold ${activeTab === "party" && !viewedProfileUser ? "text-nude-300" : "text-white/60"}`}>
@@ -4397,5 +5174,3 @@
   </script>
 </body>
 </html>
-
-    

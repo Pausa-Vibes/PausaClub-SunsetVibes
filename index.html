@@ -224,7 +224,6 @@
         xhr.onload = () => {
           if (xhr.status >= 200 && xhr.status < 300) {
             const response = JSON.parse(xhr.responseText);
-            // a_auto corrige fotos giradas de iPhone y f_auto convierte HEIC a formato universal
             const optimizedUrl = response.secure_url
               ? response.secure_url.replace("/upload/", "/upload/a_auto,q_auto:good,f_auto/")
               : response.secure_url;
@@ -253,7 +252,7 @@
       throw lastErr || new Error("No se pudo subir el archivo. Verifica tu señal de internet.");
     };
 
-    // Generador de Sonido Real Sintetizado ("Campana Cristal Sunset") sin depender de archivos MP3 externos
+    // Generador de Sonido Real Sintetizado ("Campana Cristal Sunset")
     const playNotificationSound = (type = "bell") => {
       try {
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -261,7 +260,7 @@
         const ctx = new AudioCtx();
         const now = ctx.currentTime;
 
-        const playTone = (freq, start, duration, vol = 0.16) => {
+        const playTone = (freq, start, duration, vol = 0.18) => {
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
           osc.type = type === "wheel" ? "triangle" : "sine";
@@ -275,17 +274,17 @@
         };
 
         if (type === "match") {
-          playTone(587.33, now, 0.16, 0.2);
-          playTone(880, now + 0.13, 0.22, 0.22);
-          playTone(1174.66, now + 0.28, 0.45, 0.25);
+          playTone(587.33, now, 0.16, 0.22);
+          playTone(880, now + 0.13, 0.22, 0.24);
+          playTone(1174.66, now + 0.28, 0.45, 0.28);
         } else if (type === "wheel") {
           playTone(523.25, now, 0.12, 0.22);
           playTone(659.25, now + 0.12, 0.12, 0.22);
           playTone(783.99, now + 0.24, 0.12, 0.22);
-          playTone(1046.5, now + 0.36, 0.5, 0.26);
+          playTone(1046.5, now + 0.36, 0.5, 0.28);
         } else {
-          playTone(880, now, 0.15, 0.16);
-          playTone(1318.5, now + 0.14, 0.32, 0.18);
+          playTone(880, now, 0.15, 0.18);
+          playTone(1318.5, now + 0.14, 0.32, 0.2);
         }
       } catch (e) {}
     };
@@ -343,10 +342,10 @@
     ];
 
     const TEXT_COLORS = [
-      { id: "white", hex: "#FFFFFF", bg: "rgba(9, 1, 5, 0.72)" },
-      { id: "nude", hex: "#E8B4B8", bg: "rgba(9, 1, 5, 0.85)" },
-      { id: "gold", hex: "#FBBF24", bg: "rgba(9, 1, 5, 0.85)" },
-      { id: "dark", hex: "#090105", bg: "rgba(247, 223, 226, 0.92)" }
+      { id: "white", hex: "#FFFFFF", bg: "rgba(9, 1, 5, 0.78)" },
+      { id: "nude", hex: "#E8B4B8", bg: "rgba(9, 1, 5, 0.88)" },
+      { id: "gold", hex: "#FBBF24", bg: "rgba(9, 1, 5, 0.88)" },
+      { id: "dark", hex: "#090105", bg: "rgba(247, 223, 226, 0.94)" }
     ];
 
     const INSPIRATIONAL_QUOTES = [
@@ -366,7 +365,7 @@
       return "Ayer";
     };
 
-    // Hornear imagen con Recorte por Bordes + Filtros + Texto + Stickers y Sellos VIP
+    // Hornear imagen con Recorte por 4 Bordes + Filtros + Texto + Stickers y Sellos VIP
     const bakeEditedImage = (rawDataUrl, { filterCss, borderCrop, overlayText, textColorObj, textYPos, stickers = [], maxDim = 1600, quality = 0.86 }) => {
       return new Promise((resolve, reject) => {
         const img = new Image();
@@ -410,7 +409,7 @@
                 const m = ctx.measureText(st.emoji);
                 const bw = m.width + 28;
                 const bh = stampFont + 18;
-                ctx.fillStyle = "rgba(9, 1, 5, 0.82)";
+                ctx.fillStyle = "rgba(9, 1, 5, 0.85)";
                 ctx.beginPath();
                 ctx.roundRect(sx - bw / 2, sy - bh / 2, bw, bh, 12);
                 ctx.fill();
@@ -442,7 +441,7 @@
             const boxW = Math.min(outW - 24, metrics.width + padX * 2);
             const boxH = fontSize + padY * 2;
 
-            ctx.fillStyle = textColorObj?.bg || "rgba(9, 1, 5, 0.75)";
+            ctx.fillStyle = textColorObj?.bg || "rgba(9, 1, 5, 0.8)";
             ctx.beginPath();
             ctx.roundRect((outW - boxW) / 2, yCoord - boxH / 2, boxW, boxH, 16);
             ctx.fill();
@@ -479,7 +478,7 @@
       });
     };
 
-    // Generador de Póster Mosaico Oficial de Fin de Fiesta en una sola imagen descargable (.jpg)
+    // Generador de Póster Mosaico Oficial de Fin de Fiesta (#4)
     const generateMosaicPosterDataUrl = async (usersList, postsList) => {
       const canvas = document.createElement("canvas");
       const W = 1080, H = 1480;
@@ -611,7 +610,7 @@
       return (Date.now() - u.lastSeen) < 360000;
     };
 
-    // Texto inteligente que convierte cualquier @usuario en un botón rosa clicable que lleva a su perfil
+    // Texto inteligente que convierte cualquier @usuario en un botón dorado clicable que lleva a su perfil
     function RichMentionText({ text, users, onOpenProfile }) {
       if (!text) return null;
       const parts = text.split(/(@[a-zA-Z0-9_]+)/g);
@@ -818,7 +817,7 @@
       const [djSongDedicated, setDjSongDedicated] = useState("");
       const [secretText, setSecretText] = useState("");
 
-      // Modal de Recorte por Bordes
+      // Modal de Recorte por Bordes de Posts ya subidos
       const [cropModalPost, setCropModalPost] = useState(null);
       const [borderCrop, setBorderCrop] = useState({ top: 0, bottom: 0, left: 0, right: 0 });
       const [isCroppingPost, setIsCroppingPost] = useState(false);
@@ -846,7 +845,7 @@
       const [setupAvatar, setSetupAvatar] = useState("");
       const [setupError, setSetupError] = useState("");
 
-      // Estudio de Subida con Herramientas en Botones
+      // Estudio de Subida con Herramientas en Botones + Arrastre de Texto y Stickers
       const [rawMediaUrl, setRawMediaUrl] = useState("");
       const [rawVideoFile, setRawVideoFile] = useState(null);
       const [mediaType, setMediaType] = useState("image");
@@ -857,6 +856,7 @@
       const [overlayText, setOverlayText] = useState("");
       const [overlayColor, setOverlayColor] = useState(TEXT_COLORS[0]);
       const [overlayYPos, setOverlayYPos] = useState(50);
+      const [draggingText, setDraggingText] = useState(false);
       const [placedStickers, setPlacedStickers] = useState([]);
       const [draggingStickerId, setDraggingStickerId] = useState(null);
       const previewBoxRef = useRef(null);
@@ -898,25 +898,22 @@
       // Botón "Atrás" del celular domesticado para cerrar ventanas en vez de salir de la web
       useEffect(() => {
         const handlePopState = () => {
-          if (storyViewer.open) {
-            setStoryViewer(prev => ({ ...prev, open: false }));
-          } else if (fullscreenPostId) {
-            setFullscreenPostId(null);
-          } else if (notifModalOpen) {
-            setNotifModalOpen(false);
-          } else if (viewedProfileUid) {
-            setViewedProfileUid(null);
-          } else if (uploadModal.open) {
-            setUploadModal({ open: false, type: "post", withChallenge: false });
-          } else if (activeTab !== "feed") {
-            setActiveTab("feed");
-          }
+          if (storyViewer.open) setStoryViewer(prev => ({ ...prev, open: false }));
+          else if (fullscreenPostId) setFullscreenPostId(null);
+          else if (notifModalOpen) setNotifModalOpen(false);
+          else if (editProfileModal) setEditProfileModal(false);
+          else if (qrModalOpen) setQrModalOpen(false);
+          else if (cropModalPost) setCropModalPost(null);
+          else if (shareModalPost) setShareModalPost(null);
+          else if (viewedProfileUid) setViewedProfileUid(null);
+          else if (uploadModal.open) setUploadModal({ open: false, type: "post", withChallenge: false });
+          else if (activeTab !== "feed") setActiveTab("feed");
           window.history.pushState({ sunset: true }, "");
         };
         window.history.pushState({ sunset: true }, "");
         window.addEventListener("popstate", handlePopState);
         return () => window.removeEventListener("popstate", handlePopState);
-      }, [storyViewer.open, fullscreenPostId, notifModalOpen, viewedProfileUid, uploadModal.open, activeTab]);
+      }, [storyViewer.open, fullscreenPostId, notifModalOpen, editProfileModal, qrModalOpen, cropModalPost, shareModalPost, viewedProfileUid, uploadModal.open, activeTab]);
 
       const isStoryEffectivelyPaused = storyViewer.paused || storyMenuOpen || storyInputFocused || !!storyViewsModal;
       useEffect(() => { storyPausedRef.current = isStoryEffectivelyPaused; }, [isStoryEffectivelyPaused]);
@@ -938,7 +935,7 @@
       // Escuchar los 2 servidores de Firebase en paralelo con límites optimizados
       useEffect(() => {
         if (!fbReady || !window.FB) return;
-        const { auth, db, chatDb, onAuthStateChanged, collection, doc, onSnapshot, query, orderBy, limit } = window.FB;
+        const { auth, db, chatDb, onAuthStateChanged, collection, onSnapshot, query, orderBy, limit } = window.FB;
 
         const unsubAuth = onAuthStateChanged(auth, (u) => {
           if (u) {
@@ -970,15 +967,9 @@
         const unsubMessages = onSnapshot(query(collection(chatDb, "messages"), orderBy("createdAt", "desc"), limit(85)), (snap) => {
           const list = snap.docs.map(d => ({ id: d.id, ...d.data() })).reverse();
           setMessages(list);
-          if ( list.length > 0 ) {
-            const latest = list[list.length - 1];
-            if (latest.chatKey === "LIVE_PARTY_STATE" && latest.partyPayload) {
-              setPartyState(latest.partyPayload);
-            }
-          }
         });
 
-        const unsubNotifs = onSnapshot(query(collection(chatDb, "notifications"), orderBy("createdAt", "desc"), limit(110)), (snap) => {
+        const unsubNotifs = onSnapshot(query(collection(chatDb, "notifications"), orderBy("createdAt", "desc"), limit(120)), (snap) => {
           const allNotifs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
           setNotifications(allNotifs.filter(n => !n.isPartyExtra));
           setDjSongs(allNotifs.filter(n => n.extraType === "dj_song"));
@@ -1044,7 +1035,7 @@
         };
       }, [partyState?.wheelSpin?.id]);
 
-      // Auto-scroll en el Chat cuando llegan mensajes
+      // Auto-scroll en el Chat
       useEffect(() => {
         if (activeTab === "chat") {
           setTimeout(() => {
@@ -1063,7 +1054,7 @@
         return emailToCheck === ADMIN_EMAIL;
       }, [currentUserDoc, authSession]);
 
-      // Insignias Automáticas de los Reyes de la Fiesta (👑 Rey del Muro, 🔥 Rompecorazones, 📸 Paparazzi)
+      // Insignias Automáticas de los Reyes de la Fiesta
       const userBadgesMap = useMemo(() => {
         const map = {};
         if (users.length === 0) return map;
@@ -1080,13 +1071,13 @@
           if (uPosts.length > maxPosts) { maxPosts = uPosts.length; topPostsUid = u.uid; }
         });
 
-        if (topLikesUid) map[topLikesUid] = [...(map[topLikesUid] || []), "👑 Rey/Reina del Muro"];
+        if (topLikesUid) map[topLikesUid] = [...(map[topLikesUid] || []), "👑 Rey/Reina"];
         if (topMatchesUid) map[topMatchesUid] = [...(map[topMatchesUid] || []), "🔥 Rompecorazones"];
         if (topPostsUid) map[topPostsUid] = [...(map[topPostsUid] || []), "📸 Paparazzi"];
         return map;
       }, [users, posts]);
 
-      // Termómetro de Energía del Sunset (0% a 100%)
+      // Termómetro de Energía del Sunset
       const sunsetEnergyPct = useMemo(() => {
         const totalInteractions = (posts.length * 4) + (stories.length * 3) + messages.length + (notifications.length * 2);
         return Math.min(100, Math.max(12, Math.round((totalInteractions / 250) * 100)));
@@ -1129,24 +1120,23 @@
       };
 
       const requestSystemNotificationPerm = async () => {
+        playNotificationSound("match");
         if (!("Notification" in window)) {
-          alert("En iPhone, toca el botón Compartir de Safari y elige 'Agregar a Inicio' para recibir alertas con la pantalla bloqueada.");
+          alert("Sonido de alertas activado. En iPhone, usa Compartir > Agregar a Inicio para recibir notificaciones de pantalla bloqueada.");
           return;
         }
         const perm = await Notification.requestPermission();
         if (perm === "granted") {
-          playNotificationSound("match");
           setInAppToast({
             id: Date.now(),
             icon: "🔔",
-            title: "¡Alertas con Sonido Activadas!",
-            text: "Recibirás avisos y sonido cuando te den Match o te escriban.",
+            title: "¡Alertas y Sonido Activados!",
+            text: "Te avisaremos con sonido cuando recibas un Match o mensaje.",
             action: () => setInAppToast(null)
           });
         }
       };
 
-      // Enviar Notificación a la Campanita + Extraer Menciones @usuario
       const sendNotification = async ({ toUid, type, text, postId = null, storyUserId = null, status = null }) => {
         if (!currentUserDoc || !window.FB || !toUid || toUid === currentUserDoc.uid) return;
         const { chatDb, collection, addDoc } = window.FB;
@@ -1193,7 +1183,6 @@
         });
       };
 
-      // Agrupar Historias y Ordenar poniendo primero las que aún NO has visto
       const storyGroups = useMemo(() => {
         const map = new Map();
         stories.forEach((st) => {
@@ -1216,7 +1205,6 @@
         return Array.from(map.values()).sort((a, b) => (b.hasUnseen ? 1 : 0) - (a.hasUnseen ? 1 : 0));
       }, [stories, users, currentUserDoc]);
 
-      // Registrar "Visto" automáticamente cuando alguien abre una historia
       useEffect(() => {
         if (!storyViewer.open || !currentUserDoc || !window.FB) return;
         const grp = storyGroups[storyViewer.groupIndex];
@@ -1229,7 +1217,6 @@
         }
       }, [storyViewer.open, storyViewer.groupIndex, storyViewer.storyIndex, storyGroups, currentUserDoc]);
 
-      // Temporizador de Historias con Pausa Real
       useEffect(() => {
         if (!storyViewer.open) return;
         const currentGroup = storyGroups[storyViewer.groupIndex];
@@ -1346,7 +1333,6 @@
         } catch (err) {}
       };
 
-      // Descarga directa compatible con iPhone y Android
       const handleDownloadMedia = (mediaUrl, type = "image") => {
         if (!mediaUrl) return;
         const attachUrl = mediaUrl.includes("/upload/")
@@ -1472,9 +1458,8 @@
       const nextSequentialChallenge = () => {
         setChallengeIndex((prev) => (prev + 1) % PHOTO_CHALLENGES.length);
       };
-
       // ====================================================================
-      // CONTROLES EXCLUSIVOS DEL SUPER ADMIN (RULETA EN VIVO, ENCUESTA #6 Y MOSAICO #4)
+      // CONTROLES EXCLUSIVOS DEL SUPER ADMIN (RULETA, ENCUESTA #6 Y MOSAICO #4)
       // ====================================================================
       const saveGlobalPartyState = async (newPartialState) => {
         if (!isAdmin || !window.FB) return;
@@ -1490,7 +1475,6 @@
         } catch (e) {}
       };
 
-      // Lanzar Ruleta Sincronizada en las 100 Pantallas (Solo Admin)
       const handleAdminLaunchWheel = async () => {
         if (!isAdmin) return;
         const eligible = users.filter(u => u.username);
@@ -1517,7 +1501,6 @@
         await saveGlobalPartyState({ wheelSpin: spinPayload });
       };
 
-      // Lanzar Encuesta Relámpago en Vivo (#6 — Solo Admin)
       const handleAdminLaunchPoll = async (e) => {
         e.preventDefault();
         if (!isAdmin || !pollQuestionInput.trim() || !pollOpt1Input.trim() || !pollOpt2Input.trim()) return;
@@ -1538,7 +1521,7 @@
         };
         await saveGlobalPartyState({ livePoll });
         setPollQuestionInput(""); setPollOpt1Input(""); setPollOpt2Input(""); setPollOpt3Input("");
-        alert("⚡ ¡Encuesta Relámpago publicada en vivo en el Muro de los 100 invitados!");
+        alert("⚡ ¡Encuesta Relámpago publicada en el Muro de los 100 invitados!");
       };
 
       const handleVoteInLivePoll = async (optionId) => {
@@ -1558,7 +1541,6 @@
         } catch (e) {}
       };
 
-      // Activar / Desactivar el Mosaico Gigante de Fin de Fiesta (#4 — Solo Admin)
       const handleAdminToggleMosaic = async (activate) => {
         if (!isAdmin) return;
         await saveGlobalPartyState({
@@ -1589,10 +1571,12 @@
         }
       };
 
-      // Cabina DJ y Confesiones Anónimas
+      // Cabina DJ (Con soporte de arrobar @usuario y notificarle) + Confesiones Anónimas
       const handleAddDjSong = async (e) => {
         e.preventDefault();
         if (!djSongTitle.trim() || !currentUserDoc || !window.FB) return;
+        const cleanSong = djSongTitle.trim();
+        const cleanDedication = djSongDedicated.trim();
         try {
           await window.FB.addDoc(window.FB.collection(window.FB.chatDb, "notifications"), {
             isPartyExtra: true,
@@ -1600,13 +1584,23 @@
             fromUid: currentUserDoc.uid,
             fromUsername: currentUserDoc.username,
             fromAvatar: currentUserDoc.avatar,
-            songTitle: djSongTitle.trim(),
-            dedicatedTo: djSongDedicated.trim(),
+            songTitle: cleanSong,
+            dedicatedTo: cleanDedication,
             votes: [currentUserDoc.uid],
             createdAt: Date.now()
           });
+          if (cleanDedication) {
+            notifyMentionedUsers(cleanDedication, `la canción "${cleanSong}" en la Cabina DJ 🎵`);
+          }
           setDjSongTitle("");
           setDjSongDedicated("");
+          setInAppToast({
+            id: Date.now(),
+            icon: "🎵",
+            title: "¡Canción pedida en la Cabina DJ!",
+            text: cleanDedication ? `Con dedicatoria: ${cleanDedication}` : cleanSong,
+            action: () => setInAppToast(null)
+          });
         } catch (e) {}
       };
 
@@ -1633,6 +1627,7 @@
             fires: [],
             createdAt: Date.now()
           });
+          notifyMentionedUsers(secretText.trim(), "una Confesión Anónima 🤫");
           setSecretText("");
         } catch (e) {}
       };
@@ -1647,7 +1642,6 @@
         } catch (e) {}
       };
 
-      // Guiños / Toques Rápidos de Fiesta en el Perfil
       const handleSendQuickWink = async (targetUser, winkLabel) => {
         if (!currentUserDoc || !targetUser) return;
         await sendNotification({
@@ -1665,9 +1659,6 @@
         });
       };
 
-      // ====================================================================
-      // AMIGOS Y FUEGUITO DE MATCH (🔥)
-      // ====================================================================
       const getRelationshipStatus = (targetUser) => {
         if (!currentUserDoc || !targetUser) return "none";
         if ((currentUserDoc.friends || []).includes(targetUser.uid)) return "friends";
@@ -1841,9 +1832,7 @@
           }
         } catch (e) {}
       };
-      // ====================================================================
-      // AUTENTICACIÓN
-      // ====================================================================
+
       const handleGoogleSignIn = async () => {
         setAuthError("");
         if (!window.FB) return;
@@ -1989,7 +1978,7 @@
       };
 
       // ====================================================================
-      // ESTUDIO DE SUBIDA (RECORTE DE BORDES, FILTROS, TEXTO, STICKERS, SELLOS VIP)
+      // ESTUDIO DE SUBIDA (RECORTE 4 BORDES EN VIVO, FILTROS, TEXTO MOVIBLE, STICKERS)
       // ====================================================================
       const resetUploadStudio = () => {
         setRawMediaUrl("");
@@ -2002,6 +1991,7 @@
         setOverlayText("");
         setOverlayColor(TEXT_COLORS[0]);
         setOverlayYPos(50);
+        setDraggingText(false);
         setPlacedStickers([]);
         setDraggingStickerId(null);
         setCaption("");
@@ -2021,14 +2011,20 @@
         setPlacedStickers(prev => prev.filter(s => s.id !== id));
       };
 
-      const handleStickerPointerMove = (clientX, clientY) => {
-        if (!draggingStickerId || !previewBoxRef.current) return;
+      // Mover tanto Stickers como el Texto Superpuesto con el dedo en el lienzo
+      const handleCanvasPointerMove = (clientX, clientY) => {
+        if (!previewBoxRef.current) return;
         const rect = previewBoxRef.current.getBoundingClientRect();
         const xPct = Math.max(6, Math.min(94, ((clientX - rect.left) / rect.width) * 100));
-        const yPct = Math.max(6, Math.min(94, ((clientY - rect.top) / rect.height) * 100));
-        setPlacedStickers(prev =>
-          prev.map(st => st.id === draggingStickerId ? { ...st, x: Math.round(xPct * 10) / 10, y: Math.round(yPct * 10) / 10 } : st)
-        );
+        const yPct = Math.max(8, Math.min(92, ((clientY - rect.top) / rect.height) * 100));
+
+        if (draggingStickerId) {
+          setPlacedStickers(prev =>
+            prev.map(st => st.id === draggingStickerId ? { ...st, x: Math.round(xPct * 10) / 10, y: Math.round(yPct * 10) / 10 } : st)
+          );
+        } else if (draggingText) {
+          setOverlayYPos(Math.round(yPct));
+        }
       };
 
       const handleMediaFileChange = async (e) => {
@@ -2188,9 +2184,6 @@
         }
       };
 
-      // ====================================================================
-      // LIKES, REACCIONES, COMENTARIOS Y CHAT (CON REPLY Y FOTOS)
-      // ====================================================================
       const toggleLike = async (post) => {
         if (!currentUserDoc || !window.FB) return;
         const { db, doc, updateDoc, arrayUnion, arrayRemove } = window.FB;
@@ -2317,11 +2310,12 @@
         e.preventDefault();
         if (!isAdmin || !adminEditUser || !window.FB) return;
         const cleanU = adminEditUser.username.trim().replace(/^@/, "").replace(/\s+/g, "_");
+        const updateData = { username: cleanU, name: cleanU };
+        if (adminEditUser.password && adminEditUser.password.trim().length >= 4) {
+          updateData.password = adminEditUser.password.trim();
+        }
         try {
-          await window.FB.updateDoc(window.FB.doc(window.FB.db, "users", adminEditUser.uid), {
-            username: cleanU,
-            name: cleanU
-          });
+          await window.FB.updateDoc(window.FB.doc(window.FB.db, "users", adminEditUser.uid), updateData);
           setAdminEditUser(null);
         } catch (e) {}
       };
@@ -2357,7 +2351,7 @@
             senderName: currentUserDoc.username,
             senderAvatar: currentUserDoc.avatar,
             receiverId: isGroup ? "ALL" : activeChatFriend.uid,
-            text: textVal || "Envió una foto",
+            text: textVal || "📷 Foto en el chat",
             sharedMediaUrl: customImgUrl || null,
             sharedMediaType: customImgUrl ? "image" : null,
             replyTo: replyingToMsg ? { senderName: replyingToMsg.senderName, text: replyingToMsg.text } : null,
@@ -2407,7 +2401,7 @@
       const handleExternalShare = async (item) => {
         const shareData = {
           title: "Sunset Vibes",
-          text: `Mira esta foto de @${item.userName} en Sunset Vibes`,
+          text: `Mira esta publicación de @${item.userName} en Sunset Vibes`,
           url: window.location.href
         };
         if (navigator.share) {
@@ -2454,9 +2448,25 @@
         try {
           await window.FB.updateDoc(window.FB.doc(window.FB.db, "users", currentUserDoc.uid), updatePayload);
           setEditProfileModal(false);
+          setInAppToast({
+            id: Date.now(),
+            icon: "✅",
+            title: "Perfil y Vibe actualizados",
+            text: `@${cleanU} • ${updatePayload.vibeStatus}`,
+            action: () => setInAppToast(null)
+          });
         } catch (e) {
           setProfileEditError("Error al guardar cambios.");
         }
+      };
+
+      const handleQuickVibeUpdate = async (vibeStr) => {
+        if (!currentUserDoc || !window.FB) return;
+        try {
+          await window.FB.updateDoc(window.FB.doc(window.FB.db, "users", currentUserDoc.uid), {
+            vibeStatus: vibeStr
+          });
+        } catch (e) {}
       };
 
       const myPosts = posts.filter(p => p.userId === currentUserDoc?.uid);
@@ -2469,7 +2479,6 @@
         return users.filter(u => u.uid !== currentUserDoc.uid && u.username && friendIds.includes(u.uid));
       }, [users, currentUserDoc]);
 
-      // Muro Ordenado y Filtrado (Recientes / Tendencias / Amigos / Reto específico)
       const sortedAndFilteredPosts = useMemo(() => {
         let result = [...posts];
         if (feedFilter === "trending") {
@@ -2502,8 +2511,21 @@
         return users.filter(u => u.username).filter(u => !q || u.username.toLowerCase().includes(q));
       }, [users, searchQuery]);
 
-            // ====================================================================
-      // RENDERIZADO VISUAL PRINCIPAL DE LA APLICACIÓN
+      // Detector de autocompletado de @usuario en Dedicatorias del DJ
+      const djMentionQuery = useMemo(() => {
+        const m = djSongDedicated.match(/@([a-zA-Z0-9_]*)$/);
+        if (!m) return null;
+        return m[1].toLowerCase();
+      }, [djSongDedicated]);
+
+      const djMentionCandidates = useMemo(() => {
+        if (djMentionQuery === null) return [];
+        return users
+          .filter(u => u.username && u.username.toLowerCase().includes(djMentionQuery))
+          .slice(0, 6);
+      }, [users, djMentionQuery]);
+      // ====================================================================
+      // RENDERIZADO VISUAL COMPLETO CON TODOS LOS MODALES ACTIVOS
       // ====================================================================
       if (!authSession) {
         return (
@@ -2553,7 +2575,7 @@
                     <div className="flex flex-col items-center pb-1">
                       <label className="cursor-pointer text-center">
                         <img src={setupAvatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(loginUsername || "sunset")}`} alt="" className="w-16 h-16 rounded-full object-cover mx-auto border-2 border-nude-300" />
-                        <span className="mt-1.5 inline-block text-[11px] px-3 py-0.5 rounded-full nude-btn">📷 Foto de perfil</span>
+                        <span className="mt-1.5 inline-block text-[11px] px-3 py-0.5 rounded-full nude-btn">📷 Elegir foto de perfil</span>
                         <input type="file" accept="image/*" onChange={async (e) => { const f = e.target.files?.[0]; if (f) setSetupAvatar(await compressSimpleImage(f)); }} className="hidden" />
                       </label>
                     </div>
@@ -2562,7 +2584,7 @@
                     <label className="text-xs text-nude-200 font-bold ml-1">Nombre de usuario</label>
                     <div className="relative mt-1">
                       <span className="absolute left-3.5 top-3 text-nude-300 font-bold text-sm">@</span>
-                      <input type="text" required placeholder="Usuario" value={loginUsername} onChange={(e) => setLoginUsername(e.target.value)} className="w-full pl-8 pr-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/40 text-white text-sm focus:outline-none" />
+                      <input type="text" required placeholder="Nombre de usuario" value={loginUsername} onChange={(e) => setLoginUsername(e.target.value)} className="w-full pl-8 pr-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/40 text-white text-sm focus:outline-none" />
                     </div>
                   </div>
                   <div>
@@ -2570,7 +2592,7 @@
                     <input type="password" required placeholder="Contraseña" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} className="w-full mt-1 px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/40 text-white text-sm focus:outline-none" />
                   </div>
                   {authError && <div className="p-2.5 rounded-xl bg-rose-950 border border-rose-400 text-xs text-rose-200 font-semibold">⚠️ {authError}</div>}
-                  <button type="submit" className="w-full py-3.5 rounded-xl nude-btn text-sm shadow-lg">{authMode === "login" ? "Entrar a la Fiesta 🌅" : "Crear Cuenta ✨"}</button>
+                  <button type="submit" className="w-full py-3.5 rounded-xl nude-btn text-sm shadow-lg">{authMode === "login" ? "Entrar a la Fiesta 🌅" : "Crear Perfil y Entrar ✨"}</button>
                 </form>
               </div>
             </div>
@@ -2595,7 +2617,7 @@
                   <label className="text-xs font-bold text-nude-200 ml-1">Nombre de usuario</label>
                   <div className="relative mt-1">
                     <span className="absolute left-3.5 top-3 text-nude-300 font-bold text-sm">@</span>
-                    <input type="text" required placeholder="Usuario" value={setupUsername} onChange={(e) => setSetupUsername(e.target.value)} className="w-full pl-8 pr-4 py-3 rounded-xl bg-burgundy-950 border border-nude-300/40 text-white text-sm focus:outline-none" />
+                    <input type="text" required placeholder="Nombre de usuario" value={setupUsername} onChange={(e) => setSetupUsername(e.target.value)} className="w-full pl-8 pr-4 py-3 rounded-xl bg-burgundy-950 border border-nude-300/40 text-white text-sm focus:outline-none" />
                   </div>
                 </div>
                 <div>
@@ -2658,7 +2680,7 @@
                         className="w-full h-full rounded-full object-cover border-2 border-burgundy-950 bg-burgundy-950"
                       />
                     </div>
-                    <p className="text-sm font-bold text-amber-200 animate-pulse">Girando la ruleta entre los invitados...</p>
+                    <p className="text-sm font-bold text-amber-200 animate-pulse">Girando la ruleta en las 100 pantallas...</p>
                   </div>
                 ) : (
                   <div className="py-4 space-y-4">
@@ -2670,13 +2692,13 @@
                       />
                     </div>
                     <div>
-                      <p className="text-xs text-nude-200 uppercase font-bold">¡El ganadora o ganador es!</p>
+                      <p className="text-xs text-nude-200 uppercase font-bold">¡La ganadora o ganador es!</p>
                       <h2 className="text-2xl font-extrabold text-amber-300 mt-1">
                         @{wheelModalState.spinData?.winnerUsername} 👑
                       </h2>
                     </div>
                     <p className="text-xs text-nude-100 italic">
-                      ¡Acércate a la barra o con el organizador para reclamar tu premio!
+                      ¡Acércate al organizador o a la barra para reclamar tu premio!
                     </p>
                     <button
                       onClick={() => setWheelModalState(prev => ({ ...prev, open: false }))}
@@ -2690,7 +2712,7 @@
             </div>
           )}
 
-          {/* BARRA SUPERIOR CON CAMPANITA (🔔) Y BOTÓN DE PERMISO DE AUDIO */}
+          {/* BARRA SUPERIOR CON CAMPANITA (🔔), SONIDO (🔊) Y QR */}
           <header className="sticky top-0 z-30 glass-nav px-4 py-3 flex items-center justify-between border-b border-nude-300/25">
             <div onClick={() => { setViewedProfileUid(null); setActiveTab("feed"); }} className="flex items-center gap-2.5 cursor-pointer">
               <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-burgundy-800 via-rose-500 to-amber-300 p-0.5 flex items-center justify-center">
@@ -2713,12 +2735,13 @@
                 className="w-8 h-8 rounded-full bg-burgundy-900 border border-nude-300/30 flex items-center justify-center text-xs"
                 title="Activar alertas con sonido"
               >
-                🔔🔊
+                🔊
               </button>
 
               <button
                 onClick={handleOpenBellModal}
                 className="relative w-9 h-9 rounded-full bg-burgundy-800 border border-nude-300/40 flex items-center justify-center text-base shadow"
+                title="Abrir Notificaciones"
               >
                 <span>🔔</span>
                 {unreadBellCount > 0 && (
@@ -2734,10 +2757,27 @@
           </header>
 
           {/* ========================================================== */}
-          {/* PESTAÑA 1: MURO PRINCIPAL + TERMÓMETRO + ENCUESTA RELÁMPAGO #6 */}
+          {/* PESTAÑA 1: MURO PRINCIPAL + TERMÓMETRO + ENCUESTA #6       */}
           {/* ========================================================== */}
           {activeTab === "feed" && !viewedProfileUser && (
             <div className="p-4 space-y-5">
+
+              {/* Banner si el Admin ya activó el Mosaico de Fin de Fiesta (#4) */}
+              {partyState?.mosaicActive && (
+                <div
+                  onClick={() => { setActiveTab("party"); setPartySubTab("mosaic"); }}
+                  className="match-card-letter rounded-2xl p-4 flex items-center justify-between cursor-pointer"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">📸</span>
+                    <div>
+                      <p className="text-xs font-extrabold text-amber-300 uppercase">¡Ya está listo el Póster Oficial!</p>
+                      <p className="text-xs text-white font-semibold">Toca aquí para ver y descargar el Mosaico de los 100 invitados</p>
+                    </div>
+                  </div>
+                  <span className="px-3 py-1 rounded-full bg-amber-300 text-[#090105] font-extrabold text-xs">Ver ✨</span>
+                </div>
+              )}
 
               {/* Termómetro de Energía del Sunset */}
               <div className="glass-card rounded-2xl p-3.5 border border-amber-400/30 flex items-center gap-3">
@@ -2753,14 +2793,14 @@
                 </div>
               </div>
 
-              {/* Encuesta Relámpago en Vivo del Admin (#6) si está activa */}
+              {/* Encuesta Relámpago en Vivo del Admin (#6) */}
               {partyState?.livePoll?.active && (
                 <div className="match-card-letter rounded-3xl p-5 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-300 text-[#090105] font-extrabold">
                       ⚡ Encuesta Relámpago en Vivo
                     </span>
-                    <span className="text-xs text-amber-200 font-bold">Vota ahora</span>
+                    <span className="text-xs text-amber-200 font-bold">Vota con 1 toque</span>
                   </div>
                   <h3 className="font-serif text-lg font-bold text-white">{partyState.livePoll.question}</h3>
                   <div className="space-y-2 pt-1">
@@ -2791,7 +2831,7 @@
                 </div>
               )}
 
-              {/* Anuncio Fijado por el Admin (Pin Post) */}
+              {/* Anuncio Fijado por el Admin */}
               {partyState?.pinnedAnnouncement && (
                 <div className="glass-card rounded-2xl p-4 border border-amber-400/40 bg-burgundy-900/90 flex items-center gap-3">
                   <span className="text-2xl">📌</span>
@@ -2857,7 +2897,7 @@
               <div className="glass-card rounded-2xl p-4 border border-nude-300/40">
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-[10px] uppercase tracking-widest px-2.5 py-0.5 rounded-full nude-btn">Reto {challengeIndex + 1} de 10</span>
-                  <button onClick={nextSequentialChallenge} className="text-xs text-nude-200 font-bold underline hover:text-white">⏭️ Siguiente</button>
+                  <button onClick={nextSequentialChallenge} className="text-xs text-nude-200 font-bold underline hover:text-white">⏭️ Siguiente reto</button>
                 </div>
                 <h3 className="text-base font-bold text-white flex items-center gap-2 mt-1">
                   <span className="text-xl">{currentChallenge.emoji}</span> {currentChallenge.title}
@@ -2893,7 +2933,7 @@
                             <span className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-burgundy-950 ${online ? "bg-emerald-500" : "bg-red-500"}`}></span>
                           </div>
                           <div>
-                            <div className="flex items-center gap-1.5">
+                            <div className="flex items-center gap-1.5 flex-wrap">
                               <p className="text-sm font-bold text-white group-hover:text-nude-300 transition">@{authorObj?.username || post.userName}</p>
                               {authorBadges.map((b, bi) => (
                                 <span key={bi} className="text-[9px] px-1.5 py-0.2 rounded-full bg-amber-400 text-[#090105] font-extrabold">{b}</span>
@@ -2901,29 +2941,24 @@
                             </div>
                             <div className="flex items-center gap-2">
                               <span className="text-[10px] text-nude-300 font-semibold">{formatRelativeTime(post.createdAt)}</span>
-                              {post.challengeTitle && (
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const foundCh = PHOTO_CHALLENGES.find(ch => `${ch.emoji} ${ch.title}` === post.challengeTitle);
-                                    if (foundCh) {
-                                      setFeedFilter("challenge");
-                                      setSelectedChallengeFilter(foundCh);
-                                    }
-                                  }}
-                                  className="text-[10px] text-amber-300 font-bold hover:underline"
-                                >
-                                  • {post.challengeTitle}
-                                </button>
-                              )}
+                              {post.challengeTitle && <span className="text-[10px] text-amber-300 font-bold">• {post.challengeTitle}</span>}
                             </div>
                           </div>
                         </button>
                         {canManage && (
                           <div className="flex items-center gap-1.5">
-                            <button onClick={() => setAdminEditPost({ ...post })} className="text-xs text-nude-200 px-2.5 py-1 rounded-lg bg-burgundy-900 border border-nude-300/25">✏️</button>
-                            <button onClick={() => handleDeletePost(post)} className="text-xs text-rose-300 px-2.5 py-1 rounded-lg bg-burgundy-950">🗑️</button>
+                            <button
+                              onClick={() => {
+                                setBorderCrop(post.borderCrop || { top: 0, bottom: 0, left: 0, right: 0 });
+                                setCropModalPost(post);
+                              }}
+                              className="text-xs px-2 py-1 rounded-lg nude-btn"
+                              title="Recortar bordes"
+                            >
+                              ✂️
+                            </button>
+                            <button onClick={() => setAdminEditPost({ ...post })} className="text-xs text-nude-200 px-2 py-1 rounded-lg bg-burgundy-900 border border-nude-300/25">✏️</button>
+                            <button onClick={() => handleDeletePost(post)} className="text-xs text-rose-300 px-2 py-1 rounded-lg bg-burgundy-950">🗑️</button>
                           </div>
                         )}
                       </div>
@@ -2938,16 +2973,19 @@
 
                       <div className="p-4 space-y-2.5">
                         <div className="flex items-center justify-between flex-wrap gap-2">
-                          <div className="flex items-center gap-2">
-                            <button onClick={() => toggleLike(post)} className={`flex items-center gap-1.5 text-xs font-extrabold px-3.5 py-1.5 rounded-full transition ${isLiked ? "bg-rose-500 text-white" : "light-surface"}`}>
+                          <div className="flex items-center gap-1.5">
+                            <button onClick={() => toggleLike(post)} className={`flex items-center gap-1 text-xs font-extrabold px-3 py-1.5 rounded-full transition ${isLiked ? "bg-rose-500 text-white" : "light-surface"}`}>
                               <span>{isLiked ? "❤️" : "🤍"}</span>
                               <span onClick={(e) => { e.stopPropagation(); setLikesViewerList(post.likes || []); }} className="hover:underline">{post.likes?.length || 0}</span>
                             </button>
-                            <button onClick={() => setFullscreenPostId(post.id)} className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-1.5 rounded-full bg-burgundy-900 border border-nude-300/35 text-nude-100">
+                            <button onClick={() => setFullscreenPostId(post.id)} className="flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-full bg-burgundy-900 border border-nude-300/35 text-nude-100">
                               <span>💬</span><span>{post.comments?.length || 0}</span>
                             </button>
-                            <button onClick={() => handleDownloadMedia(post.mediaUrl, post.mediaType)} className="flex items-center gap-1 text-xs font-bold px-3.5 py-1.5 rounded-full bg-burgundy-950 border border-nude-300/30 text-nude-200" title="Guardar foto o video">
-                              <span>💾</span><span>Guardar</span>
+                            <button onClick={() => setShareModalPost(post)} className="flex items-center gap-1 text-xs font-extrabold px-3 py-1.5 rounded-full nude-btn">
+                              <span>📤</span><span>Enviar</span>
+                            </button>
+                            <button onClick={() => handleDownloadMedia(post.mediaUrl, post.mediaType)} className="flex items-center gap-1 text-xs font-bold px-2.5 py-1.5 rounded-full bg-burgundy-950 border border-nude-300/30 text-nude-200" title="Guardar">
+                              <span>💾</span>
                             </button>
                           </div>
 
@@ -2977,10 +3015,13 @@
                           <div className="space-y-1.5 pt-2 border-t border-nude-300/20 max-h-36 overflow-y-auto no-scrollbar">
                             {post.comments.map((c) => {
                               const canDelComment = c.userId === currentUserDoc.uid || post.userId === currentUserDoc.uid || isAdmin;
+                              const cAuthor = users.find(u => u.uid === c.userId);
                               return (
                                 <div key={c.id} className="flex items-center justify-between text-xs text-nude-100 gap-2">
                                   <p>
-                                    <button onClick={() => openUserProfile(c.userId)} className="font-bold text-white mr-1.5 hover:underline">@{c.userName}:</button>
+                                    <button onClick={() => openUserProfile(c.userId)} className="font-bold text-white mr-1.5 hover:underline">
+                                      @{cAuthor?.username || c.userName}:
+                                    </button>
                                     <RichMentionText text={c.text} users={users} onOpenProfile={openUserProfile} />
                                   </p>
                                   {canDelComment && <button onClick={() => handleDeleteComment(post, c)} className="text-[10px] text-rose-300">✕</button>}
@@ -2991,7 +3032,7 @@
                         )}
 
                         <div className="flex items-center gap-2 pt-1">
-                          <input type="text" placeholder="Comenta o etiqueta con @..." value={commentInputs[post.id] || ""} onChange={(e) => setCommentInputs(prev => ({ ...prev, [post.id]: e.target.value }))} onKeyDown={(e) => e.key === "Enter" && handleAddComment(post.id)} className="flex-1 px-3.5 py-2 rounded-full bg-burgundy-950 border border-nude-300/35 text-xs text-white placeholder-nude-300/50 focus:outline-none" />
+                          <input type="text" placeholder="Comenta o etiqueta con @usuario..." value={commentInputs[post.id] || ""} onChange={(e) => setCommentInputs(prev => ({ ...prev, [post.id]: e.target.value }))} onKeyDown={(e) => e.key === "Enter" && handleAddComment(post.id)} className="flex-1 px-3.5 py-2 rounded-full bg-burgundy-950 border border-nude-300/35 text-xs text-white placeholder-nude-300/50 focus:outline-none" />
                           <button onClick={() => handleAddComment(post.id)} className="px-4 py-2 rounded-full nude-btn text-xs">Comentar</button>
                         </div>
                       </div>
@@ -3012,7 +3053,7 @@
                 <p className="text-xs text-nude-200">Encuentra a tus amigos, envíales solicitud o dales un Fuego de Match 🔥.</p>
                 <div className="relative">
                   <span className="absolute left-3.5 top-3 text-nude-300 font-bold text-sm">@</span>
-                  <input type="text" placeholder="Usuario" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full pl-8 pr-4 py-2.5 rounded-2xl bg-burgundy-950 border border-nude-300/40 text-sm text-white focus:outline-none" />
+                  <input type="text" placeholder="Nombre de usuario" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full pl-8 pr-4 py-2.5 rounded-2xl bg-burgundy-950 border border-nude-300/40 text-sm text-white focus:outline-none" />
                 </div>
               </div>
 
@@ -3031,7 +3072,7 @@
                           <span className={`absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-burgundy-950 ${online ? "bg-emerald-500" : "bg-red-500"}`}></span>
                         </div>
                         <div>
-                          <p className="text-sm font-bold text-white flex items-center gap-1.5">
+                          <p className="text-sm font-bold text-white">
                             @{guest.username} {isMe && <span className="text-[10px] text-nude-300">(Tú)</span>}
                           </p>
                           <p className="text-[11px] text-nude-300">{guest.vibeStatus || "🥂 En la barra"} • {guestPostsCount} posts</p>
@@ -3057,7 +3098,7 @@
           )}
 
           {/* ========================================================== */}
-          {/* PESTAÑA 3: FIESTA (CABINA DJ + CONFESIONES SECRETAS + MOSAICO #4) */}
+          {/* PESTAÑA 3: FIESTA (CABINA DJ CON @USUARIO + CONFESIONES + MOSAICO #4) */}
           {/* ========================================================== */}
           {activeTab === "party" && !viewedProfileUser && (
             <div className="p-4 space-y-4">
@@ -3070,12 +3111,54 @@
               {partySubTab === "dj" && (
                 <div className="space-y-4">
                   <div className="glass-card rounded-3xl p-5 space-y-3">
-                    <h3 className="font-serif text-xl font-bold text-white">🎵 Pedidos Musicales para el DJ</h3>
-                    <p className="text-xs text-nude-200">Pide tu tema favorito o déjale una dedicatoria musical para que suene ahora mismo en la fiesta.</p>
-                    <form onSubmit={handleAddDjSong} className="space-y-2.5">
-                      <input type="text" required placeholder="Nombre del tema y artista (ej. Despacito - Luis Fonsi)" value={djSongTitle} onChange={(e) => setDjSongTitle(e.target.value)} className="w-full px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/40 text-xs text-white" />
-                      <input type="text" placeholder="Dedicatoria o dedicatoria para alguien (opcional)" value={djSongDedicated} onChange={(e) => setDjSongDedicated(e.target.value)} className="w-full px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/40 text-xs text-white" />
-                      <button type="submit" className="w-full py-3 rounded-xl nude-btn text-xs shadow">Pedir Canción 🎶</button>
+                    <h3 className="font-serif text-xl font-bold text-white">🎵 Pedidos Musicales y Dedicatorias</h3>
+                    <p className="text-xs text-nude-200">
+                      Pide un tema para que suene en la fiesta y escribe <strong>@</strong> en la dedicatoria para etiquetar a cualquier invitado (le llegará notificación).
+                    </p>
+                    <form onSubmit={handleAddDjSong} className="space-y-2.5 relative">
+                      <input
+                        type="text"
+                        required
+                        placeholder="Canción y artista (ej. Tití Me Preguntó - Bad Bunny)"
+                        value={djSongTitle}
+                        onChange={(e) => setDjSongTitle(e.target.value)}
+                        className="w-full px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/40 text-xs text-white"
+                      />
+
+                      <div className="relative">
+                        <input
+                          type="text"
+                          placeholder="Dedicatoria (escribe @ para arrobar a un invitado)..."
+                          value={djSongDedicated}
+                          onChange={(e) => setDjSongDedicated(e.target.value)}
+                          className="w-full px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/40 text-xs text-white"
+                        />
+
+                        {/* Barra de Autocompletado de @usuario en Dedicatorias del DJ */}
+                        {djMentionCandidates.length > 0 && (
+                          <div className="mt-1.5 p-2 rounded-2xl bg-burgundy-900 border border-amber-300/50 shadow-2xl space-y-1">
+                            <p className="text-[10px] font-bold text-amber-300 px-1">Toca para arrobar en tu dedicatoria:</p>
+                            <div className="flex gap-2 overflow-x-auto no-scrollbar py-1">
+                              {djMentionCandidates.map(u => (
+                                <button
+                                  type="button"
+                                  key={u.uid}
+                                  onClick={() => {
+                                    const replaced = djSongDedicated.replace(/@([a-zA-Z0-9_]*)$/, `@${u.username} `);
+                                    setDjSongDedicated(replaced);
+                                  }}
+                                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-burgundy-950 border border-nude-300/40 shrink-0"
+                                >
+                                  <img src={u.avatar} alt="" className="w-5 h-5 rounded-full object-cover" />
+                                  <span className="text-xs font-bold text-white">@{u.username}</span>
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      <button type="submit" className="w-full py-3 rounded-xl nude-btn text-xs shadow">Pedir Canción al DJ 🎶</button>
                     </form>
                   </div>
 
@@ -3084,13 +3167,19 @@
                       const votesArr = song.votes || [];
                       const hasVoted = votesArr.includes(currentUserDoc.uid);
                       return (
-                        <div key={song.id} className="glass-card rounded-2xl p-4 flex items-center justify-between">
-                          <div>
+                        <div key={song.id} className="glass-card rounded-2xl p-4 flex items-center justify-between gap-3">
+                          <div className="space-y-1">
                             <p className="text-sm font-bold text-white">🎵 {song.songTitle}</p>
-                            {song.dedicatedTo && <p className="text-[11px] text-amber-300 italic">Dedicatoria: {song.dedicatedTo}</p>}
-                            <p className="text-[10px] text-nude-300 mt-1">Pedido por @{song.fromUsername}</p>
+                            {song.dedicatedTo && (
+                              <p className="text-xs text-nude-100 italic">
+                                💌 Dedicatoria: <RichMentionText text={song.dedicatedTo} users={users} onOpenProfile={openUserProfile} />
+                              </p>
+                            )}
+                            <button onClick={() => openUserProfile(song.fromUid)} className="text-[10px] text-nude-300 hover:underline">
+                              Pedido por @{song.fromUsername}
+                            </button>
                           </div>
-                          <button onClick={() => handleVoteDjSong(song)} className={`px-3.5 py-2 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition ${hasVoted ? "bg-amber-300 text-[#090105]" : "bg-burgundy-900 text-white border border-nude-300/30"}`}>
+                          <button onClick={() => handleVoteDjSong(song)} className={`px-3.5 py-2 rounded-xl text-xs font-extrabold flex items-center gap-1.5 shrink-0 transition ${hasVoted ? "bg-amber-300 text-[#090105]" : "bg-burgundy-900 text-white border border-nude-300/30"}`}>
                             <span>🔥</span><span>{votesArr.length}</span>
                           </button>
                         </div>
@@ -3104,10 +3193,10 @@
                 <div className="space-y-4">
                   <div className="glass-card rounded-3xl p-5 space-y-3">
                     <h3 className="font-serif text-xl font-bold text-white">🤫 Buzón de Confesiones Anónimas</h3>
-                    <p className="text-xs text-nude-200">Envía un mensaje secreto o piropo divertido. Se publicará con un alias misterioso aleatorio.</p>
+                    <p className="text-xs text-nude-200">Envía un mensaje secreto o menciona a alguien con <strong>@usuario</strong>. Tu identidad real nunca se verá.</p>
                     <form onSubmit={handleAddSecretConfession} className="space-y-2.5">
-                      <textarea required rows="2" placeholder="Escribe tu confesión secreta..." value={secretText} onChange={(e) => setSecretText(e.target.value)} className="w-full px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/40 text-xs text-white resize-none"></textarea>
-                      <button type="submit" className="w-full py-3 rounded-xl nude-btn text-xs shadow">Enviar Anónimo 🤫</button>
+                      <textarea required rows="2" placeholder="Escribe tu confesión secreta (puedes usar @usuario)..." value={secretText} onChange={(e) => setSecretText(e.target.value)} className="w-full px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/40 text-xs text-white resize-none"></textarea>
+                      <button type="submit" className="w-full py-3 rounded-xl nude-btn text-xs shadow">Publicar Anónimo 🤫</button>
                     </form>
                   </div>
 
@@ -3121,7 +3210,9 @@
                             <span className="text-xs font-bold text-amber-300">{conf.alias || "🦊 Anónimo"}</span>
                             <span className="text-[10px] text-nude-300">{formatRelativeTime(conf.createdAt)}</span>
                           </div>
-                          <p className="text-sm text-white italic">“{conf.text}”</p>
+                          <p className="text-sm text-white italic">
+                            “<RichMentionText text={conf.text} users={users} onOpenProfile={openUserProfile} />”
+                          </p>
                           <div className="flex justify-end pt-1">
                             <button onClick={() => handleLikeConfession(conf)} className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 ${hasFired ? "bg-amber-300 text-[#090105]" : "bg-burgundy-900 text-white"}`}>
                               <span>🔥</span><span>{firesArr.length}</span>
@@ -3134,28 +3225,52 @@
                 </div>
               )}
 
+              {/* MOSAICO GIGANTE (#4): Solo visible cuando el Admin toca el botón para activarlo */}
               {partySubTab === "mosaic" && (
                 <div className="glass-card rounded-3xl p-6 text-center space-y-5">
                   <div className="w-16 h-16 rounded-full nude-btn mx-auto flex items-center justify-center text-3xl shadow-xl">✨</div>
                   <h3 className="font-serif text-2xl font-bold text-white">Mosaico Oficial Sunset Vibes</h3>
-                  <p className="text-xs text-nude-200 leading-relaxed">
-                    Un póster digital de recuerdo que recopila todas las fotos y caras de los invitados que hicieron posible esta gran noche.
-                  </p>
 
-                  <button
-                    onClick={handleDownloadMosaicPoster}
-                    disabled={isGeneratingPoster}
-                    className="w-full py-4 rounded-2xl nude-btn font-extrabold text-sm shadow-2xl flex items-center justify-center gap-2"
-                  >
-                    <span>{isGeneratingPoster ? "Generando póster..." : "💾 Descargar Póster Mosaico Oficial (.JPG)"}</span>
-                  </button>
+                  {!partyState?.mosaicActive && !isAdmin ? (
+                    <div className="p-5 rounded-2xl bg-burgundy-950 border border-nude-300/25 space-y-2">
+                      <p className="text-lg">🔒</p>
+                      <p className="text-sm font-bold text-amber-300">Se desbloqueará al final de la fiesta</p>
+                      <p className="text-xs text-nude-200">
+                        Sigue subiendo tus mejores fotos al muro. Cuando el organizador active el cierre de la fiesta, aquí aparecerá el Mosaico Oficial con los 100 invitados para descargar.
+                      </p>
+                    </div>
+                  ) : (
+                    <>
+                      <p className="text-xs text-nude-200">
+                        ¡El Mosaico de Fin de Fiesta está activo! Aquí están los rostros y las mejores fotos de esta noche épica.
+                      </p>
+
+                      {/* Cuadrícula Visual en Vivo */}
+                      <div className="grid grid-cols-5 gap-1.5 p-3 rounded-2xl bg-burgundy-950 border border-amber-300/40 max-h-72 overflow-y-auto no-scrollbar">
+                        {users.filter(u => u.username).map(u => (
+                          <img key={u.uid} src={u.avatar} alt={u.username} onClick={() => openUserProfile(u.uid)} className="w-full h-14 object-cover rounded-lg border border-nude-300/30 cursor-pointer" />
+                        ))}
+                        {posts.filter(p => p.mediaType !== "video").slice(0, 20).map(p => (
+                          <img key={p.id} src={p.mediaUrl} alt="" onClick={() => setFullscreenPostId(p.id)} className="w-full h-14 object-cover rounded-lg border border-amber-300/40 cursor-pointer" />
+                        ))}
+                      </div>
+
+                      <button
+                        onClick={handleDownloadMosaicPoster}
+                        disabled={isGeneratingPoster}
+                        className="w-full py-4 rounded-2xl nude-btn font-extrabold text-sm shadow-2xl flex items-center justify-center gap-2"
+                      >
+                        <span>{isGeneratingPoster ? "Generando póster en HD..." : "💾 Descargar Póster Mosaico Oficial (.JPG)"}</span>
+                      </button>
+                    </>
+                  )}
                 </div>
               )}
             </div>
           )}
 
           {/* ========================================================== */}
-          {/* PESTAÑA 4: CHAT GRUPAL Y PRIVADO (CON REPLY Y FOTOS)       */}
+          {/* PESTAÑA 4: CHAT GRUPAL Y PRIVADO                           */}
           {/* ========================================================== */}
           {activeTab === "chat" && !viewedProfileUser && (
             <div className="p-4 space-y-4">
@@ -3243,7 +3358,7 @@
 
                   {replyingToMsg && (
                     <div className="px-3 py-1.5 bg-burgundy-900 border-t border-nude-300/30 flex items-center justify-between text-xs">
-                      <p className="text-nude-200 truncate">Respondida a <strong>@{replyingToMsg.senderName}</strong>: {replyingToMsg.text}</p>
+                      <p className="text-nude-200 truncate">Respondiendo a <strong>@{replyingToMsg.senderName}</strong></p>
                       <button onClick={() => setReplyingToMsg(null)} className="text-rose-300 font-bold ml-2">✕</button>
                     </div>
                   )}
@@ -3269,7 +3384,7 @@
                       />
                     </label>
 
-                    <input type="text" placeholder={chatImageUploading ? "Subiendo foto..." : "Escribe un mensaje o menciona con @..."} value={chatText} onChange={(e) => setChatText(e.target.value)} className="flex-1 px-4 py-2.5 rounded-full bg-burgundy-900 border border-nude-300/35 text-xs text-white focus:outline-none" />
+                    <input type="text" placeholder={chatImageUploading ? "Subiendo foto..." : "Escribe un mensaje o @usuario..."} value={chatText} onChange={(e) => setChatText(e.target.value)} className="flex-1 px-4 py-2.5 rounded-full bg-burgundy-900 border border-nude-300/35 text-xs text-white focus:outline-none" />
                     <button type="submit" className="px-5 py-2.5 rounded-full nude-btn text-xs">Enviar</button>
                   </form>
                 </div>
@@ -3326,13 +3441,6 @@
                       <div ref={chatEndRef} />
                     </div>
 
-                    {replyingToMsg && (
-                      <div className="px-3 py-1.5 bg-burgundy-900 border-t border-nude-300/30 flex items-center justify-between text-xs">
-                        <p className="text-nude-200 truncate">Respondiendo a <strong>@{replyingToMsg.senderName}</strong></p>
-                        <button onClick={() => setReplyingToMsg(null)} className="text-rose-300 font-bold ml-2">✕</button>
-                      </div>
-                    )}
-
                     <form onSubmit={handleSendMessage} className="p-3 bg-burgundy-950 flex gap-2 items-center border-t border-nude-300/20">
                       <label className="cursor-pointer text-xl p-1" title="Enviar foto">
                         <span>📷</span>
@@ -3388,7 +3496,7 @@
           )}
 
           {/* ========================================================== */}
-          {/* PESTAÑA 5: PERFIL (CON CARTA MATCH, VIBE Y TOQUES RÁPIDOS)   */}
+          {/* PESTAÑA 5: MI PERFIL (CON SELECTOR DE VIBE Y RECORTE ✂️)    */}
           {/* ========================================================== */}
           {activeTab === "profile" && !viewedProfileUser && (
             <div className="p-4 space-y-5">
@@ -3421,19 +3529,39 @@
                     <span key={bi} className="text-[10px] px-2 py-0.5 rounded-full bg-amber-400 text-[#090105] font-extrabold">{b}</span>
                   ))}
                 </h2>
-                <span className="inline-block mt-1 px-3 py-1 rounded-full bg-burgundy-950 border border-nude-300/30 text-xs font-bold text-amber-300">
-                  {currentUserDoc.vibeStatus || "🥂 En la barra"}
-                </span>
 
-                <button onClick={() => {
-                  setNewProfileUsername(currentUserDoc.username);
-                  setNewProfileAvatar(currentUserDoc.avatar);
-                  setNewProfileVibe(currentUserDoc.vibeStatus || "🥂 En la barra");
-                  setNewProfilePassword("");
-                  setProfileEditError("");
-                  setEditProfileModal(true);
-                }} className="mt-3 px-4 py-1.5 rounded-full nude-btn text-xs shadow">
-                  ✏️ Editar Perfil y Vibe
+                {/* Selector Rápido de Etiqueta de Vibe en 1 Toque */}
+                <div className="mt-3">
+                  <p className="text-[10px] uppercase tracking-wider text-nude-300 font-bold mb-1.5">Tu Vibe actual en la fiesta (Toca para cambiar):</p>
+                  <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1 justify-start">
+                    {VIBE_STATUS_LIST.map(v => (
+                      <button
+                        key={v}
+                        onClick={() => handleQuickVibeUpdate(v)}
+                        className={`px-3 py-1 rounded-full text-xs font-extrabold shrink-0 transition ${
+                          (currentUserDoc.vibeStatus || "🥂 En la barra") === v
+                            ? "bg-amber-300 text-[#090105] shadow"
+                            : "bg-burgundy-950 text-nude-200 border border-nude-300/30"
+                        }`}
+                      >
+                        {v}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => {
+                    setNewProfileUsername(currentUserDoc.username);
+                    setNewProfileAvatar(currentUserDoc.avatar);
+                    setNewProfileVibe(currentUserDoc.vibeStatus || "🥂 En la barra");
+                    setNewProfilePassword("");
+                    setProfileEditError("");
+                    setEditProfileModal(true);
+                  }}
+                  className="mt-4 px-5 py-2 rounded-full nude-btn text-xs shadow-lg"
+                >
+                  ✏️ Editar Foto / Usuario / Contraseña
                 </button>
 
                 <div className="grid grid-cols-4 gap-2 mt-5 pt-4 border-t border-nude-300/20">
@@ -3490,11 +3618,47 @@
                   </div>
                 )}
               </div>
+
+              {/* Mis Publicaciones Subidas con botón ✂️ para recortar */}
+              <div>
+                <h3 className="text-xs font-extrabold uppercase tracking-wider text-nude-300 mb-3">
+                  Mis Publicaciones ({myPosts.length}) • Toca ✂️ para recortar bordes
+                </h3>
+                {myPosts.length === 0 ? (
+                  <p className="text-xs text-nude-200/70 glass-card p-6 rounded-2xl text-center">Aún no has subido fotos ni videos.</p>
+                ) : (
+                  <div className="grid grid-cols-2 gap-3">
+                    {myPosts.map((p) => (
+                      <div key={p.id} className="glass-card rounded-2xl overflow-hidden">
+                        <div onClick={() => setFullscreenPostId(p.id)} className="h-40 bg-black overflow-hidden cursor-pointer">
+                          <MediaRenderer item={p} className="w-full h-full object-cover" controls={false} />
+                        </div>
+                        <div className="p-2.5 flex items-center justify-between text-xs">
+                          <span>❤️ {p.likes?.length || 0} • 💬 {p.comments?.length || 0}</span>
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              onClick={() => {
+                                setBorderCrop(p.borderCrop || { top: 0, bottom: 0, left: 0, right: 0 });
+                                setCropModalPost(p);
+                              }}
+                              className="px-1.5 py-0.5 rounded nude-btn text-[10px]"
+                            >
+                              ✂️
+                            </button>
+                            <button onClick={() => setAdminEditPost({ ...p })} className="text-nude-200">✏️</button>
+                            <button onClick={() => handleDeletePost(p)} className="text-rose-300 font-bold">🗑️</button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
           {/* ========================================================== */}
-          {/* PESTAÑA 6: PANEL ADMIN (RULETA #4 + ENCUESTA #6 + MOSAICO #4)*/}
+          {/* PESTAÑA 6: PANEL ADMIN (RULETA, ENCUESTA #6, MOSAICO #4, INVITADOS) */}
           {/* ========================================================== */}
           {activeTab === "admin" && isAdmin && !viewedProfileUser && (
             <div className="p-4 space-y-4">
@@ -3504,45 +3668,110 @@
                   <h2 className="font-serif text-2xl font-bold text-white mt-1">Panel de Control de la Fiesta</h2>
                 </div>
 
-                {/* Lanzar Ruleta en las 100 Pantallas */}
-                <div className="p-4 rounded-2xl bg-burgundy-950 border border-amber-400/40 space-y-3">
-                  <h4 className="text-sm font-extrabold text-amber-300 flex items-center gap-2"><span>🎰</span> Ruleta de Regalos en Vivo</h4>
-                  <input type="text" placeholder="Premio (ej. 🍾 1 Botella VIP)" value={adminWheelPrize} onChange={(e) => setAdminWheelPrize(e.target.value)} className="w-full px-3.5 py-2.5 rounded-xl bg-burgundy-900 border border-nude-300/35 text-xs text-white" />
-                  <button onClick={handleAdminLaunchWheel} className="w-full py-3 rounded-xl fire-match-btn font-extrabold text-xs shadow-xl">
-                    Lanzar Ruleta en las 100 Pantallas 🚀
-                  </button>
+                <div className="grid grid-cols-3 gap-1.5 bg-burgundy-950 p-1.5 rounded-2xl border border-nude-300/25 text-xs">
+                  <button onClick={() => setAdminSubTab("controls")} className={`py-2 rounded-xl font-extrabold ${adminSubTab === "controls" ? "nude-btn" : "text-nude-200"}`}>🎰 Show en Vivo</button>
+                  <button onClick={() => setAdminSubTab("guests")} className={`py-2 rounded-xl font-extrabold ${adminSubTab === "guests" ? "nude-btn" : "text-nude-200"}`}>👥 Invitados ({guestStats.length})</button>
+                  <button onClick={() => setAdminSubTab("challenges")} className={`py-2 rounded-xl font-extrabold ${adminSubTab === "challenges" ? "nude-btn" : "text-nude-200"}`}>🎯 Retos (10)</button>
                 </div>
 
-                {/* Lanzar Encuesta Relámpago (#6) */}
-                <form onSubmit={handleAdminLaunchPoll} className="p-4 rounded-2xl bg-burgundy-950 border border-nude-300/30 space-y-2.5">
-                  <h4 className="text-sm font-extrabold text-white flex items-center gap-2"><span>⚡</span> Crear Encuesta Relámpago</h4>
-                  <input type="text" required placeholder="Pregunta (ej. ¿Qué música ponemos?)" value={pollQuestionInput} onChange={(e) => setPollQuestionInput(e.target.value)} className="w-full px-3 py-2 rounded-xl bg-burgundy-900 border border-nude-300/30 text-xs text-white" />
-                  <input type="text" required placeholder="Opción 1" value={pollOpt1Input} onChange={(e) => setPollOpt1Input(e.target.value)} className="w-full px-3 py-2 rounded-xl bg-burgundy-900 border border-nude-300/30 text-xs text-white" />
-                  <input type="text" required placeholder="Opción 2" value={pollOpt2Input} onChange={(e) => setPollOpt2Input(e.target.value)} className="w-full px-3 py-2 rounded-xl bg-burgundy-900 border border-nude-300/30 text-xs text-white" />
-                  <button type="submit" className="w-full py-2.5 rounded-xl nude-btn text-xs font-extrabold">Publicar Encuesta</button>
-                </form>
+                {adminSubTab === "controls" && (
+                  <div className="space-y-4 pt-2">
+                    {/* Lanzar Ruleta en las 100 Pantallas */}
+                    <div className="p-4 rounded-2xl bg-burgundy-950 border border-amber-400/40 space-y-3">
+                      <h4 className="text-sm font-extrabold text-amber-300 flex items-center gap-2"><span>🎰</span> Ruleta de Regalos en Vivo (100 Pantallas)</h4>
+                      <input type="text" placeholder="Premio (ej. 🍾 1 Trago VIP en la barra)" value={adminWheelPrize} onChange={(e) => setAdminWheelPrize(e.target.value)} className="w-full px-3.5 py-2.5 rounded-xl bg-burgundy-900 border border-nude-300/35 text-xs text-white" />
+                      <button onClick={handleAdminLaunchWheel} className="w-full py-3 rounded-xl fire-match-btn font-extrabold text-xs shadow-xl">
+                        Lanzar Ruleta en Todos los Celulares 🚀
+                      </button>
+                    </div>
 
-                {/* Fijar Anuncio en el Muro (Pin Post) */}
-                <div className="p-4 rounded-2xl bg-burgundy-950 border border-nude-300/30 space-y-2.5">
-                  <h4 className="text-sm font-extrabold text-white flex items-center gap-2"><span>📌</span> Fijar Aviso en el Muro</h4>
-                  <input type="text" placeholder="Mensaje importante para los 100 invitados..." value={adminPinInput} onChange={(e) => setAdminPinInput(e.target.value)} className="w-full px-3 py-2 rounded-xl bg-burgundy-900 border border-nude-300/30 text-xs text-white" />
-                  <button onClick={() => saveGlobalPartyState({ pinnedAnnouncement: adminPinInput.trim() })} className="w-full py-2.5 rounded-xl nude-btn text-xs font-extrabold">Fijar Anuncio 📌</button>
-                </div>
+                    {/* Lanzar Encuesta Relámpago (#6) */}
+                    <form onSubmit={handleAdminLaunchPoll} className="p-4 rounded-2xl bg-burgundy-950 border border-nude-300/30 space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-sm font-extrabold text-white flex items-center gap-2"><span>⚡</span> Encuesta Relámpago (#6)</h4>
+                        {partyState?.livePoll?.active && (
+                          <button type="button" onClick={() => saveGlobalPartyState({ livePoll: { ...partyState.livePoll, active: false } })} className="text-[10px] text-rose-300 underline font-bold">
+                            Cerrar encuesta actual
+                          </button>
+                        )}
+                      </div>
+                      <input type="text" required placeholder="Pregunta (ej. ¿Qué música ponemos ahora?)" value={pollQuestionInput} onChange={(e) => setPollQuestionInput(e.target.value)} className="w-full px-3 py-2 rounded-xl bg-burgundy-900 border border-nude-300/30 text-xs text-white" />
+                      <input type="text" required placeholder="Opción 1 (ej. 🔥 Reggaetón Viejo)" value={pollOpt1Input} onChange={(e) => setPollOpt1Input(e.target.value)} className="w-full px-3 py-2 rounded-xl bg-burgundy-900 border border-nude-300/30 text-xs text-white" />
+                      <input type="text" required placeholder="Opción 2 (ej. 💃 Cachengue / Cumbia)" value={pollOpt2Input} onChange={(e) => setPollOpt2Input(e.target.value)} className="w-full px-3 py-2 rounded-xl bg-burgundy-900 border border-nude-300/30 text-xs text-white" />
+                      <input type="text" placeholder="Opción 3 (opcional)" value={pollOpt3Input} onChange={(e) => setPollOpt3Input(e.target.value)} className="w-full px-3 py-2 rounded-xl bg-burgundy-900 border border-nude-300/30 text-xs text-white" />
+                      <button type="submit" className="w-full py-2.5 rounded-xl nude-btn text-xs font-extrabold">Publicar Encuesta en Vivo ⚡</button>
+                    </form>
 
-                {/* Activar Póster Mosaico de Fin de Fiesta (#4) */}
-                <div className="p-4 rounded-2xl bg-burgundy-950 border border-amber-400/40 space-y-2.5 text-center">
-                  <h4 className="text-sm font-extrabold text-amber-300">✨ Mosaico de Fin de Fiesta</h4>
-                  <p className="text-[11px] text-nude-200">Activa el póster con las caras de los 100 invitados para que todos puedan descargarlo.</p>
-                  <button onClick={() => handleAdminToggleMosaic(true)} className="w-full py-3 rounded-xl nude-btn text-xs font-extrabold shadow-lg">
-                    Activar Mosaico Oficial 📸
-                  </button>
-                </div>
+                    {/* Fijar Anuncio en el Muro */}
+                    <div className="p-4 rounded-2xl bg-burgundy-950 border border-nude-300/30 space-y-2.5">
+                      <h4 className="text-sm font-extrabold text-white flex items-center gap-2"><span>📌</span> Fijar Aviso en el Muro</h4>
+                      <input type="text" placeholder="Escribe un anuncio (o déjalo vacío para quitarlo)..." value={adminPinInput} onChange={(e) => setAdminPinInput(e.target.value)} className="w-full px-3 py-2 rounded-xl bg-burgundy-900 border border-nude-300/30 text-xs text-white" />
+                      <button onClick={() => saveGlobalPartyState({ pinnedAnnouncement: adminPinInput.trim() })} className="w-full py-2.5 rounded-xl nude-btn text-xs font-extrabold">Actualizar Anuncio 📌</button>
+                    </div>
+
+                    {/* Activar Póster Mosaico de Fin de Fiesta (#4) */}
+                    <div className="p-4 rounded-2xl bg-burgundy-950 border border-amber-400/40 space-y-2.5 text-center">
+                      <h4 className="text-sm font-extrabold text-amber-300">✨ Mosaico de Fin de Fiesta (#4)</h4>
+                      <p className="text-[11px] text-nude-200">
+                        Estado actual: <strong>{partyState?.mosaicActive ? "✅ ACTIVO PARA TODOS" : "🔒 OCULTO HASTA EL FINAL"}</strong>
+                      </p>
+                      <div className="grid grid-cols-2 gap-2">
+                        <button onClick={() => handleAdminToggleMosaic(true)} className="py-3 rounded-xl nude-btn text-xs font-extrabold shadow-lg">
+                          Activar Mosaico 📸
+                        </button>
+                        <button onClick={() => handleAdminToggleMosaic(false)} className="py-3 rounded-xl bg-burgundy-900 border border-nude-300/30 text-xs text-nude-200 font-bold">
+                          Ocultar 🔒
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {adminSubTab === "guests" && (
+                  <div className="space-y-2.5 pt-2">
+                    {guestStats.map((g) => (
+                      <div key={g.uid} className="p-3.5 rounded-2xl bg-burgundy-950 border border-nude-300/20 flex items-center justify-between">
+                        <button onClick={() => openUserProfile(g.uid)} className="flex items-center gap-2.5 text-left">
+                          <img src={g.avatar} alt="" className="w-10 h-10 rounded-full object-cover" />
+                          <div>
+                            <p className="text-xs font-bold text-white underline">@{g.username}</p>
+                            <p className="text-[10px] text-nude-300">{g.postsCount} posts • ❤️ {g.likesReceived}</p>
+                          </div>
+                        </button>
+                        <div className="flex items-center gap-1.5">
+                          <button onClick={() => setAdminEditUser({ ...g })} className="px-2.5 py-1 rounded-lg bg-burgundy-800 text-xs text-nude-200 font-bold">✏️ Clave/Nombre</button>
+                          {g.uid !== currentUserDoc.uid && (
+                            <button onClick={() => handleAdminDeleteUser(g)} className="px-2.5 py-1 rounded-lg bg-rose-950 text-xs text-rose-200 font-bold">🗑️</button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {adminSubTab === "challenges" && (
+                  <div className="space-y-3 pt-2">
+                    {PHOTO_CHALLENGES.map((ch, idx) => {
+                      const fullTitle = `${ch.emoji} ${ch.title}`;
+                      const chPosts = posts.filter(p => p.challengeId === ch.id || p.challengeTitle === fullTitle);
+                      return (
+                        <div key={ch.id} className="p-3.5 rounded-2xl bg-burgundy-950 border border-nude-300/25 flex items-center justify-between">
+                          <div>
+                            <span className="text-[10px] text-amber-300 font-bold">Reto #{idx + 1}</span>
+                            <p className="text-xs font-bold text-white">{ch.emoji} {ch.title}</p>
+                          </div>
+                          <span className="px-3 py-1 rounded-full nude-btn text-xs">{chPosts.length} fotos</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </div>
           )}
 
           {/* ========================================================== */}
-          {/* VISTA DE PERFIL DE OTRO INVITADO (CON GUIÑOS Y MATCH 🔥)   */}
+          {/* VISTA DE PERFIL DE OTRO INVITADO                           */}
           {/* ========================================================== */}
           {viewedProfileUser && (
             <div className="p-4 space-y-5">
@@ -3564,7 +3793,6 @@
                   {viewedProfileUser.vibeStatus || "🥂 En la barra"}
                 </span>
 
-                {/* Toques Rápidos / Guiños de Fiesta */}
                 <div className="grid grid-cols-3 gap-1.5 mt-4">
                   <button onClick={() => handleSendQuickWink(viewedProfileUser, "👀 Te vi pasar")} className="py-1.5 rounded-xl bg-burgundy-900 border border-nude-300/30 text-[11px] text-white font-bold">👀 Te vi</button>
                   <button onClick={() => handleSendQuickWink(viewedProfileUser, "🥂 ¡Salud!")} className="py-1.5 rounded-xl bg-burgundy-900 border border-nude-300/30 text-[11px] text-white font-bold">🥂 ¡Salud!</button>
@@ -3587,12 +3815,433 @@
                   )}
                 </div>
               </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                {viewedUserPosts.map((p) => (
+                  <div key={p.id} onClick={() => setFullscreenPostId(p.id)} className="glass-card rounded-2xl overflow-hidden cursor-pointer">
+                    <div className="h-40 bg-black overflow-hidden">
+                      <MediaRenderer item={p} className="w-full h-full object-cover" controls={false} />
+                    </div>
+                    <div className="p-2.5 flex items-center justify-between text-xs">
+                      <span>❤️ {p.likes?.length || 0} • 💬 {p.comments?.length || 0}</span>
+                      <span className="text-[10px] text-nude-300 font-bold">Abrir ⤢</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
           {/* ========================================================== */}
-          {/* VISOR DE HISTORIAS PANTALLA COMPLETA (VISTOS 👁️ + ☰)        */}
+          {/* MODAL 1: CENTRO DE NOTIFICACIONES (🔔 CAMPANITA REPARADA)  */}
           {/* ========================================================== */}
+          {notifModalOpen && (
+            <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="glass-card rounded-3xl max-w-md w-full p-5 border border-nude-300/40 space-y-4 max-h-[82vh] flex flex-col">
+                <div className="flex items-center justify-between border-b border-nude-300/20 pb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">🔔</span>
+                    <h3 className="font-serif text-xl font-bold text-white">Notificaciones</h3>
+                  </div>
+                  <button onClick={() => setNotifModalOpen(false)} className="px-3 py-1 rounded-full nude-btn text-xs">Cerrar ✕</button>
+                </div>
+
+                <div className="flex-1 overflow-y-auto space-y-2.5 no-scrollbar pr-1">
+                  {myNotifications.length === 0 ? (
+                    <p className="text-xs text-nude-200/70 text-center py-10">
+                      Aún no tienes notificaciones. Aquí verás tus solicitudes de amistad, Matches 🔥, dedicatorias del DJ y menciones.
+                    </p>
+                  ) : (
+                    myNotifications.map((n) => {
+                      const senderLive = users.find(u => u.uid === n.fromUid);
+                      const sName = senderLive?.username || n.fromUsername;
+                      const sAvatar = senderLive?.avatar || n.fromAvatar;
+                      return (
+                        <div key={n.id} className="p-3.5 rounded-2xl bg-burgundy-950/90 border border-nude-300/25 space-y-2">
+                          <div className="flex items-center justify-between gap-2">
+                            <button onClick={() => openUserProfile(n.fromUid)} className="flex items-center gap-2.5 text-left">
+                              <img src={sAvatar} alt="" className="w-10 h-10 rounded-full object-cover border border-nude-300/50" />
+                              <p className="text-xs text-white">
+                                <span className="font-extrabold text-nude-300 underline mr-1">@{sName}</span>
+                                {n.text}
+                              </p>
+                            </button>
+
+                            {n.postId && (
+                              <button onClick={() => { setNotifModalOpen(false); setFullscreenPostId(n.postId); }} className="px-2.5 py-1 rounded-xl nude-btn text-[10px] shrink-0">Ver Post</button>
+                            )}
+                            {n.storyUserId && (
+                              <button onClick={() => { setNotifModalOpen(false); openStoriesForUser(n.storyUserId); }} className="px-2.5 py-1 rounded-xl nude-btn text-[10px] shrink-0">Ver Story</button>
+                            )}
+                            {n.type === "match_received" && (
+                              <button onClick={() => { setNotifModalOpen(false); setViewedProfileUid(null); setActiveTab("profile"); }} className="px-2.5 py-1 rounded-xl fire-match-btn text-[10px] font-extrabold shrink-0">🔥 Carta</button>
+                            )}
+                          </div>
+
+                          {n.type === "friend_request" && n.status === "pending" && (
+                            <div className="flex items-center gap-2 pt-1">
+                              <button onClick={() => handleRespondFriendRequest(n, true)} className="flex-1 py-2 rounded-xl nude-btn text-xs shadow">✓ Aceptar Amistad</button>
+                              <button onClick={() => handleRespondFriendRequest(n, false)} className="flex-1 py-2 rounded-xl bg-burgundy-800 border border-nude-300/30 text-xs text-nude-200 font-bold">✕ Denegar</button>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ========================================================== */}
+          {/* MODAL 2: ESTUDIO DE SUBIDA CON RECORTE 4 LADOS Y TEXTO MOVIBLE */}
+          {/* ========================================================== */}
+          {uploadModal.open && (
+            <div
+              className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md overflow-y-auto p-4 flex items-center justify-center select-none"
+              onPointerMove={(e) => (draggingStickerId || draggingText) && handleCanvasPointerMove(e.clientX, e.clientY)}
+              onPointerUp={() => { setDraggingStickerId(null); setDraggingText(false); }}
+              onPointerCancel={() => { setDraggingStickerId(null); setDraggingText(false); }}
+            >
+              <div className="glass-card rounded-3xl max-w-md w-full p-5 border border-nude-300/40 space-y-4 my-auto">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-serif text-xl font-bold text-white">
+                    {uploadModal.type === "story" ? "Subir Historia" : uploadModal.withChallenge ? `Reto: ${currentChallenge.title}` : "Subir Foto o Video"}
+                  </h3>
+                  <button onClick={() => { resetUploadStudio(); setUploadModal({ open: false, type: "post", withChallenge: false }); }} className="text-nude-300 font-bold text-sm">✕ Cerrar</button>
+                </div>
+
+                <form onSubmit={handlePublishEditedMedia} className="space-y-3.5">
+                  <div ref={previewBoxRef} className="w-full h-64 rounded-2xl border-2 border-dashed border-nude-300/50 bg-black flex items-center justify-center overflow-hidden relative">
+                    {rawMediaUrl ? (
+                      <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
+                        {mediaType === "video" ? (
+                          <video src={rawMediaUrl} controls={activeStudioTool !== "crop"} style={{ filter: selectedFilter.css }} className="w-full h-full object-contain" />
+                        ) : (
+                          <img src={rawMediaUrl} alt="" style={{ filter: selectedFilter.css }} className="w-full h-full object-contain" />
+                        )}
+
+                        {/* Marco visual en vivo de Recorte de los 4 Bordes */}
+                        {(uploadBorderCrop.top > 0 || uploadBorderCrop.bottom > 0 || uploadBorderCrop.left > 0 || uploadBorderCrop.right > 0 || activeStudioTool === "crop") && (
+                          <div
+                            style={{
+                              top: `${uploadBorderCrop.top}%`,
+                              bottom: `${uploadBorderCrop.bottom}%`,
+                              left: `${uploadBorderCrop.left}%`,
+                              right: `${uploadBorderCrop.right}%`
+                            }}
+                            className="absolute border-2 border-amber-300 shadow-[0_0_0_9999px_rgba(0,0,0,0.72)] pointer-events-none rounded-lg z-10"
+                          ></div>
+                        )}
+
+                        {/* Stickers y Sellos VIP Arrastrables con el dedo */}
+                        {placedStickers.map((st) => (
+                          <div
+                            key={st.id}
+                            style={{ left: `${st.x}%`, top: `${st.y}%` }}
+                            onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); setDraggingStickerId(st.id); }}
+                            className="sticker-draggable absolute -translate-x-1/2 -translate-y-1/2 cursor-grab active:scale-125 transition-transform z-20"
+                          >
+                            {st.emoji.length > 4 ? (
+                              <span className="px-2.5 py-1 rounded-xl bg-burgundy-950/90 border border-amber-300 text-amber-300 font-extrabold text-[10px] shadow-xl whitespace-nowrap">{st.emoji}</span>
+                            ) : (
+                              <span className="text-4xl drop-shadow-xl">{st.emoji}</span>
+                            )}
+                            <button
+                              type="button"
+                              onPointerDown={(e) => { e.stopPropagation(); removeStickerFromCanvas(st.id); }}
+                              className="-top-2 -right-2 absolute w-4 h-4 rounded-full bg-rose-600 text-white text-[9px] flex items-center justify-center font-bold"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))}
+
+                        {/* Texto Superpuesto Visible y Arrastrable con el Dedo */}
+                        {overlayText.trim() && (
+                          <div
+                            style={{
+                              top: `${overlayYPos}%`,
+                              backgroundColor: overlayColor.bg,
+                              color: overlayColor.hex
+                            }}
+                            onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); setDraggingText(true); }}
+                            className="sticker-draggable absolute left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-1.5 rounded-xl font-extrabold text-sm text-center cursor-grab shadow-xl max-w-[88%] z-20"
+                          >
+                            {overlayText}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer text-center p-4">
+                        <span className="text-3xl">📸 🎥</span>
+                        <p className="text-xs font-bold text-white mt-2">Toca aquí para elegir Foto o Video (Máx 15s)</p>
+                        <p className="text-[11px] text-nude-300 mt-1">Luego usa los botones de abajo para recortar bordes, poner filtros, texto o stickers</p>
+                        <input type="file" accept="image/*,video/*" onChange={handleMediaFileChange} className="hidden" />
+                      </label>
+                    )}
+                  </div>
+
+                  {rawMediaUrl && (
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-4 gap-1.5">
+                        <button type="button" onClick={() => setActiveStudioTool(activeStudioTool === "crop" ? null : "crop")} className={`py-2 rounded-xl text-xs font-extrabold ${activeStudioTool === "crop" ? "nude-btn" : "bg-burgundy-950 text-nude-200 border border-nude-300/30"}`}>✂️ Recortar</button>
+                        <button type="button" onClick={() => setActiveStudioTool(activeStudioTool === "filter" ? null : "filter")} className={`py-2 rounded-xl text-xs font-extrabold ${activeStudioTool === "filter" ? "nude-btn" : "bg-burgundy-950 text-nude-200 border border-nude-300/30"}`}>🎨 Filtros</button>
+                        <button type="button" onClick={() => setActiveStudioTool(activeStudioTool === "text" ? null : "text")} className={`py-2 rounded-xl text-xs font-extrabold ${activeStudioTool === "text" ? "nude-btn" : "bg-burgundy-950 text-nude-200 border border-nude-300/30"}`}>🔤 Texto</button>
+                        <button type="button" onClick={() => setActiveStudioTool(activeStudioTool === "stickers" ? null : "stickers")} className={`py-2 rounded-xl text-xs font-extrabold ${activeStudioTool === "stickers" ? "nude-btn" : "bg-burgundy-950 text-nude-200 border border-nude-300/30"}`}>✨ Stickers</button>
+                      </div>
+
+                      {activeStudioTool === "crop" && (
+                        <div className="bg-burgundy-950 p-3.5 rounded-2xl border border-nude-300/30 space-y-2 text-xs">
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-amber-300">✂️ Ajusta los 4 bordes a recortar</span>
+                            <button type="button" onClick={() => setUploadBorderCrop({ top: 0, bottom: 0, left: 0, right: 0 })} className="text-[10px] text-nude-300 underline">Restablecer</button>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2.5">
+                            <div><label className="text-[11px] text-nude-200">Arriba ({uploadBorderCrop.top}%)</label><input type="range" min="0" max="40" value={uploadBorderCrop.top} onChange={(e) => setUploadBorderCrop({ ...uploadBorderCrop, top: Number(e.target.value) })} className="w-full accent-nude-300" /></div>
+                            <div><label className="text-[11px] text-nude-200">Abajo ({uploadBorderCrop.bottom}%)</label><input type="range" min="0" max="40" value={uploadBorderCrop.bottom} onChange={(e) => setUploadBorderCrop({ ...uploadBorderCrop, bottom: Number(e.target.value) })} className="w-full accent-nude-300" /></div>
+                            <div><label className="text-[11px] text-nude-200">Izquierda ({uploadBorderCrop.left}%)</label><input type="range" min="0" max="40" value={uploadBorderCrop.left} onChange={(e) => setUploadBorderCrop({ ...uploadBorderCrop, left: Number(e.target.value) })} className="w-full accent-nude-300" /></div>
+                            <div><label className="text-[11px] text-nude-200">Derecha ({uploadBorderCrop.right}%)</label><input type="range" min="0" max="40" value={uploadBorderCrop.right} onChange={(e) => setUploadBorderCrop({ ...uploadBorderCrop, right: Number(e.target.value) })} className="w-full accent-nude-300" /></div>
+                          </div>
+                        </div>
+                      )}
+
+                      {activeStudioTool === "filter" && (
+                        <div className="bg-burgundy-950 p-3.5 rounded-2xl border border-nude-300/30 flex gap-1.5 overflow-x-auto no-scrollbar">
+                          {MEDIA_FILTERS.map(f => (
+                            <button type="button" key={f.id} onClick={() => setSelectedFilter(f)} className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 ${selectedFilter.id === f.id ? "nude-btn" : "bg-burgundy-900 text-nude-200"}`}>{f.name}</button>
+                          ))}
+                        </div>
+                      )}
+
+                      {activeStudioTool === "text" && (
+                        <div className="bg-burgundy-950 p-3.5 rounded-2xl border border-nude-300/30 space-y-2.5">
+                          <input type="text" placeholder="Escribe el texto sobre la foto (arrástralo con el dedo)..." value={overlayText} onChange={(e) => setOverlayText(e.target.value)} className="w-full px-3 py-2 rounded-xl bg-burgundy-900 border border-nude-300/30 text-xs text-white" />
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="flex gap-1.5">
+                              {TEXT_COLORS.map(tc => (
+                                <button type="button" key={tc.id} onClick={() => setOverlayColor(tc)} style={{ backgroundColor: tc.hex }} className={`w-6 h-6 rounded-full border-2 ${overlayColor.id === tc.id ? "border-amber-400 scale-110" : "border-white/30"}`}></button>
+                              ))}
+                            </div>
+                            <input type="range" min="10" max="90" value={overlayYPos} onChange={(e) => setOverlayYPos(Number(e.target.value))} className="flex-1 accent-nude-300" />
+                          </div>
+                        </div>
+                      )}
+
+                      {activeStudioTool === "stickers" && (
+                        <div className="bg-burgundy-950 p-3.5 rounded-2xl border border-nude-300/30 space-y-2">
+                          <p className="text-[11px] font-bold text-nude-200">Toca para agregar y arrástralos con el dedo:</p>
+                          <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
+                            {STICKERS.map(st => (
+                              <button type="button" key={st} onClick={() => addStickerToCanvas(st)} className="text-lg px-2.5 py-1 rounded-lg bg-burgundy-900 shrink-0">+{st}</button>
+                            ))}
+                          </div>
+                          <div className="flex flex-wrap gap-1 pt-1">
+                            {VIP_STAMPS.map(st => (
+                              <button type="button" key={st} onClick={() => addStickerToCanvas(st)} className="px-2 py-1 rounded-lg bg-burgundy-900 border border-amber-300/40 text-amber-300 font-bold text-[10px]">+{st}</button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {mediaError && <div className="p-3 rounded-xl bg-rose-950 border border-rose-400 text-xs text-rose-200 font-semibold">⚠️ {mediaError}</div>}
+
+                  <input type="text" placeholder="Pie de foto (etiqueta amigos con @usuario)..." value={caption} onChange={(e) => setCaption(e.target.value)} className="w-full px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/35 text-xs text-white" />
+                  <button type="submit" disabled={!rawMediaUrl || isSubmitting} className="w-full py-3.5 rounded-xl nude-btn text-sm shadow-lg">{isSubmitting ? `Publicando (${uploadProgress}%)...` : "Publicar Ahora ✨"}</button>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* ========================================================== */}
+          {/* MODAL 3: RECORTAR BORDES DE PUBLICACIÓN YA SUBIDA (✂️)     */}
+          {/* ========================================================== */}
+          {cropModalPost && (
+            <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md p-4 flex items-center justify-center overflow-y-auto">
+              <div className="glass-card rounded-3xl max-w-md w-full p-5 border border-nude-300/40 space-y-4 my-auto">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-serif text-xl font-bold text-white">✂️ Recortar Bordes</h3>
+                  <button onClick={() => setCropModalPost(null)} className="text-nude-300 font-bold">✕</button>
+                </div>
+
+                <div className="relative w-full h-64 bg-black rounded-2xl overflow-hidden flex items-center justify-center border border-nude-300/30">
+                  {cropModalPost.mediaType === "video" ? (
+                    <video src={cropModalPost.mediaUrl} className="w-full h-full object-contain" muted autoPlay loop />
+                  ) : (
+                    <img src={cropModalPost.mediaUrl} alt="" className="w-full h-full object-contain" />
+                  )}
+                  <div
+                    style={{
+                      top: `${borderCrop.top}%`,
+                      bottom: `${borderCrop.bottom}%`,
+                      left: `${borderCrop.left}%`,
+                      right: `${borderCrop.right}%`
+                    }}
+                    className="absolute border-2 border-amber-300 shadow-[0_0_0_9999px_rgba(0,0,0,0.72)] pointer-events-none rounded-lg"
+                  ></div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 text-xs bg-burgundy-950 p-3.5 rounded-2xl border border-nude-300/20">
+                  <div><label className="font-bold text-nude-200">Arriba ({borderCrop.top}%)</label><input type="range" min="0" max="40" value={borderCrop.top} onChange={(e) => setBorderCrop({ ...borderCrop, top: Number(e.target.value) })} className="w-full accent-nude-300" /></div>
+                  <div><label className="font-bold text-nude-200">Abajo ({borderCrop.bottom}%)</label><input type="range" min="0" max="40" value={borderCrop.bottom} onChange={(e) => setBorderCrop({ ...borderCrop, bottom: Number(e.target.value) })} className="w-full accent-nude-300" /></div>
+                  <div><label className="font-bold text-nude-200">Izquierda ({borderCrop.left}%)</label><input type="range" min="0" max="40" value={borderCrop.left} onChange={(e) => setBorderCrop({ ...borderCrop, left: Number(e.target.value) })} className="w-full accent-nude-300" /></div>
+                  <div><label className="font-bold text-nude-200">Derecha ({borderCrop.right}%)</label><input type="range" min="0" max="40" value={borderCrop.right} onChange={(e) => setBorderCrop({ ...borderCrop, right: Number(e.target.value) })} className="w-full accent-nude-300" /></div>
+                </div>
+
+                <button onClick={handleApplyBorderCrop} disabled={isCroppingPost} className="w-full py-3.5 rounded-xl nude-btn text-xs shadow-lg">
+                  {isCroppingPost ? "Aplicando recorte..." : "Guardar Recorte ✨"}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ========================================================== */}
+          {/* MODAL 4: EDITAR MI PERFIL Y VIBE (✏️ REPARADO)             */}
+          {/* ========================================================== */}
+          {editProfileModal && (
+            <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+              <div className="glass-card rounded-3xl max-w-sm w-full p-6 border border-nude-300/40 space-y-4 my-auto">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-serif text-xl font-bold text-white">Editar Mi Perfil y Vibe</h3>
+                  <button onClick={() => setEditProfileModal(false)} className="text-nude-300 font-bold">✕</button>
+                </div>
+
+                <form onSubmit={handleSaveProfileEdit} className="space-y-3.5">
+                  <div className="flex flex-col items-center">
+                    <label className="cursor-pointer text-center">
+                      <img src={newProfileAvatar || currentUserDoc.avatar} alt="" className="w-24 h-24 rounded-full object-cover mx-auto border-2 border-nude-300" />
+                      <span className="mt-2 inline-block text-xs px-3 py-1 rounded-full nude-btn">📷 Cambiar Foto</span>
+                      <input type="file" accept="image/*" onChange={async (e) => { const f = e.target.files?.[0]; if (f) setNewProfileAvatar(await compressSimpleImage(f)); }} className="hidden" />
+                    </label>
+                  </div>
+
+                  <div>
+                    <label className="text-xs text-nude-200 font-bold">Nombre de usuario</label>
+                    <input type="text" required value={newProfileUsername} onChange={(e) => setNewProfileUsername(e.target.value)} className="w-full mt-1 px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/40 text-sm text-white" />
+                  </div>
+
+                  <div>
+                    <label className="text-xs text-nude-200 font-bold">Tu Etiqueta de Vibe</label>
+                    <select value={newProfileVibe} onChange={(e) => setNewProfileVibe(e.target.value)} className="w-full mt-1 px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/40 text-xs text-white">
+                      {VIBE_STATUS_LIST.map(v => <option key={v} value={v}>{v}</option>)}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-xs text-nude-200 font-bold">Nueva contraseña (opcional)</label>
+                    <input type="password" placeholder="Contraseña" value={newProfilePassword} onChange={(e) => setNewProfilePassword(e.target.value)} className="w-full mt-1 px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/40 text-sm text-white" />
+                  </div>
+
+                  {profileEditError && <p className="text-xs text-rose-300 font-bold">{profileEditError}</p>}
+
+                  <button type="submit" className="w-full py-3 rounded-xl nude-btn text-xs shadow">Guardar Cambios ✨</button>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* ========================================================== */}
+          {/* MODAL 5: CÓDIGO QR OFICIAL (REPARADO)                      */}
+          {/* ========================================================== */}
+          {qrModalOpen && (
+            <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="glass-card rounded-3xl max-w-sm w-full p-6 text-center border border-nude-300/40 space-y-4">
+                <h3 className="font-serif text-2xl font-bold text-white">QR Oficial Sunset Vibes</h3>
+                <p className="text-xs text-nude-200">Escanea con la cámara para entrar al muro, dar Match 🔥 y unirte a la fiesta.</p>
+                <div className="bg-white p-4 rounded-2xl inline-block mx-auto shadow-2xl">
+                  <img src={`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(window.location.href)}`} alt="QR Sunset Vibes" className="w-48 h-48" />
+                </div>
+                <button onClick={() => setQrModalOpen(false)} className="w-full py-3 rounded-xl nude-btn text-xs">Cerrar</button>
+              </div>
+            </div>
+          )}
+
+          {/* ========================================================== */}
+          {/* MODAL 6: COMPARTIR PUBLICACIÓN EN EL CHAT                  */}
+          {/* ========================================================== */}
+          {shareModalPost && (
+            <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="glass-card rounded-3xl max-w-sm w-full p-6 border border-nude-300/40 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-serif text-xl font-bold text-white">Compartir Publicación</h3>
+                  <button onClick={() => setShareModalPost(null)} className="text-nude-300 font-bold">✕</button>
+                </div>
+                <button onClick={() => handleSendPostToChat("group")} className="w-full py-3 px-4 rounded-2xl nude-btn text-xs shadow">🎉 Enviar al Chat Grupal</button>
+                <button onClick={() => handleExternalShare(shareModalPost)} className="w-full py-3 px-4 rounded-2xl bg-burgundy-800 border border-nude-300/40 text-white font-bold text-xs">📲 Compartir fuera de la App</button>
+                <div className="pt-2 border-t border-nude-300/20">
+                  <p className="text-xs font-bold text-nude-300 mb-2">Enviar por privado a un Amigo:</p>
+                  <div className="max-h-40 overflow-y-auto space-y-2 no-scrollbar">
+                    {myFriendUsers.map(u => (
+                      <button key={u.uid} onClick={() => handleSendPostToChat("private", u)} className="w-full p-2.5 rounded-xl bg-burgundy-950 flex items-center justify-between border border-nude-300/20">
+                        <div className="flex items-center gap-2"><img src={u.avatar} alt="" className="w-7 h-7 rounded-full object-cover" /><span className="text-xs font-bold text-white">@{u.username}</span></div>
+                        <span className="text-xs text-nude-300 font-bold">Enviar →</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* MODAL 7: VISTA PANTALLA COMPLETA DE PUBLICACIÓN */}
+          {fullscreenPost && (
+            <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md overflow-y-auto p-4 flex items-center justify-center">
+              <div className="glass-card rounded-3xl max-w-md w-full overflow-hidden my-auto border border-nude-300/40">
+                <div className="p-3.5 bg-burgundy-950 flex items-center justify-between border-b border-nude-300/20">
+                  <button onClick={() => openUserProfile(fullscreenPost.userId)} className="flex items-center gap-2.5 text-left">
+                    <img src={fullscreenPost.userAvatar} alt="" className="w-9 h-9 rounded-full object-cover" />
+                    <span className="text-sm font-bold text-white hover:underline">@{fullscreenPost.userName}</span>
+                  </button>
+                  <button onClick={() => setFullscreenPostId(null)} className="px-3 py-1 rounded-full nude-btn text-xs">Cerrar ✕</button>
+                </div>
+                <div className="bg-black max-h-[55vh] flex items-center justify-center overflow-hidden">
+                  <MediaRenderer item={fullscreenPost} className="w-full max-h-[55vh] object-contain" onDoubleTapLike={() => toggleLike(fullscreenPost)} />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* MODAL 8: EDITAR PIE DE FOTO / ADMIN EDITAR USUARIO */}
+          {adminEditPost && (
+            <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="glass-card rounded-3xl max-w-sm w-full p-6 border border-nude-300/40 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-serif text-xl font-bold text-white">Editar Pie de Foto</h3>
+                  <button onClick={() => setAdminEditPost(null)} className="text-nude-300 font-bold">✕</button>
+                </div>
+                <form onSubmit={handleSavePostEdit} className="space-y-3">
+                  <input type="text" value={adminEditPost.caption || ""} onChange={(e) => setAdminEditPost({ ...adminEditPost, caption: e.target.value })} className="w-full px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/40 text-xs text-white" />
+                  <button type="submit" className="w-full py-3 rounded-xl nude-btn text-xs">Guardar</button>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {adminEditUser && isAdmin && (
+            <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="glass-card rounded-3xl max-w-sm w-full p-6 border border-nude-300/40 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-serif text-xl font-bold text-white">Editar Invitado (Admin)</h3>
+                  <button onClick={() => setAdminEditUser(null)} className="text-nude-300 font-bold">✕</button>
+                </div>
+                <form onSubmit={handleAdminSaveUser} className="space-y-3">
+                  <div>
+                    <label className="text-xs font-bold text-nude-200">Nombre de usuario</label>
+                    <input type="text" value={adminEditUser.username || ""} onChange={(e) => setAdminEditUser({ ...adminEditUser, username: e.target.value })} className="w-full mt-1 px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/40 text-xs text-white" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-nude-200">Contraseña del invitado</label>
+                    <input type="text" value={adminEditUser.password || ""} onChange={(e) => setAdminEditUser({ ...adminEditUser, password: e.target.value })} className="w-full mt-1 px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/40 text-xs text-white" />
+                  </div>
+                  <button type="submit" className="w-full py-3 rounded-xl nude-btn text-xs">Guardar Cambios</button>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* VISOR DE HISTORIAS PANTALLA COMPLETA */}
           {storyViewer.open && activeStoryGroup && activeStoryItem && (
             <div
               className="fixed inset-0 z-50 bg-black flex flex-col justify-between select-none"
@@ -3643,12 +4292,12 @@
 
                   <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                     {(activeStoryItem.userId === currentUserDoc.uid || isAdmin) && (
-                      <button
-                        onClick={() => setStoryViewsModal(activeStoryItem.views || [])}
-                        className="px-2.5 py-1 rounded-full bg-black/70 border border-white/40 text-white text-xs font-bold"
-                      >
-                        👁️ {(activeStoryItem.views || []).length}
-                      </button>
+                      <>
+                        <button onClick={() => setStoryViewsModal(activeStoryItem.views || [])} className="px-2.5 py-1 rounded-full bg-black/70 border border-white/40 text-white text-xs font-bold">
+                          👁️ {(activeStoryItem.views || []).length}
+                        </button>
+                        <button onClick={() => handleDeleteStory(activeStoryItem)} className="px-2.5 py-1 rounded-full bg-rose-600 text-white text-xs font-bold">🗑️</button>
+                      </>
                     )}
                     <button onClick={() => setStoryViewer(prev => ({ ...prev, paused: !prev.paused }))} className="px-3 py-1 rounded-full bg-black/70 border border-white/40 text-white text-xs font-extrabold">
                       {storyViewer.paused ? "▶" : "⏸"}
@@ -3660,9 +4309,10 @@
 
               <div className="w-full h-full flex items-center justify-center relative overflow-hidden">
                 <MediaRenderer item={activeStoryItem} className="w-full h-full object-contain" autoPlay={true} controls={false} paused={isStoryEffectivelyPaused} />
+                <div onClick={() => { if (!wasLongPressRef.current) goPrevStory(); }} className="absolute inset-y-20 left-0 w-1/3 z-20 cursor-pointer"></div>
+                <div onClick={() => { if (!wasLongPressRef.current) goNextStory(); }} className="absolute inset-y-20 right-0 w-2/3 z-20 cursor-pointer"></div>
               </div>
 
-              {/* Reacciones rápidas y envío de respuestas en la historia */}
               <div onClick={(e) => e.stopPropagation()} className="absolute bottom-0 left-0 right-0 z-40 p-3 bg-gradient-to-t from-black/95 via-black/75 to-transparent space-y-2.5">
                 <div className="flex items-center justify-center gap-3">
                   {["🔥", "🥂", "😍", "👏"].map(emo => (
@@ -3690,7 +4340,7 @@
                 </div>
                 <div className="flex-1 overflow-y-auto space-y-2.5 no-scrollbar">
                   {(likesViewerList || storyViewsModal).length === 0 ? (
-                    <p className="text-xs text-nude-200/70 text-center py-6">Nadie ha interactuado todavía.</p>
+                    <p className="text-xs text-nude-200/70 text-center py-6">Nadie por aquí todavía.</p>
                   ) : (
                     (likesViewerList || storyViewsModal).map(uId => {
                       const uObj = users.find(u => u.uid === uId);
@@ -3706,98 +4356,6 @@
                     })
                   )}
                 </div>
-              </div>
-            </div>
-          )}
-
-          {/* MODAL ESTUDIO DE SUBIDA (RECORTE, FILTROS, TEXTO, STICKERS, SELLOS VIP) */}
-          {uploadModal.open && (
-            <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md overflow-y-auto p-4 flex items-center justify-center select-none" onPointerMove={(e) => draggingStickerId && handleStickerPointerMove(e.clientX, e.clientY)} onPointerUp={() => setDraggingStickerId(null)}>
-              <div className="glass-card rounded-3xl max-w-md w-full p-5 border border-nude-300/40 space-y-4 my-auto">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-serif text-xl font-bold text-white">{uploadModal.type === "story" ? "Subir Historia" : "Subir Publicación"}</h3>
-                  <button onClick={() => { resetUploadStudio(); setUploadModal({ open: false, type: "post", withChallenge: false }); }} className="text-nude-300 font-bold">✕</button>
-                </div>
-
-                <form onSubmit={handlePublishEditedMedia} className="space-y-3.5">
-                  <div ref={previewBoxRef} className="w-full h-64 rounded-2xl border-2 border-dashed border-nude-300/50 bg-black flex items-center justify-center overflow-hidden relative">
-                    {rawMediaUrl ? (
-                      <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
-                        {mediaType === "video" ? (
-                          <video src={rawMediaUrl} controls style={{ filter: selectedFilter.css }} className="w-full h-full object-contain" />
-                        ) : (
-                          <img src={rawMediaUrl} alt="" style={{ filter: selectedFilter.css }} className="w-full h-full object-contain" />
-                        )}
-                        {placedStickers.map((st) => (
-                          <div key={st.id} style={{ left: `${st.x}%`, top: `${st.y}%` }} onPointerDown={(e) => { e.preventDefault(); setDraggingStickerId(st.id); }} className="sticker-draggable absolute -translate-x-1/2 -translate-y-1/2 cursor-grab z-20">
-                            {st.emoji.length > 4 ? (
-                              <span className="px-2.5 py-1 rounded-xl bg-burgundy-950/90 border border-amber-300 text-amber-300 font-extrabold text-[10px] shadow-xl">{st.emoji}</span>
-                            ) : (
-                              <span className="text-4xl drop-shadow-xl">{st.emoji}</span>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer text-center p-4">
-                        <span className="text-3xl">📸 🎥</span>
-                        <p className="text-xs font-bold text-white mt-2">Toca aquí para elegir foto o video (Máx 15s)</p>
-                        <input type="file" accept="image/*,video/*" onChange={handleMediaFileChange} className="hidden" />
-                      </label>
-                    )}
-                  </div>
-
-                  {rawMediaUrl && (
-                    <div className="space-y-3">
-                      <div className="grid grid-cols-4 gap-1.5">
-                        <button type="button" onClick={() => setActiveStudioTool(activeStudioTool === "crop" ? null : "crop")} className={`py-2 rounded-xl text-xs font-extrabold ${activeStudioTool === "crop" ? "nude-btn" : "bg-burgundy-950 text-nude-200"}`}>✂️ Recortar</button>
-                        <button type="button" onClick={() => setActiveStudioTool(activeStudioTool === "filter" ? null : "filter")} className={`py-2 rounded-xl text-xs font-extrabold ${activeStudioTool === "filter" ? "nude-btn" : "bg-burgundy-950 text-nude-200"}`}>🎨 Filtros</button>
-                        <button type="button" onClick={() => setActiveStudioTool(activeStudioTool === "text" ? null : "text")} className={`py-2 rounded-xl text-xs font-extrabold ${activeStudioTool === "text" ? "nude-btn" : "bg-burgundy-950 text-nude-200"}`}>🔤 Texto</button>
-                        <button type="button" onClick={() => setActiveStudioTool(activeStudioTool === "stickers" ? null : "stickers")} className={`py-2 rounded-xl text-xs font-extrabold ${activeStudioTool === "stickers" ? "nude-btn" : "bg-burgundy-950 text-nude-200"}`}>✨ Sellos/Stickers</button>
-                      </div>
-
-                      {activeStudioTool === "crop" && (
-                        <div className="bg-burgundy-950 p-3.5 rounded-2xl border border-nude-300/30 space-y-2 text-xs">
-                          <p className="font-bold text-amber-300">✂️ Desliza para recortar bordes</p>
-                          <div className="grid grid-cols-2 gap-2">
-                            <div><label>Arriba</label><input type="range" min="0" max="35" value={uploadBorderCrop.top} onChange={(e) => setUploadBorderCrop({ ...uploadBorderCrop, top: Number(e.target.value) })} className="w-full accent-nude-300" /></div>
-                            <div><label>Abajo</label><input type="range" min="0" max="35" value={uploadBorderCrop.bottom} onChange={(e) => setUploadBorderCrop({ ...uploadBorderCrop, bottom: Number(e.target.value) })} className="w-full accent-nude-300" /></div>
-                          </div>
-                        </div>
-                      )}
-
-                      {activeStudioTool === "filter" && (
-                        <div className="bg-burgundy-950 p-3.5 rounded-2xl border border-nude-300/30 flex gap-1.5 overflow-x-auto no-scrollbar">
-                          {MEDIA_FILTERS.map(f => (
-                            <button type="button" key={f.id} onClick={() => setSelectedFilter(f)} className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 ${selectedFilter.id === f.id ? "nude-btn" : "bg-burgundy-900 text-nude-200"}`}>{f.name}</button>
-                          ))}
-                        </div>
-                      )}
-
-                      {activeStudioTool === "text" && (
-                        <div className="bg-burgundy-950 p-3.5 rounded-2xl border border-nude-300/30 space-y-2">
-                          <input type="text" placeholder="Texto superpuesto..." value={overlayText} onChange={(e) => setOverlayText(e.target.value)} className="w-full px-3 py-2 rounded-xl bg-burgundy-900 border border-nude-300/30 text-xs text-white" />
-                        </div>
-                      )}
-
-                      {activeStudioTool === "stickers" && (
-                        <div className="bg-burgundy-950 p-3.5 rounded-2xl border border-nude-300/30 space-y-2">
-                          <p className="text-[11px] font-bold text-nude-200">Sellos VIP del Evento:</p>
-                          <div className="flex flex-wrap gap-1">
-                            {VIP_STAMPS.map(st => (
-                              <button type="button" key={st} onClick={() => addStickerToCanvas(st)} className="px-2 py-1 rounded-lg bg-burgundy-900 text-amber-300 font-bold text-[10px]">+{st}</button>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {mediaError && <div className="p-3 rounded-xl bg-rose-950 border border-rose-400 text-xs text-rose-200 font-semibold">⚠️ {mediaError}</div>}
-
-                  <input type="text" placeholder="Pie de foto (etiqueta amigos con @usuario)..." value={caption} onChange={(e) => setCaption(e.target.value)} className="w-full px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/35 text-xs text-white" />
-                  <button type="submit" disabled={!rawMediaUrl || isSubmitting} className="w-full py-3.5 rounded-xl nude-btn text-sm shadow-lg">{isSubmitting ? `Subiendo (${uploadProgress}%)...` : "Publicar Ahora ✨"}</button>
-                </form>
               </div>
             </div>
           )}
@@ -3840,3 +4398,4 @@
 </body>
 </html>
 
+    

@@ -3,7 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#090105" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>Sunset Vibes — Red Social Oficial</title>
+  <!-- Logo para pestaña del navegador y pantalla de inicio en iPhone/Android (Sube tu archivo como logo.png a GitHub) -->
+  <link rel="icon" type="image/png" href="./logo.png" />
+  <link rel="apple-touch-icon" href="./logo.png" />
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Google Fonts -->
@@ -88,6 +94,13 @@
       touch-action: none;
       user-select: none;
       -webkit-user-select: none;
+    }
+    .vip-pill-badge {
+      background: linear-gradient(135deg, rgba(22, 3, 12, 0.88) 0%, rgba(75, 14, 46, 0.92) 100%);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.32);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.65);
     }
     @keyframes slideDown {
       from { transform: translate(-50%, -100%); opacity: 0; }
@@ -192,6 +205,42 @@
 
     const ADMIN_EMAIL = "joellpethers@gmail.com";
 
+    // RUTA DEL LOGO EN GITHUB: Sube tu imagen como "logo.png" en la misma carpeta que index.html (o pon aquí un link directo)
+    const BRAND_LOGO_URL = "./logo.png";
+
+    // Identificador Único de Dispositivo (Hardware/Browser Fingerprint para Bloqueo Permanente del Admin)
+    const getOrCreateDeviceId = () => {
+      let devId = localStorage.getItem("sunset_vibes_device_id");
+      if (!devId) {
+        devId = "dev_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 10);
+        localStorage.setItem("sunset_vibes_device_id", devId);
+      }
+      return devId;
+    };
+
+    // Componente de Logo Oficial con Respaldo Automático si aún no se subió logo.png a GitHub
+    function BrandLogo({ size = "md" }) {
+      const [imgErr, setImgErr] = useState(false);
+      const dims = size === "lg" ? "w-20 h-20" : "w-9 h-9";
+      return (
+        <div className={`${dims} rounded-full bg-gradient-to-tr from-burgundy-800 via-rose-500 to-amber-300 p-0.5 shadow-2xl flex items-center justify-center overflow-hidden shrink-0`}>
+          {!imgErr && BRAND_LOGO_URL ? (
+            <img
+              src={BRAND_LOGO_URL}
+              alt="Sunset Vibes"
+              onError={() => setImgErr(true)}
+              className="w-full h-full object-cover rounded-full bg-burgundy-950"
+            />
+          ) : (
+            <div className="w-full h-full rounded-full bg-burgundy-950 flex flex-col items-center justify-center">
+              <span className={size === "lg" ? "text-2xl" : "text-lg"}>🌅</span>
+              {size === "lg" && <span className="text-[8px] tracking-widest uppercase text-nude-300 font-bold">Sunset</span>}
+            </div>
+          )}
+        </div>
+      );
+    }
+
     // Clúster de 6 Cuentas Cloudinary en Balanceo Automático
     const CLOUDINARY_ACCOUNTS = [
       { cloudName: "i1uvypzh", uploadPreset: "sunset_vibes" },
@@ -252,7 +301,7 @@
       throw lastErr || new Error("No se pudo subir el archivo. Verifica tu señal de internet.");
     };
 
-    // Sonido Real Sintetizado (No falla jamás ni requiere MP3 externos)
+    // Sonido Real Sintetizado
     const playNotificationSound = (type = "bell") => {
       try {
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -289,7 +338,7 @@
       } catch (e) {}
     };
 
-    // 20 RETOS FOTOGRÁFICOS OFICIALES (10 Originales + 10 Nuevos)
+    // 20 RETOS FOTOGRÁFICOS OFICIALES
     const PHOTO_CHALLENGES = [
       { id: 1, title: "El Brindis Dorado", desc: "Sube una foto o video corto chocando tu copa con el atardecer.", emoji: "🥂" },
       { id: 2, title: "Silueta contra el Sol", desc: "Captura la silueta de alguien bailando frente a la luz del cielo.", emoji: "🌅" },
@@ -343,23 +392,26 @@
       { id: "cyber", name: "Neon Night", css: "saturate(1.85) contrast(1.18) hue-rotate(15deg)" }
     ];
 
-    // Marcos Oficiales (#1: Polaroid Clásica, Gold VIP, Magazine y Film)
+    // Marcos Oficiales (#1: Se ven en vivo al editar tanto en fotos como en videos)
     const PHOTO_FRAMES = [
       { id: "none", name: "Sin Marco" },
       { id: "polaroid", name: "📸 Polaroid Sunset" },
-      { id: "vip_gold", name: "👑 Marco Dorado VIP" },
+      { id: "vip_gold", name: "👑 Marco VIP" },
       { id: "magazine", name: "✨ Portada Revista" },
       { id: "cinema", name: "🎬 Cine Retro" }
     ];
 
-    const STICKERS = ["🌅", "🥂", "🔥", "✨", "💃", "🕶️", "❤️", "👑", "🎶", "🍾", "🪩", "🌴"];
+    // Stickers y Sellos Interactivos (Sin bordes amarillos feos, con soporte de rotación y escala)
+    const STICKERS = ["🌅", "🥂", "🔥", "✨", "💃", "🕶️", "❤️", "👑", "🎶", "🍾", "🪩", "🌴", "🍹", "⚡", "💋", "🎉", "🤩", "🦋"];
 
     const VIP_STAMPS = [
       "🌅 SUNSET VIBES • VIP",
       "🔥 MATCH NIGHT • OFICIAL",
       "🥂 GOLDEN HOUR CLUB",
       "📍 NOCHE ÉPICA 2026",
-      "📸 PAPARAZZI IN FRAGANTI"
+      "📸 PAPARAZZI IN FRAGANTI",
+      "👑 REALEZA DE LA PISTA",
+      "⚡ ENERGÍA AL 100%"
     ];
 
     const TEXT_COLORS = [
@@ -386,8 +438,58 @@
       return "Ayer";
     };
 
-    // Hornear imagen con Recorte 4 Bordes + Filtros + Marcos Polaroid/VIP + Stickers Escalables + Texto Movible/Escalable
-    const bakeEditedImage = (rawDataUrl, { filterCss, borderCrop, frameId = "none", overlayText, textColorObj, textPos = { x: 50, y: 50 }, textScale = 1, stickers = [], maxDim = 1600, quality = 0.86 }) => {
+    // Componente que dibuja los Marcos en Vivo mientras se edita un Video o Foto (y en la reproducción de videos)
+    function LiveFrameOverlay({ frameId }) {
+      if (!frameId || frameId === "none") return null;
+      if (frameId === "polaroid") {
+        return (
+          <div className="absolute inset-0 pointer-events-none z-10 border-t-[10px] border-x-[10px] border-b-[38px] border-[#FDF4F5] flex items-end justify-center">
+            <span className="text-[#2E071B] font-serif font-bold text-[11px] -mb-[27px] tracking-wide">
+              🌅 Sunset Vibes • Recuerdo Oficial
+            </span>
+          </div>
+        );
+      }
+      if (frameId === "vip_gold") {
+        return (
+          <div className="absolute inset-0 pointer-events-none z-10 border-[4px] border-amber-400 flex items-end justify-center">
+            <div className="w-full bg-black/80 py-1 text-center border-t border-amber-400/50">
+              <span className="text-amber-300 font-extrabold text-[10px] tracking-widest uppercase">
+                👑 SUNSET VIBES • EDICIÓN VIP 👑
+              </span>
+            </div>
+          </div>
+        );
+      }
+      if (frameId === "magazine") {
+        return (
+          <div className="absolute inset-2.5 pointer-events-none z-10 border-2 border-white/85 flex flex-col justify-between p-2">
+            <span className="font-serif font-bold text-white/95 text-lg tracking-widest text-center drop-shadow-md">
+              SUNSET VIBES
+            </span>
+            <span className="text-[9px] text-white/80 font-bold uppercase tracking-widest text-right">
+              Edición Especial
+            </span>
+          </div>
+        );
+      }
+      if (frameId === "cinema") {
+        return (
+          <div className="absolute inset-0 pointer-events-none z-10 flex flex-col justify-between">
+            <div className="w-full h-6 bg-black"></div>
+            <div className="w-full h-7 bg-black flex items-center justify-center">
+              <span className="text-amber-300 italic text-[10px] font-semibold">
+                “Una noche para recordar siempre” • Sunset Vibes
+              </span>
+            </div>
+          </div>
+        );
+      }
+      return null;
+    }
+
+    // Hornear imagen con Recorte 4 Bordes + Filtros + Marcos + Stickers (Con rotación y escala, sin bordes amarillos) + Texto
+    const bakeEditedImage = (rawDataUrl, { filterCss, borderCrop, frameId = "none", overlayText, textColorObj, textPos = { x: 50, y: 50 }, textScale = 1, textRotation = 0, stickers = [], maxDim = 1600, quality = 0.88 }) => {
       return new Promise((resolve, reject) => {
         const img = new Image();
         img.crossOrigin = "anonymous";
@@ -431,7 +533,6 @@
           ctx.drawImage(img, srcX, srcY, srcW, srcH, padSide, padTop, baseW, baseH);
           ctx.filter = "none";
 
-          // Marcos Decorativos (#1)
           if (isPolaroid) {
             ctx.fillStyle = "#2E071B";
             ctx.font = `700 ${Math.max(22, Math.round(baseW * 0.048))}px "Playfair Display", serif`;
@@ -468,49 +569,62 @@
             ctx.fillText("“Una noche para recordar siempre” • Sunset Vibes", outW / 2, outH - Math.round(barH * 0.38));
           }
 
-          // Stickers y Sellos con posición X/Y y Escala personalizada
+          // Stickers y Sellos con Posición, Escala y Rotación (Sin rebordes amarillos)
           if (Array.isArray(stickers) && stickers.length > 0) {
             stickers.forEach((st) => {
               const sx = padSide + (st.x / 100) * baseW;
               const sy = padTop + (st.y / 100) * baseH;
               const sc = st.scale || 1;
+              const rotRad = ((st.rotation || 0) * Math.PI) / 180;
+
+              ctx.save();
+              ctx.translate(sx, sy);
+              ctx.rotate(rotRad);
+
               if (st.emoji.length > 4) {
-                const stampFont = Math.max(14, Math.round(baseW * 0.032 * sc));
+                const stampFont = Math.max(14, Math.round(baseW * 0.031 * sc));
                 ctx.font = `800 ${stampFont}px "Plus Jakarta Sans", sans-serif`;
                 ctx.textAlign = "center";
                 ctx.textBaseline = "middle";
                 const m = ctx.measureText(st.emoji);
-                const bw = m.width + 26 * sc;
+                const bw = m.width + 28 * sc;
                 const bh = stampFont + 16 * sc;
-                ctx.fillStyle = "rgba(9, 1, 5, 0.86)";
+                ctx.fillStyle = "rgba(22, 3, 12, 0.88)";
                 ctx.beginPath();
-                ctx.roundRect(sx - bw / 2, sy - bh / 2, bw, bh, 12);
+                ctx.roundRect(-bw / 2, -bh / 2, bw, bh, 18);
                 ctx.fill();
-                ctx.strokeStyle = "#FBBF24";
+                ctx.strokeStyle = "rgba(232, 180, 184, 0.55)";
                 ctx.lineWidth = 2;
                 ctx.stroke();
-                ctx.fillStyle = "#FBBF24";
-                ctx.fillText(st.emoji, sx, sy);
+                ctx.fillStyle = "#FDF4F5";
+                ctx.fillText(st.emoji, 0, 0);
               } else {
                 const stickerSize = Math.round(baseW * 0.11 * sc);
                 ctx.font = `${stickerSize}px sans-serif`;
                 ctx.textAlign = "center";
                 ctx.textBaseline = "middle";
-                ctx.fillText(st.emoji, sx, sy);
+                ctx.fillText(st.emoji, 0, 0);
               }
+              ctx.restore();
             });
           }
 
-          // Texto Superpuesto con Posición X/Y y Escala personalizada
+          // Texto Superpuesto con Posición, Escala y Rotación
           if (overlayText && overlayText.trim()) {
             const tScale = textScale || 1;
             const fontSize = Math.max(18, Math.round(baseW * 0.045 * tScale));
+            const xCoord = padSide + Math.round(((textPos?.x ?? 50) / 100) * baseW);
+            const yCoord = padTop + Math.round(((textPos?.y ?? 50) / 100) * baseH);
+            const rotRad = ((textRotation || 0) * Math.PI) / 180;
+
+            ctx.save();
+            ctx.translate(xCoord, yCoord);
+            ctx.rotate(rotRad);
+
             ctx.font = `800 ${fontSize}px "Plus Jakarta Sans", sans-serif`;
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
 
-            const xCoord = padSide + Math.round(((textPos?.x ?? 50) / 100) * baseW);
-            const yCoord = padTop + Math.round(((textPos?.y ?? 50) / 100) * baseH);
             const textStr = overlayText.trim();
             const metrics = ctx.measureText(textStr);
             const padX = Math.round(baseW * 0.03 * tScale), padY = Math.round(baseW * 0.016 * tScale);
@@ -519,11 +633,12 @@
 
             ctx.fillStyle = textColorObj?.bg || "rgba(9, 1, 5, 0.82)";
             ctx.beginPath();
-            ctx.roundRect(xCoord - boxW / 2, yCoord - boxH / 2, boxW, boxH, 14);
+            ctx.roundRect(-boxW / 2, -boxH / 2, boxW, boxH, 16);
             ctx.fill();
 
             ctx.fillStyle = textColorObj?.hex || "#FFFFFF";
-            ctx.fillText(textStr, xCoord, yCoord, baseW - 24);
+            ctx.fillText(textStr, 0, 0, baseW - 24);
+            ctx.restore();
           }
 
           resolve(canvas.toDataURL("image/jpeg", quality));
@@ -548,7 +663,7 @@
           canvas.height = sh;
           const ctx = canvas.getContext("2d");
           ctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
-          resolve(canvas.toDataURL("image/jpeg", 0.88));
+          resolve(canvas.toDataURL("image/jpeg", 0.9));
         };
         img.onerror = reject;
       });
@@ -861,7 +976,7 @@
       );
     }
 
-    // Renderizador Multimedia con Botón de Pantalla Completa, Doble Toque Táctil y Escala de Stickers/Texto
+    // Renderizador Multimedia con Marcos en Videos, Sin Rebordes Amarillos en Stickers y Botón Pantalla Completa
     function MediaRenderer({ item, className = "w-full max-h-[460px] object-contain", onDoubleTapLike, onOpenFullscreen, autoPlay = false, controls = false, paused = false }) {
       const videoRef = useRef(null);
       const [isMuted, setIsMuted] = useState(true);
@@ -922,13 +1037,12 @@
 
       const tPos = item.overlayPos || { x: 50, y: item.overlayYPos || 50 };
       const tScale = item.overlayScale || 1;
+      const tRot = item.overlayRotation || 0;
 
       return (
         <div
           onClick={handleTap}
-          className={`relative w-full h-full flex items-center justify-center bg-black overflow-hidden select-none ${
-            item.mediaType === "video" && item.frameId === "vip_gold" ? "border-4 border-amber-400" : ""
-          }`}
+          className="relative w-full h-full flex items-center justify-center bg-black overflow-hidden select-none"
         >
           {item.mediaType === "video" ? (
             <>
@@ -943,6 +1057,7 @@
                 style={{ filter: filterObj.css, clipPath: clipPathStyle }}
                 className={className}
               />
+              <LiveFrameOverlay frameId={item.frameId} />
               {!controls && (
                 <button
                   type="button"
@@ -958,11 +1073,11 @@
                   style={{
                     left: `${st.x}%`,
                     top: `${st.y}%`,
-                    transform: `translate(-50%, -50%) scale(${st.scale || 1})`
+                    transform: `translate(-50%, -50%) scale(${st.scale || 1}) rotate(${st.rotation || 0}deg)`
                   }}
-                  className={`absolute pointer-events-none drop-shadow-lg z-10 ${
+                  className={`absolute pointer-events-none drop-shadow-xl z-10 ${
                     st.emoji.length > 4
-                      ? "px-2.5 py-1 rounded-lg bg-black/85 border border-amber-400 text-amber-300 font-extrabold text-[10px] whitespace-nowrap"
+                      ? "px-3 py-1 rounded-full vip-pill-badge text-white font-extrabold text-[10px] whitespace-nowrap"
                       : "text-4xl"
                   }`}
                 >
@@ -974,11 +1089,11 @@
                   style={{
                     left: `${tPos.x}%`,
                     top: `${tPos.y}%`,
-                    transform: `translate(-50%, -50%) scale(${tScale})`,
+                    transform: `translate(-50%, -50%) scale(${tScale}) rotate(${tRot}deg)`,
                     backgroundColor: textColorObj.bg,
                     color: textColorObj.hex
                   }}
-                  className="absolute px-4 py-1.5 rounded-xl font-extrabold text-sm text-center pointer-events-none shadow-lg max-w-[88%] z-10"
+                  className="absolute px-4 py-1.5 rounded-2xl font-extrabold text-sm text-center pointer-events-none shadow-lg max-w-[88%] z-10"
                 >
                   {item.overlayText}
                 </div>
@@ -1013,6 +1128,7 @@
     }
     function SunsetVibesApp() {
       const [fbReady, setFbReady] = useState(!!window.FB);
+      const [deviceId] = useState(() => getOrCreateDeviceId());
       const [authSession, setAuthSession] = useState(null);
       const [users, setUsers] = useState([]);
       const [posts, setPosts] = useState([]);
@@ -1053,7 +1169,7 @@
       const [isGeneratingWrapped, setIsGeneratingWrapped] = useState(false);
       const lastSeenSpinIdRef = useRef(null);
 
-      // Inputs del Admin para Ruleta, Encuesta Relámpago (#5) y Anuncio Fijado
+      // Inputs del Admin para Ruleta, Encuesta Relámpago (#5), Anuncio Fijado y Edición Universal
       const [adminWheelPrize, setAdminWheelPrize] = useState("🍾 1 Trago VIP / Premio Sorpresa");
       const [adminPinInput, setAdminPinInput] = useState("");
       const [pollQuestionInput, setPollQuestionInput] = useState("");
@@ -1071,7 +1187,7 @@
       const [destinyIsAnon, setDestinyIsAnon] = useState(true);
       const [paparazziTarget, setPaparazziTarget] = useState(null);
 
-      // Modal de Recorte por Bordes de Posts ya subidos
+      // Modal de Recorte por Bordes de Posts ya subidos (No destructivo gracias a originalMediaUrl)
       const [cropModalPost, setCropModalPost] = useState(null);
       const [borderCrop, setBorderCrop] = useState({ top: 0, bottom: 0, left: 0, right: 0 });
       const [isCroppingPost, setIsCroppingPost] = useState(false);
@@ -1099,7 +1215,7 @@
       const [setupAvatar, setSetupAvatar] = useState("");
       const [setupError, setSetupError] = useState("");
 
-      // Estudio de Subida con Marcos (#1), Escala/Movimiento X/Y de Stickers y Texto
+      // Estudio de Subida con Marcos en Vivo (#1), Rotación, Escala y Movimiento X/Y de Stickers y Texto
       const [rawMediaUrl, setRawMediaUrl] = useState("");
       const [rawVideoFile, setRawVideoFile] = useState(null);
       const [mediaType, setMediaType] = useState("image");
@@ -1112,6 +1228,7 @@
       const [overlayColor, setOverlayColor] = useState(TEXT_COLORS[0]);
       const [overlayPos, setOverlayPos] = useState({ x: 50, y: 50 });
       const [overlayScale, setOverlayScale] = useState(1);
+      const [overlayRotation, setOverlayRotation] = useState(0);
       const [draggingText, setDraggingText] = useState(false);
       const [placedStickers, setPlacedStickers] = useState([]);
       const [selectedStickerId, setSelectedStickerId] = useState(null);
@@ -1229,7 +1346,7 @@
           setMessages(list);
         });
 
-        const unsubNotifs = onSnapshot(query(collection(chatDb, "notifications"), orderBy("createdAt", "desc"), limit(150)), (snap) => {
+        const unsubNotifs = onSnapshot(query(collection(chatDb, "notifications"), orderBy("createdAt", "desc"), limit(160)), (snap) => {
           const allNotifs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
           setNotifications(allNotifs.filter(n => !n.isPartyExtra));
           setDjSongs(allNotifs.filter(n => n.extraType === "dj_song"));
@@ -1315,6 +1432,28 @@
         return emailToCheck === ADMIN_EMAIL;
       }, [currentUserDoc, authSession]);
 
+      // Detector de Bloqueo por Dispositivo o Cuenta (El Super Admin nunca puede ser bloqueado)
+      const isCurrentDeviceBlocked = useMemo(() => {
+        if (isAdmin) return false;
+        const bannedDevs = Array.isArray(partyState?.bannedDevices) ? partyState.bannedDevices : [];
+        const bannedUids = Array.isArray(partyState?.bannedUids) ? partyState.bannedUids : [];
+        const localBan = localStorage.getItem("sunset_vibes_device_banned") === "true";
+
+        if (
+          bannedDevs.includes(deviceId) ||
+          (authSession?.uid && bannedUids.includes(authSession.uid)) ||
+          currentUserDoc?.isBanned === true
+        ) {
+          localStorage.setItem("sunset_vibes_device_banned", "true");
+          return true;
+        }
+        if (localBan && bannedDevs.length > 0 && !bannedDevs.includes(deviceId)) {
+          localStorage.removeItem("sunset_vibes_device_banned");
+          return false;
+        }
+        return localBan && bannedDevs.includes(deviceId);
+      }, [isAdmin, partyState, deviceId, authSession, currentUserDoc]);
+
       // Insignias Automáticas de los Reyes de la Fiesta
       const userBadgesMap = useMemo(() => {
         const map = {};
@@ -1338,7 +1477,7 @@
         return map;
       }, [users, posts]);
 
-      // Barra de Energía del Sunset: Empieza en 0% real y sube únicamente con la actividad de la fiesta
+      // Barra de Energía del Sunset: Empieza exactamente en 0% y sube solo con la actividad real de la fiesta
       const sunsetEnergyPct = useMemo(() => {
         const totalLikes = posts.reduce((acc, p) => acc + (p.likes?.length || 0), 0);
         const totalComments = posts.reduce((acc, p) => acc + (p.comments?.length || 0), 0);
@@ -1399,7 +1538,7 @@
           try {
             const n = new Notification(title, {
               body: bodyText,
-              icon: "https://cdn-icons-png.flaticon.com/512/3222/3222800.png",
+              icon: BRAND_LOGO_URL || "https://cdn-icons-png.flaticon.com/512/3222/3222800.png",
               tag: "sunset-vibes-live"
             });
             n.onclick = () => { window.focus(); n.close(); };
@@ -1610,7 +1749,7 @@
         }
       };
 
-      // Reacciones y Respuestas en Historias (Guarda reacción en la historia, envía mensaje y notifica sin duplicar)
+      // Reacciones y Respuestas en Historias
       const handleSendStoryReply = async (e, storyGroup, storyItem, quickEmoji = null) => {
         if (e) e.preventDefault();
         const textToSend = quickEmoji || storyReplyText.trim();
@@ -1678,12 +1817,12 @@
         setStoryMenuOpen(false);
       };
 
-      // Latido Online Optimizado (Cada 4 minutos)
+      // Latido Online Optimizado + Registro Silencioso de DeviceId para que el Admin pueda bloquear ese celular si es necesario
       useEffect(() => {
         if (!currentUserDoc || !window.FB) return;
         const { db, doc, updateDoc } = window.FB;
         const ref = doc(db, "users", currentUserDoc.uid);
-        const beat = () => updateDoc(ref, { isOnline: true, lastSeen: Date.now() }).catch(() => {});
+        const beat = () => updateDoc(ref, { isOnline: true, lastSeen: Date.now(), deviceId }).catch(() => {});
         const off = () => updateDoc(ref, { isOnline: false, lastSeen: Date.now() }).catch(() => {});
         beat();
         const intv = setInterval(beat, 240000);
@@ -1692,7 +1831,7 @@
           clearInterval(intv);
           window.removeEventListener("beforeunload", off);
         };
-      }, [currentUserDoc?.uid]);
+      }, [currentUserDoc?.uid, deviceId]);
 
       // Detector de Mensajes y Notificaciones Entrantes
       useEffect(() => {
@@ -1789,7 +1928,7 @@
         setChallengeIndex((prev) => (prev + 1) % PHOTO_CHALLENGES.length);
       };
       // ====================================================================
-      // CONTROLES EXCLUSIVOS DEL SUPER ADMIN (RULETA, ENCUESTA #5, MOSAICO #3, MODO DIOS)
+      // CONTROLES EXCLUSIVOS DEL SUPER ADMIN (RULETA, ENCUESTA #5, MOSAICO #3, BLOQUEO Y MODO DIOS)
       // ====================================================================
       const saveGlobalPartyState = async (newPartialState) => {
         if (!isAdmin || !window.FB) return;
@@ -1805,9 +1944,37 @@
         } catch (e) {}
       };
 
+      // Bloquear o Desbloquear a un Invitado y su Dispositivo (Hardware Ban en tiempo real)
+      const handleAdminToggleBanUser = async (targetUser) => {
+        if (!isAdmin || !window.FB || !targetUser) return;
+        const bannedDevs = Array.isArray(partyState?.bannedDevices) ? [...partyState.bannedDevices] : [];
+        const bannedUids = Array.isArray(partyState?.bannedUids) ? [...partyState.bannedUids] : [];
+        const isCurrentlyBanned = targetUser.isBanned || bannedUids.includes(targetUser.uid);
+
+        if (!isCurrentlyBanned) {
+          if (!confirm(`🚫 ¿Bloquear el acceso y el dispositivo de @${targetUser.username}? No podrá volver a entrar ni crear otra cuenta desde su celular.`)) return;
+          if (!bannedUids.includes(targetUser.uid)) bannedUids.push(targetUser.uid);
+          if (targetUser.deviceId && !bannedDevs.includes(targetUser.deviceId)) {
+            bannedDevs.push(targetUser.deviceId);
+          }
+          await window.FB.updateDoc(window.FB.doc(window.FB.db, "users", targetUser.uid), {
+            isBanned: true,
+            isOnline: false
+          }).catch(() => {});
+          await saveGlobalPartyState({ bannedDevices: bannedDevs, bannedUids });
+        } else {
+          const nextUids = bannedUids.filter(id => id !== targetUser.uid);
+          const nextDevs = targetUser.deviceId ? bannedDevs.filter(d => d !== targetUser.deviceId) : bannedDevs;
+          await window.FB.updateDoc(window.FB.doc(window.FB.db, "users", targetUser.uid), {
+            isBanned: false
+          }).catch(() => {});
+          await saveGlobalPartyState({ bannedDevices: nextDevs, bannedUids: nextUids });
+        }
+      };
+
       const handleAdminLaunchWheel = async () => {
         if (!isAdmin) return;
-        const eligible = users.filter(u => u.username);
+        const eligible = users.filter(u => u.username && !u.isBanned);
         if (eligible.length === 0) return;
         const onlinePool = eligible.filter(u => isUserOnline(u));
         const poolToUse = onlinePool.length >= 2 ? onlinePool : eligible;
@@ -2046,7 +2213,7 @@
 
       // Modo Paparazzi In Fraganti (#7)
       const handleAssignPaparazziTarget = () => {
-        const others = users.filter(u => u.username && u.uid !== currentUserDoc?.uid);
+        const others = users.filter(u => u.username && u.uid !== currentUserDoc?.uid && !u.isBanned);
         if (others.length === 0) {
           alert("Espera a que haya más invitados conectados para asignarte un objetivo.");
           return;
@@ -2305,6 +2472,10 @@
             setAuthError(`No encontramos a @${cleanUser}. Regístrate en la pestaña de al lado.`);
             return;
           }
+          if (matchedUser.isBanned) {
+            setAuthError("Tu cuenta ha sido bloqueada por el organizador.");
+            return;
+          }
           if (matchedUser.password && matchedUser.password !== cleanPass) {
             setAuthError("Contraseña incorrecta.");
             return;
@@ -2339,6 +2510,8 @@
             email: emailVal,
             avatar: avatarVal,
             vibeStatus: "🥂 En la barra",
+            deviceId,
+            isBanned: false,
             friends: [],
             matchesReceived: [],
             isOnline: true,
@@ -2385,6 +2558,8 @@
           email: authSession.email,
           avatar: finalAvatar,
           vibeStatus: "🥂 En la barra",
+          deviceId,
+          isBanned: false,
           friends: [],
           matchesReceived: [],
           isOnline: true,
@@ -2419,7 +2594,7 @@
       };
 
       // ====================================================================
-      // ESTUDIO DE SUBIDA (MARCOS #1, RECORTE 4 BORDES, ESCALA Y MOVIMIENTO X/Y)
+      // ESTUDIO DE SUBIDA (MARCOS EN VIVO #1, RECORTE 4 BORDES, ESCALA, GIRO Y MOVIMIENTO)
       // ====================================================================
       const resetUploadStudio = () => {
         setRawMediaUrl("");
@@ -2434,6 +2609,7 @@
         setOverlayColor(TEXT_COLORS[0]);
         setOverlayPos({ x: 50, y: 50 });
         setOverlayScale(1);
+        setOverlayRotation(0);
         setDraggingText(false);
         setPlacedStickers([]);
         setSelectedStickerId(null);
@@ -2448,7 +2624,7 @@
         const newId = "st_" + Date.now() + "_" + Math.random().toString(36).slice(2, 5);
         setPlacedStickers(prev => [
           ...prev,
-          { id: newId, emoji, x: 35 + offset, y: 30 + offset, scale: 1 }
+          { id: newId, emoji, x: 35 + offset, y: 30 + offset, scale: 1, rotation: 0 }
         ]);
         setSelectedStickerId(newId);
       };
@@ -2457,6 +2633,13 @@
         if (!selectedStickerId) return;
         setPlacedStickers(prev =>
           prev.map(st => st.id === selectedStickerId ? { ...st, scale: Math.max(0.4, Math.min(2.6, Math.round(((st.scale || 1) + delta) * 10) / 10)) } : st)
+        );
+      };
+
+      const updateSelectedStickerRotation = (degDelta) => {
+        if (!selectedStickerId) return;
+        setPlacedStickers(prev =>
+          prev.map(st => st.id === selectedStickerId ? { ...st, rotation: ((st.rotation || 0) + degDelta) % 360 } : st)
         );
       };
 
@@ -2510,6 +2693,7 @@
         }
       };
 
+      // Publicar Multimedia: En fotos sube tanto la versión original sin recortar (para poder re-recortar después sin corromper) como la versión horneada final
       const handlePublishEditedMedia = async (e) => {
         e.preventDefault();
         if (!rawMediaUrl || !currentUserDoc || isSubmitting) return;
@@ -2520,6 +2704,7 @@
 
         try {
           let finalCloudUrl = "";
+          let uncroppedCloudUrl = "";
 
           if (mediaType === "image") {
             const hdBakedDataUrl = await bakeEditedImage(rawMediaUrl, {
@@ -2530,13 +2715,34 @@
               textColorObj: overlayColor,
               textPos: overlayPos,
               textScale: overlayScale,
+              textRotation: overlayRotation,
               stickers: placedStickers,
               maxDim: 1600,
-              quality: 0.86
+              quality: 0.88
             });
 
             try {
               finalCloudUrl = await uploadMediaFile(hdBakedDataUrl, "image", (pct) => setUploadProgress(pct));
+              // Si tenía recorte aplicado, guardamos también la versión sin recorte por si quiere re-recortar más tarde
+              const hasCrop = uploadBorderCrop.top > 0 || uploadBorderCrop.bottom > 0 || uploadBorderCrop.left > 0 || uploadBorderCrop.right > 0;
+              if (hasCrop) {
+                const uncroppedBaked = await bakeEditedImage(rawMediaUrl, {
+                  filterCss: selectedFilter.css,
+                  borderCrop: { top: 0, bottom: 0, left: 0, right: 0 },
+                  frameId: selectedFrame.id,
+                  overlayText,
+                  textColorObj: overlayColor,
+                  textPos: overlayPos,
+                  textScale: overlayScale,
+                  textRotation: overlayRotation,
+                  stickers: placedStickers,
+                  maxDim: 1600,
+                  quality: 0.86
+                });
+                uncroppedCloudUrl = await uploadMediaFile(uncroppedBaked, "image").catch(() => finalCloudUrl);
+              } else {
+                uncroppedCloudUrl = finalCloudUrl;
+              }
             } catch (cloudErr) {
               finalCloudUrl = await bakeEditedImage(rawMediaUrl, {
                 filterCss: selectedFilter.css,
@@ -2546,14 +2752,17 @@
                 textColorObj: overlayColor,
                 textPos: overlayPos,
                 textScale: overlayScale,
+                textRotation: overlayRotation,
                 stickers: placedStickers,
                 maxDim: 820,
                 quality: 0.74
               });
+              uncroppedCloudUrl = finalCloudUrl;
             }
           } else {
             const videoSource = rawVideoFile || rawMediaUrl;
             finalCloudUrl = await uploadMediaFile(videoSource, "video", (pct) => setUploadProgress(pct));
+            uncroppedCloudUrl = finalCloudUrl;
           }
 
           const basePayload = {
@@ -2561,16 +2770,18 @@
             userName: currentUserDoc.username,
             userAvatar: currentUserDoc.avatar,
             mediaUrl: finalCloudUrl,
+            originalMediaUrl: uncroppedCloudUrl || finalCloudUrl,
             mediaType,
             videoDuration: mediaType === "video" ? videoDuration : null,
             filterId: mediaType === "video" ? selectedFilter.id : "normal",
             frameId: mediaType === "video" ? selectedFrame.id : "none",
-            borderCrop: mediaType === "video" ? uploadBorderCrop : { top: 0, bottom: 0, left: 0, right: 0 },
+            borderCrop: uploadBorderCrop,
             overlayText: mediaType === "video" ? overlayText.trim() : "",
             overlayColorId: overlayColor.id,
             overlayPos: overlayPos,
             overlayYPos: overlayPos.y,
             overlayScale: overlayScale,
+            overlayRotation: overlayRotation,
             overlayStickers: mediaType === "video" ? placedStickers : [],
             caption: caption.trim(),
             createdAt: Date.now()
@@ -2635,23 +2846,36 @@
         }
       };
 
-      const handleApplyBorderCrop = async () => {
+      // Recorte No-Destructivo de Publicaciones Ya Subidas (Parte siempre de originalMediaUrl y permite guardarlo o descargarlo)
+      const handleApplyBorderCrop = async (alsoDownload = false) => {
         if (!cropModalPost || isCroppingPost || !window.FB) return;
         setIsCroppingPost(true);
         try {
+          const sourceUrl = cropModalPost.originalMediaUrl || cropModalPost.mediaUrl;
           if (cropModalPost.mediaType === "video") {
             await window.FB.updateDoc(window.FB.doc(window.FB.db, "posts", cropModalPost.id), {
               borderCrop
             });
+            if (alsoDownload) handleDownloadMedia(cropModalPost.mediaUrl, "video");
           } else {
-            const croppedDataUrl = await cropImageByBorders(cropModalPost.mediaUrl, borderCrop);
+            const croppedDataUrl = await cropImageByBorders(sourceUrl, borderCrop);
             let finalUrl = croppedDataUrl;
             try {
               finalUrl = await uploadMediaFile(croppedDataUrl, "image");
             } catch (e) {}
             await window.FB.updateDoc(window.FB.doc(window.FB.db, "posts", cropModalPost.id), {
-              mediaUrl: finalUrl
+              mediaUrl: finalUrl,
+              originalMediaUrl: sourceUrl,
+              borderCrop
             });
+            if (alsoDownload) {
+              const a = document.createElement("a");
+              a.href = croppedDataUrl;
+              a.download = `sunset-recorte-${Date.now()}.jpg`;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+            }
           }
           setCropModalPost(null);
           setBorderCrop({ top: 0, bottom: 0, left: 0, right: 0 });
@@ -2798,18 +3022,26 @@
         } catch (e) {}
       };
 
-      // BORRADO EN CASCADA TOTAL DE UN INVITADO POR EL SUPER ADMIN (Borra usuario, posts, stories, chats, notificaciones, likes, comentarios, matches)
-      const handleAdminDeleteUser = async (targetUser) => {
+      // BORRADO EN CASCADA TOTAL + BLOQUEO OPCIONAL DE DISPOSITIVO
+      const handleAdminDeleteUser = async (targetUser, alsoBanDevice = true) => {
         if (!isAdmin || !window.FB) return;
-        if (!confirm(`⚠️ ¿Eliminar por completo a @${targetUser.username}? Se borrarán su perfil, sus fotos, historias, mensajes de chat, notificaciones, likes y comentarios en toda la app.`)) return;
+        if (!confirm(`⚠️ ¿Eliminar por completo a @${targetUser.username} y bloquear su dispositivo? Se borrarán su perfil, fotos, historias, chats, notificaciones, likes y comentarios.`)) return;
         const { db, chatDb, doc, deleteDoc, updateDoc, arrayRemove } = window.FB;
         const tUid = targetUser.uid;
 
         try {
-          // 1. Borrar documento de usuario
+          if (alsoBanDevice) {
+            const bannedDevs = Array.isArray(partyState?.bannedDevices) ? [...partyState.bannedDevices] : [];
+            const bannedUids = Array.isArray(partyState?.bannedUids) ? [...partyState.bannedUids] : [];
+            if (!bannedUids.includes(tUid)) bannedUids.push(tUid);
+            if (targetUser.deviceId && !bannedDevs.includes(targetUser.deviceId)) {
+              bannedDevs.push(targetUser.deviceId);
+            }
+            await saveGlobalPartyState({ bannedDevices: bannedDevs, bannedUids });
+          }
+
           await deleteDoc(doc(db, "users", tUid));
 
-          // 2. Borrar todos sus posts y limpiar sus likes/comentarios en posts de otros
           posts.forEach(p => {
             if (p.userId === tUid) {
               deleteDoc(doc(db, "posts", p.id)).catch(() => {});
@@ -2824,24 +3056,20 @@
             }
           });
 
-          // 3. Borrar todas sus historias
           stories.filter(s => s.userId === tUid).forEach(s => {
             deleteDoc(doc(db, "stories", s.id)).catch(() => {});
           });
 
-          // 4. Borrar todos sus mensajes de chat (grupales y privados)
           messages.filter(m => m.senderId === tUid || m.receiverId === tUid).forEach(m => {
             deleteDoc(doc(chatDb, "messages", m.id)).catch(() => {});
           });
 
-          // 5. Borrar todas sus notificaciones, canciones DJ, confesiones y cartas al destino
           [...notifications, ...djSongs, ...confessions, ...destinyLetters]
             .filter(n => n.fromUid === tUid || n.toUid === tUid)
             .forEach(n => {
               deleteDoc(doc(chatDb, "notifications", n.id)).catch(() => {});
             });
 
-          // 6. Quitarlo de las listas de amigos y matches de los demás usuarios
           users.forEach(u => {
             if (u.uid !== tUid) {
               const inFriends = (u.friends || []).includes(tUid);
@@ -2858,9 +3086,9 @@
           if (viewedProfileUid === tUid) setViewedProfileUid(null);
           setInAppToast({
             id: Date.now(),
-            icon: "🗑️",
-            title: `@${targetUser.username} eliminado por completo`,
-            text: "Todos sus registros fueron limpiados de la base de datos.",
+            icon: "🚫",
+            title: `@${targetUser.username} eliminado y bloqueado`,
+            text: "Sus registros fueron borrados y su celular bloqueado.",
             action: () => setInAppToast(null)
           });
         } catch (e) {}
@@ -3063,16 +3291,34 @@
       // ====================================================================
       // RENDERIZADO VISUAL COMPLETO Y DEFINITIVO
       // ====================================================================
+
+      // Pantalla de Bloqueo Permanente si el Admin expulsó el dispositivo o la cuenta
+      if (isCurrentDeviceBlocked) {
+        return (
+          <div className="min-h-screen flex items-center justify-center p-6 text-center">
+            <div className="glass-card rounded-3xl max-w-md w-full p-8 border-2 border-rose-500/80 space-y-5 shadow-2xl">
+              <div className="w-20 h-20 rounded-full bg-rose-950 border-2 border-rose-500 mx-auto flex items-center justify-center text-3xl">
+                🚫
+              </div>
+              <h1 className="font-serif text-2xl font-bold text-white">Acceso Restringido</h1>
+              <p className="text-xs text-nude-200 leading-relaxed">
+                El organizador ha bloqueado el acceso a la aplicación desde este dispositivo. No es posible volver a ingresar ni crear cuentas nuevas en este equipo.
+              </p>
+              <div className="pt-2">
+                <span className="text-[10px] text-nude-300 font-mono">Sunset Vibes • Seguridad Activa</span>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
       if (!authSession) {
         return (
           <div className="min-h-screen flex flex-col justify-between items-center p-5 relative overflow-hidden">
             <div className="w-full max-w-md z-10 my-auto">
               <div className="glass-card rounded-3xl p-7 text-center border border-nude-300/40">
-                <div className="mx-auto w-20 h-20 rounded-full bg-gradient-to-tr from-burgundy-800 via-rose-500 to-amber-300 p-1 shadow-2xl mb-3 flex items-center justify-center">
-                  <div className="w-full h-full rounded-full bg-burgundy-950 flex flex-col items-center justify-center">
-                    <span className="text-2xl">🌅</span>
-                    <span className="text-[8px] tracking-widest uppercase text-nude-300 font-bold">Sunset</span>
-                  </div>
+                <div className="mx-auto mb-3 flex items-center justify-center">
+                  <BrandLogo size="lg" />
                 </div>
 
                 <h1 className="font-serif text-3xl font-bold text-white">Sunset Vibes</h1>
@@ -3278,12 +3524,10 @@
             </div>
           )}
 
-          {/* BARRA SUPERIOR CON CAMPANITA (🔔), AUDIO (🔊) Y QR */}
+          {/* BARRA SUPERIOR CON LOGO, CAMPANITA (🔔), AUDIO (🔊) Y QR */}
           <header className="sticky top-0 z-30 glass-nav px-4 py-3 flex items-center justify-between border-b border-nude-300/25">
             <div onClick={() => { setViewedProfileUid(null); setActiveTab("feed"); }} className="flex items-center gap-2.5 cursor-pointer">
-              <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-burgundy-800 via-rose-500 to-amber-300 p-0.5 flex items-center justify-center">
-                <span className="text-lg">🌅</span>
-              </div>
+              <BrandLogo size="md" />
               <div>
                 <h1 className="font-serif text-lg font-bold leading-none text-white">Sunset Vibes</h1>
                 <div className="flex items-center gap-1.5 mt-0.5">
@@ -4081,7 +4325,7 @@
                                 onMouseDown={() => startMessageLongPress(m)}
                                 onTouchStart={() => startMessageLongPress(m)}
                                 onMouseUp={cancelMessageLongPress}
-                                TOUCH-END={cancelMessageLongPress}
+                                onTouchEnd={cancelMessageLongPress}
                                 className={`max-w-[78%] px-3.5 py-2.5 rounded-2xl text-xs select-none ${isMine ? "light-surface font-semibold rounded-br-none" : "bg-burgundy-900 border border-nude-300/30 text-white rounded-bl-none"}`}
                               >
                                 <div className="flex items-center justify-between gap-3 mb-0.5">
@@ -4366,7 +4610,7 @@
           )}
 
           {/* ========================================================== */}
-          {/* PESTAÑA 6: PANEL ADMIN (OMNISCIENTE + BORRADO EN CASCADA)  */}
+          {/* PESTAÑA 6: PANEL ADMIN (OMNISCIENTE + BLOQUEO DE DISPOSITIVO) */}
           {/* ========================================================== */}
           {activeTab === "admin" && isAdmin && !viewedProfileUser && (
             <div className="p-4 space-y-4">
@@ -4438,23 +4682,29 @@
 
                 {adminSubTab === "guests" && (
                   <div className="space-y-2.5 pt-2">
-                    {guestStats.map((g) => (
-                      <div key={g.uid} className="p-3.5 rounded-2xl bg-burgundy-950 border border-nude-300/20 flex items-center justify-between">
-                        <button onClick={() => openUserProfile(g.uid)} className="flex items-center gap-2.5 text-left">
-                          <img src={g.avatar} alt="" className="w-10 h-10 rounded-full object-cover" />
-                          <div>
-                            <p className="text-xs font-bold text-white underline">@{g.username}</p>
-                            <p className="text-[10px] text-nude-300">{g.postsCount} posts • ❤️ {g.likesReceived}</p>
+                    {guestStats.map((g) => {
+                      const isBannedUser = g.isBanned || (partyState?.bannedUids || []).includes(g.uid);
+                      return (
+                        <div key={g.uid} className={`p-3.5 rounded-2xl border flex items-center justify-between ${isBannedUser ? "bg-rose-950/60 border-rose-500" : "bg-burgundy-950 border-nude-300/20"}`}>
+                          <button onClick={() => openUserProfile(g.uid)} className="flex items-center gap-2.5 text-left">
+                            <img src={g.avatar} alt="" className="w-10 h-10 rounded-full object-cover" />
+                            <div>
+                              <p className="text-xs font-bold text-white underline">@{g.username} {isBannedUser && "🚫 [BLOQUEADO]"}</p>
+                              <p className="text-[10px] text-nude-300">{g.postsCount} posts • ❤️ {g.likesReceived}</p>
+                            </div>
+                          </button>
+                          <div className="flex items-center gap-1.5">
+                            <button onClick={() => handleAdminToggleBanUser(g)} className={`px-2.5 py-1 rounded-lg text-xs font-bold ${isBannedUser ? "bg-emerald-700 text-white" : "bg-rose-900 text-rose-100"}`} title="Bloquear dispositivo y cuenta">
+                              {isBannedUser ? "Desbloquear" : "🚫 Ban Dispositivo"}
+                            </button>
+                            <button onClick={() => setAdminEditUser({ ...g })} className="px-2 py-1 rounded-lg bg-burgundy-800 text-xs text-nude-200 font-bold">✏️</button>
+                            {g.uid !== currentUserDoc.uid && (
+                              <button onClick={() => handleAdminDeleteUser(g, true)} className="px-2 py-1 rounded-lg bg-rose-950 text-xs text-rose-200 font-bold" title="Borrar en cascada total">🗑️</button>
+                            )}
                           </div>
-                        </button>
-                        <div className="flex items-center gap-1.5">
-                          <button onClick={() => setAdminEditUser({ ...g })} className="px-2.5 py-1 rounded-lg bg-burgundy-800 text-xs text-nude-200 font-bold">✏️ Clave</button>
-                          {g.uid !== currentUserDoc.uid && (
-                            <button onClick={() => handleAdminDeleteUser(g)} className="px-2.5 py-1 rounded-lg bg-rose-950 text-xs text-rose-200 font-bold" title="Borrar en cascada total">🗑️ Borrar</button>
-                          )}
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
 
@@ -4637,7 +4887,7 @@
           )}
 
           {/* ========================================================== */}
-          {/* MODAL 2: ESTUDIO DE SUBIDA (MARCOS #1, RECORTE 4 LADOS Y ESCALA) */}
+          {/* MODAL 2: ESTUDIO DE SUBIDA CON MARCOS EN VIVO (#1) Y EDICIÓN COMPLETA */}
           {/* ========================================================== */}
           {uploadModal.open && (
             <div
@@ -4664,7 +4914,10 @@
                           <img src={rawMediaUrl} alt="" style={{ filter: selectedFilter.css }} className="w-full h-full object-contain" />
                         )}
 
-                        {/* Marco visual en vivo de Recorte 4 Bordes */}
+                        {/* Marcos en Vivo mientras editas */}
+                        <LiveFrameOverlay frameId={selectedFrame.id} />
+
+                        {/* Marco visual de Recorte 4 Bordes */}
                         {(uploadBorderCrop.top > 0 || uploadBorderCrop.bottom > 0 || uploadBorderCrop.left > 0 || uploadBorderCrop.right > 0 || activeStudioTool === "crop") && (
                           <div
                             style={{
@@ -4677,20 +4930,20 @@
                           ></div>
                         )}
 
-                        {/* Stickers y Sellos con Escala ajustable */}
+                        {/* Stickers y Sellos con Escala y Rotación (Sin rebordes amarillos feos) */}
                         {placedStickers.map((st) => (
                           <div
                             key={st.id}
                             style={{
                               left: `${st.x}%`,
                               top: `${st.y}%`,
-                              transform: `translate(-50%, -50%) scale(${st.scale || 1})`
+                              transform: `translate(-50%, -50%) scale(${st.scale || 1}) rotate(${st.rotation || 0}deg)`
                             }}
                             onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); setDraggingStickerId(st.id); setSelectedStickerId(st.id); }}
-                            className={`sticker-draggable absolute cursor-grab z-20 ${selectedStickerId === st.id ? "ring-2 ring-amber-400 rounded-xl p-0.5" : ""}`}
+                            className={`sticker-draggable absolute cursor-grab z-20 ${selectedStickerId === st.id ? "ring-2 ring-white/90 rounded-2xl p-1 bg-black/40 backdrop-blur-sm" : ""}`}
                           >
                             {st.emoji.length > 4 ? (
-                              <span className="px-2.5 py-1 rounded-xl bg-burgundy-950/90 border border-amber-300 text-amber-300 font-extrabold text-[10px] shadow-xl whitespace-nowrap">{st.emoji}</span>
+                              <span className="px-3 py-1 rounded-full vip-pill-badge text-white font-extrabold text-[10px] whitespace-nowrap">{st.emoji}</span>
                             ) : (
                               <span className="text-4xl drop-shadow-xl">{st.emoji}</span>
                             )}
@@ -4704,18 +4957,18 @@
                           </div>
                         ))}
 
-                        {/* Texto Superpuesto Movible y Escalable con el Dedo */}
+                        {/* Texto Superpuesto Movible, Escalable y Rotable */}
                         {overlayText.trim() && (
                           <div
                             style={{
                               left: `${overlayPos.x}%`,
                               top: `${overlayPos.y}%`,
-                              transform: `translate(-50%, -50%) scale(${overlayScale})`,
+                              transform: `translate(-50%, -50%) scale(${overlayScale}) rotate(${overlayRotation}deg)`,
                               backgroundColor: overlayColor.bg,
                               color: overlayColor.hex
                             }}
                             onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); setDraggingText(true); }}
-                            className="sticker-draggable absolute px-4 py-1.5 rounded-xl font-extrabold text-sm text-center cursor-grab shadow-xl max-w-[88%] z-20 border border-white/20"
+                            className="sticker-draggable absolute px-4 py-1.5 rounded-2xl font-extrabold text-sm text-center cursor-grab shadow-xl max-w-[88%] z-20 border border-white/30"
                           >
                             {overlayText}
                           </div>
@@ -4775,17 +5028,23 @@
                       {activeStudioTool === "text" && (
                         <div className="bg-burgundy-950 p-3.5 rounded-2xl border border-nude-300/30 space-y-2.5">
                           <input type="text" placeholder="Escribe el texto (arrástralo con el dedo)..." value={overlayText} onChange={(e) => setOverlayText(e.target.value)} className="w-full px-3 py-2 rounded-xl bg-burgundy-900 border border-nude-300/30 text-xs text-white" />
-                          <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center justify-between gap-2 flex-wrap">
                             <div className="flex gap-1.5">
                               {TEXT_COLORS.map(tc => (
                                 <button type="button" key={tc.id} onClick={() => setOverlayColor(tc)} style={{ backgroundColor: tc.hex }} className={`w-6 h-6 rounded-full border-2 ${overlayColor.id === tc.id ? "border-amber-400 scale-110" : "border-white/30"}`}></button>
                               ))}
                             </div>
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-[10px] text-nude-200 font-bold">Tamaño:</span>
+                            <div className="flex items-center gap-1">
+                              <span className="text-[10px] text-nude-200 font-bold">Zoom:</span>
                               <button type="button" onClick={() => setOverlayScale(Math.max(0.5, overlayScale - 0.2))} className="px-2 py-0.5 rounded bg-burgundy-900 text-xs font-bold">➖</button>
                               <span className="text-xs font-extrabold text-amber-300">{Math.round(overlayScale * 100)}%</span>
                               <button type="button" onClick={() => setOverlayScale(Math.min(2.2, overlayScale + 0.2))} className="px-2 py-0.5 rounded bg-burgundy-900 text-xs font-bold">➕</button>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <span className="text-[10px] text-nude-200 font-bold">Giro:</span>
+                              <button type="button" onClick={() => setOverlayRotation((overlayRotation - 15) % 360)} className="px-2 py-0.5 rounded bg-burgundy-900 text-xs font-bold">↺</button>
+                              <span className="text-xs font-extrabold text-amber-300">{overlayRotation}°</span>
+                              <button type="button" onClick={() => setOverlayRotation((overlayRotation + 15) % 360)} className="px-2 py-0.5 rounded bg-burgundy-900 text-xs font-bold">↻</button>
                             </div>
                           </div>
                         </div>
@@ -4793,13 +5052,15 @@
 
                       {activeStudioTool === "stickers" && (
                         <div className="bg-burgundy-950 p-3.5 rounded-2xl border border-nude-300/30 space-y-2">
-                          <div className="flex items-center justify-between">
+                          <div className="flex items-center justify-between flex-wrap gap-2">
                             <p className="text-[11px] font-bold text-nude-200">Toca para agregar (arrástralos):</p>
                             {selectedStickerId && (
-                              <div className="flex items-center gap-1">
+                              <div className="flex items-center gap-1 flex-wrap">
                                 <span className="text-[10px] text-amber-300 font-bold">Escala:</span>
                                 <button type="button" onClick={() => updateSelectedStickerScale(-0.2)} className="px-2 py-0.5 rounded bg-burgundy-900 text-xs font-bold">➖</button>
                                 <button type="button" onClick={() => updateSelectedStickerScale(0.2)} className="px-2 py-0.5 rounded bg-burgundy-900 text-xs font-bold">➕</button>
+                                <button type="button" onClick={() => updateSelectedStickerRotation(-15)} className="px-2 py-0.5 rounded bg-burgundy-900 text-xs font-bold">↺</button>
+                                <button type="button" onClick={() => updateSelectedStickerRotation(15)} className="px-2 py-0.5 rounded bg-burgundy-900 text-xs font-bold">↻</button>
                                 <button type="button" onClick={() => removeStickerFromCanvas(selectedStickerId)} className="px-2 py-0.5 rounded bg-rose-950 text-rose-200 text-xs font-bold">Borrar</button>
                               </div>
                             )}
@@ -4833,7 +5094,7 @@
           )}
 
           {/* ========================================================== */}
-          {/* MODAL 3: RECORTAR BORDES DE PUBLICACIÓN YA SUBIDA (✂️)     */}
+          {/* MODAL 3: RECORTAR BORDES DE PUBLICACIÓN YA SUBIDA (✂️ NO DESTRUCTIVO) */}
           {/* ========================================================== */}
           {cropModalPost && (
             <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md p-4 flex items-center justify-center overflow-y-auto">
@@ -4847,7 +5108,7 @@
                   {cropModalPost.mediaType === "video" ? (
                     <video src={cropModalPost.mediaUrl} className="w-full h-full object-contain" muted autoPlay loop />
                   ) : (
-                    <img src={cropModalPost.mediaUrl} alt="" className="w-full h-full object-contain" />
+                    <img src={cropModalPost.originalMediaUrl || cropModalPost.mediaUrl} alt="" className="w-full h-full object-contain" />
                   )}
                   <div
                     style={{
@@ -4867,9 +5128,14 @@
                   <div><label className="font-bold text-nude-200">Derecha ({borderCrop.right}%)</label><input type="range" min="0" max="40" value={borderCrop.right} onChange={(e) => setBorderCrop({ ...borderCrop, right: Number(e.target.value) })} className="w-full accent-nude-300" /></div>
                 </div>
 
-                <button onClick={handleApplyBorderCrop} disabled={isCroppingPost} className="w-full py-3.5 rounded-xl nude-btn text-xs shadow-lg">
-                  {isCroppingPost ? "Aplicando recorte..." : "Guardar Recorte ✨"}
-                </button>
+                <div className="grid grid-cols-2 gap-2">
+                  <button onClick={() => handleApplyBorderCrop(false)} disabled={isCroppingPost} className="py-3.5 rounded-xl nude-btn text-xs shadow-lg">
+                    {isCroppingPost ? "Guardando..." : "Guardar Recorte ✨"}
+                  </button>
+                  <button onClick={() => handleApplyBorderCrop(true)} disabled={isCroppingPost} className="py-3.5 rounded-xl bg-burgundy-800 border border-nude-300/40 text-white font-bold text-xs shadow-lg">
+                    💾 Guardar y Descargar (.JPG)
+                  </button>
+                </div>
               </div>
             </div>
           )}

@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>Sunset Vibes — Red Social Oficial</title>
-  <!-- Logo para pestaña del navegador y pantalla de inicio en iPhone/Android (Sube tu archivo como logo.png a GitHub) -->
+  <!-- Logo para pestaña del navegador y pantalla de inicio (Sube tu archivo como logo.png a GitHub) -->
   <link rel="icon" type="image/png" href="./logo.png" />
   <link rel="apple-touch-icon" href="./logo.png" />
   <!-- Tailwind CSS -->
@@ -137,7 +137,7 @@
   <!-- Babel -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  <!-- Firebase Modular SDK (Arquitectura Dual de Alta Disponibilidad) -->
+  <!-- Firebase Modular SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { 
@@ -204,11 +204,8 @@
     const { useState, useEffect, useRef, useMemo } = React;
 
     const ADMIN_EMAIL = "joellpethers@gmail.com";
-
-    // RUTA DEL LOGO EN GITHUB: Sube tu imagen como "logo.png" en la misma carpeta que index.html (o pon aquí un link directo)
     const BRAND_LOGO_URL = "./logo.png";
 
-    // Identificador Único de Dispositivo (Hardware/Browser Fingerprint para Bloqueo Permanente del Admin)
     const getOrCreateDeviceId = () => {
       let devId = localStorage.getItem("sunset_vibes_device_id");
       if (!devId) {
@@ -218,7 +215,6 @@
       return devId;
     };
 
-    // Componente de Logo Oficial con Respaldo Automático si aún no se subió logo.png a GitHub
     function BrandLogo({ size = "md" }) {
       const [imgErr, setImgErr] = useState(false);
       const dims = size === "lg" ? "w-20 h-20" : "w-9 h-9";
@@ -241,7 +237,6 @@
       );
     }
 
-    // Clúster de 6 Cuentas Cloudinary en Balanceo Automático
     const CLOUDINARY_ACCOUNTS = [
       { cloudName: "i1uvypzh", uploadPreset: "sunset_vibes" },
       { cloudName: "uzr7jcxh", uploadPreset: "sunset_vibes" },
@@ -260,7 +255,6 @@
         formData.append("upload_preset", account.uploadPreset);
 
         xhr.open("POST", url, true);
-
         if (xhr.upload && onProgress) {
           xhr.upload.onprogress = (e) => {
             if (e.lengthComputable) {
@@ -301,7 +295,6 @@
       throw lastErr || new Error("No se pudo subir el archivo. Verifica tu señal de internet.");
     };
 
-    // Sonido Real Sintetizado
     const playNotificationSound = (type = "bell") => {
       try {
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -338,7 +331,6 @@
       } catch (e) {}
     };
 
-    // 20 RETOS FOTOGRÁFICOS OFICIALES
     const PHOTO_CHALLENGES = [
       { id: 1, title: "El Brindis Dorado", desc: "Sube una foto o video corto chocando tu copa con el atardecer.", emoji: "🥂" },
       { id: 2, title: "Silueta contra el Sol", desc: "Captura la silueta de alguien bailando frente a la luz del cielo.", emoji: "🌅" },
@@ -392,7 +384,6 @@
       { id: "cyber", name: "Neon Night", css: "saturate(1.85) contrast(1.18) hue-rotate(15deg)" }
     ];
 
-    // Marcos Oficiales (#1: Se ven en vivo al editar tanto en fotos como en videos)
     const PHOTO_FRAMES = [
       { id: "none", name: "Sin Marco" },
       { id: "polaroid", name: "📸 Polaroid Sunset" },
@@ -401,7 +392,6 @@
       { id: "cinema", name: "🎬 Cine Retro" }
     ];
 
-    // Stickers y Sellos Interactivos (Sin bordes amarillos feos, con soporte de rotación y escala)
     const STICKERS = ["🌅", "🥂", "🔥", "✨", "💃", "🕶️", "❤️", "👑", "🎶", "🍾", "🪩", "🌴", "🍹", "⚡", "💋", "🎉", "🤩", "🦋"];
 
     const VIP_STAMPS = [
@@ -438,7 +428,6 @@
       return "Ayer";
     };
 
-    // Componente que dibuja los Marcos en Vivo mientras se edita un Video o Foto (y en la reproducción de videos)
     function LiveFrameOverlay({ frameId }) {
       if (!frameId || frameId === "none") return null;
       if (frameId === "polaroid") {
@@ -488,7 +477,6 @@
       return null;
     }
 
-    // Hornear imagen con Recorte 4 Bordes + Filtros + Marcos + Stickers (Con rotación y escala, sin bordes amarillos) + Texto
     const bakeEditedImage = (rawDataUrl, { filterCss, borderCrop, frameId = "none", overlayText, textColorObj, textPos = { x: 50, y: 50 }, textScale = 1, textRotation = 0, stickers = [], maxDim = 1600, quality = 0.88 }) => {
       return new Promise((resolve, reject) => {
         const img = new Image();
@@ -569,7 +557,6 @@
             ctx.fillText("“Una noche para recordar siempre” • Sunset Vibes", outW / 2, outH - Math.round(barH * 0.38));
           }
 
-          // Stickers y Sellos con Posición, Escala y Rotación (Sin rebordes amarillos)
           if (Array.isArray(stickers) && stickers.length > 0) {
             stickers.forEach((st) => {
               const sx = padSide + (st.x / 100) * baseW;
@@ -609,7 +596,6 @@
             });
           }
 
-          // Texto Superpuesto con Posición, Escala y Rotación
           if (overlayText && overlayText.trim()) {
             const tScale = textScale || 1;
             const fontSize = Math.max(18, Math.round(baseW * 0.045 * tScale));
@@ -669,7 +655,6 @@
       });
     };
 
-    // Generador de Tarjeta Descargable "Mi Resumen Personal — Sunset Wrapped" (#2)
     const generatePersonalWrappedDataUrl = async (userDoc, myPosts, myLikesCount, myFriendsCount, myMatchesCount) => {
       const canvas = document.createElement("canvas");
       const W = 1080, H = 1920;
@@ -778,7 +763,6 @@
       return canvas.toDataURL("image/jpeg", 0.9);
     };
 
-    // Generador de Póster Mosaico Oficial de Fin de Fiesta (#3)
     const generateMosaicPosterDataUrl = async (usersList, postsList) => {
       const canvas = document.createElement("canvas");
       const W = 1080, H = 1480;
@@ -910,7 +894,6 @@
       return (Date.now() - u.lastSeen) < 360000;
     };
 
-    // Texto inteligente que convierte cualquier @usuario en un botón dorado clicable hacia su perfil
     function RichMentionText({ text, users, onOpenProfile }) {
       if (!text) return null;
       const parts = text.split(/(@[a-zA-Z0-9_]+)/g);
@@ -938,8 +921,7 @@
         </span>
       );
     }
-
-    // Barra Universal de Autocompletado cuando se escribe @ en cualquier campo de la aplicación
+// Barra Universal de Autocompletado cuando se escribe @ en cualquier campo de la aplicación
     function MentionAutocompleteBar({ value, onChange, users, label = "Etiquetar invitado:" }) {
       if (!value) return null;
       const match = value.match(/@([a-zA-Z0-9_]*)$/);
@@ -975,6 +957,34 @@
         </div>
       );
     }
+
+    // Descarga Universal de DataURL / Blob (Funciona al 100% en iPhone Safari, Chrome Android y PC)
+    const triggerDataUrlDownload = (dataUrl, filename) => {
+      try {
+        const parts = dataUrl.split(",");
+        const mime = parts[0].match(/:(.*?);/)[1];
+        const bstr = atob(parts[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) {
+          u8arr[n] = bstr.charCodeAt(n);
+        }
+        const blob = new Blob([u8arr], { type: mime });
+        const blobUrl = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 6000);
+      } catch (err) {
+        const win = window.open();
+        if (win) {
+          win.document.write(`<body style="margin:0;background:#090105;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;color:#fff;font-family:sans-serif;"><p style="margin-bottom:12px;font-size:14px;">Mantén presionada la imagen para guardarla en tus Fotos:</p><img src="${dataUrl}" style="max-width:95%;max-height:85vh;border-radius:16px;"/></body>`);
+        }
+      }
+    };
 
     // Renderizador Multimedia con Marcos en Videos, Sin Rebordes Amarillos en Stickers y Botón Pantalla Completa
     function MediaRenderer({ item, className = "w-full max-h-[460px] object-contain", onDoubleTapLike, onOpenFullscreen, autoPlay = false, controls = false, paused = false }) {
@@ -1126,6 +1136,7 @@
         </div>
       );
     }
+
     function SunsetVibesApp() {
       const [fbReady, setFbReady] = useState(!!window.FB);
       const [deviceId] = useState(() => getOrCreateDeviceId());
@@ -1147,6 +1158,7 @@
       const [partySubTab, setPartySubTab] = useState("dj"); // dj | secrets | destiny | paparazzi | mosaic
       const [chatSubTab, setChatSubTab] = useState("group"); // group | private
       const [adminSubTab, setAdminSubTab] = useState("controls"); // controls | guests | challenges | godmode
+      const [adminSelectedChallenge, setAdminSelectedChallenge] = useState(null); // Auditoría de fotos por reto en Admin
       const [activeChatFriend, setActiveChatFriend] = useState(null);
       const [searchQuery, setSearchQuery] = useState("");
       const [quoteIndex, setQuoteIndex] = useState(0);
@@ -1363,7 +1375,7 @@
         };
       }, [fbReady]);
 
-      // Sincronizar Ruleta en Vivo en las 100 Pantallas (#4)
+      // Sincronizar Ruleta en Vivo en todas las Pantallas (#4)
       useEffect(() => {
         const wheelSpin = partyState?.wheelSpin;
         if (!wheelSpin || !wheelSpin.id) return;
@@ -1432,7 +1444,7 @@
         return emailToCheck === ADMIN_EMAIL;
       }, [currentUserDoc, authSession]);
 
-      // Detector de Bloqueo por Dispositivo o Cuenta (El Super Admin nunca puede ser bloqueado)
+      // Detector de Bloqueo por Dispositivo o Cuenta
       const isCurrentDeviceBlocked = useMemo(() => {
         if (isAdmin) return false;
         const bannedDevs = Array.isArray(partyState?.bannedDevices) ? partyState.bannedDevices : [];
@@ -1477,7 +1489,7 @@
         return map;
       }, [users, posts]);
 
-      // Barra de Energía del Sunset: Empieza exactamente en 0% y sube solo con la actividad real de la fiesta
+      // Barra de Energía del Sunset: Empieza en 0% real y sube solo con la actividad de la fiesta
       const sunsetEnergyPct = useMemo(() => {
         const totalLikes = posts.reduce((acc, p) => acc + (p.likes?.length || 0), 0);
         const totalComments = posts.reduce((acc, p) => acc + (p.comments?.length || 0), 0);
@@ -1494,7 +1506,7 @@
         return Math.min(100, Math.round((totalInteractions / 200) * 100));
       }, [posts, stories.length, messages.length, djSongs.length, confessions.length, destinyLetters.length]);
 
-      // Notificaciones sin duplicados para el usuario actual
+      // Notificaciones sin duplicados
       const myNotifications = useMemo(() => {
         if (!currentUserDoc) return [];
         const raw = notifications.filter(n => n.toUid === currentUserDoc.uid);
@@ -1564,7 +1576,6 @@
         }
       };
 
-      // Envío de Notificaciones con ID Determinístico para que NUNCA se repitan
       const sendNotification = async ({ toUid, type, text, postId = null, storyId = null, storyUserId = null, status = null, customDocId = null }) => {
         if (!currentUserDoc || !window.FB || !toUid || toUid === currentUserDoc.uid) return;
         const { chatDb, collection, doc, setDoc, addDoc } = window.FB;
@@ -1749,7 +1760,6 @@
         }
       };
 
-      // Reacciones y Respuestas en Historias
       const handleSendStoryReply = async (e, storyGroup, storyItem, quickEmoji = null) => {
         if (e) e.preventDefault();
         const textToSend = quickEmoji || storyReplyText.trim();
@@ -1804,6 +1814,10 @@
 
       const handleDownloadMedia = (mediaUrl, type = "image") => {
         if (!mediaUrl) return;
+        if (mediaUrl.startsWith("data:")) {
+          triggerDataUrlDownload(mediaUrl, `sunset-vibes-${Date.now()}.jpg`);
+          return;
+        }
         const attachUrl = mediaUrl.includes("/upload/")
           ? mediaUrl.replace("/upload/", "/upload/fl_attachment/")
           : mediaUrl;
@@ -1817,7 +1831,6 @@
         setStoryMenuOpen(false);
       };
 
-      // Latido Online Optimizado + Registro Silencioso de DeviceId para que el Admin pueda bloquear ese celular si es necesario
       useEffect(() => {
         if (!currentUserDoc || !window.FB) return;
         const { db, doc, updateDoc } = window.FB;
@@ -1833,7 +1846,6 @@
         };
       }, [currentUserDoc?.uid, deviceId]);
 
-      // Detector de Mensajes y Notificaciones Entrantes
       useEffect(() => {
         if (!currentUserDoc) return;
         const realMessages = messages.filter(m => m.chatKey !== "LIVE_PARTY_STATE");
@@ -1927,7 +1939,7 @@
       const nextSequentialChallenge = () => {
         setChallengeIndex((prev) => (prev + 1) % PHOTO_CHALLENGES.length);
       };
-      // ====================================================================
+    // ====================================================================
       // CONTROLES EXCLUSIVOS DEL SUPER ADMIN (RULETA, ENCUESTA #5, MOSAICO #3, BLOQUEO Y MODO DIOS)
       // ====================================================================
       const saveGlobalPartyState = async (newPartialState) => {
@@ -2018,7 +2030,7 @@
         };
         await saveGlobalPartyState({ livePoll });
         setPollQuestionInput(""); setPollOpt1Input(""); setPollOpt2Input(""); setPollOpt3Input("");
-        alert("⚡ ¡Encuesta Relámpago publicada en el Muro de los 100 invitados!");
+        alert("⚡ ¡Encuesta Relámpago publicada en el Muro para todos los invitados!");
       };
 
       const handleVoteInLivePoll = async (optionId) => {
@@ -2050,17 +2062,13 @@
         }
       };
 
+      // Descarga Directa Garantizada del Póster Mosaico Oficial (#3)
       const handleDownloadMosaicPoster = async () => {
         setIsGeneratingPoster(true);
         try {
           const dataUrl = mosaicPosterImg || await generateMosaicPosterDataUrl(users.filter(u => u.username), posts);
           setMosaicPosterImg(dataUrl);
-          const a = document.createElement("a");
-          a.href = dataUrl;
-          a.download = `Poster-Oficial-Sunset-Vibes-${Date.now()}.jpg`;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
+          triggerDataUrlDownload(dataUrl, `Poster-Oficial-Sunset-Vibes-${Date.now()}.jpg`);
         } catch (e) {
           alert("No se pudo generar el póster.");
         } finally {
@@ -2068,7 +2076,7 @@
         }
       };
 
-      // Resumen Personal — Sunset Wrapped (#2)
+      // Resumen Personal — Sunset Wrapped (#2) con Descarga Directa Garantizada
       const handleOpenMyWrapped = async () => {
         if (!currentUserDoc) return;
         setWrappedModalOpen(true);
@@ -2088,12 +2096,7 @@
 
       const handleDownloadMyWrapped = () => {
         if (!wrappedDataUrl) return;
-        const a = document.createElement("a");
-        a.href = wrappedDataUrl;
-        a.download = `Sunset-Wrapped-${currentUserDoc?.username || "invitado"}.jpg`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+        triggerDataUrlDownload(wrappedDataUrl, `Sunset-Wrapped-${currentUserDoc?.username || "invitado"}.jpg`);
       };
 
       // Cabina DJ, Confesiones Anónimas (Con autor real para Admin), Cartas al Destino (#6) y Modo Paparazzi (#7)
@@ -2211,14 +2214,18 @@
         } catch (e) {}
       };
 
-      // Modo Paparazzi In Fraganti (#7)
+      // Modo Paparazzi In Fraganti (#7) — Permite cambiar o repetir objetivo todas las veces que el invitado quiera
       const handleAssignPaparazziTarget = () => {
         const others = users.filter(u => u.username && u.uid !== currentUserDoc?.uid && !u.isBanned);
         if (others.length === 0) {
           alert("Espera a que haya más invitados conectados para asignarte un objetivo.");
           return;
         }
-        const chosen = others[Math.floor(Math.random() * others.length)];
+        let pool = others;
+        if (paparazziTarget && others.length > 1) {
+          pool = others.filter(u => u.uid !== paparazziTarget.uid);
+        }
+        const chosen = pool[Math.floor(Math.random() * pool.length)];
         setPaparazziTarget(chosen);
       };
 
@@ -2648,7 +2655,6 @@
         if (selectedStickerId === id) setSelectedStickerId(null);
       };
 
-      // Mover tanto Stickers como Texto en X e Y libremente con el dedo
       const handleCanvasPointerMove = (clientX, clientY) => {
         if (!previewBoxRef.current) return;
         const rect = previewBoxRef.current.getBoundingClientRect();
@@ -2693,7 +2699,6 @@
         }
       };
 
-      // Publicar Multimedia: En fotos sube tanto la versión original sin recortar (para poder re-recortar después sin corromper) como la versión horneada final
       const handlePublishEditedMedia = async (e) => {
         e.preventDefault();
         if (!rawMediaUrl || !currentUserDoc || isSubmitting) return;
@@ -2723,7 +2728,6 @@
 
             try {
               finalCloudUrl = await uploadMediaFile(hdBakedDataUrl, "image", (pct) => setUploadProgress(pct));
-              // Si tenía recorte aplicado, guardamos también la versión sin recorte por si quiere re-recortar más tarde
               const hasCrop = uploadBorderCrop.top > 0 || uploadBorderCrop.bottom > 0 || uploadBorderCrop.left > 0 || uploadBorderCrop.right > 0;
               if (hasCrop) {
                 const uncroppedBaked = await bakeEditedImage(rawMediaUrl, {
@@ -2822,7 +2826,6 @@
                 text: `📸 ¡Te capturó en modo Paparazzi In Fraganti en el Muro!`,
                 postId: createdDoc.id
               });
-              setPaparazziTarget(null);
             }
 
             notifyMentionedUsers(caption.trim(), "una publicación", createdDoc.id);
@@ -2846,7 +2849,7 @@
         }
       };
 
-      // Recorte No-Destructivo de Publicaciones Ya Subidas (Parte siempre de originalMediaUrl y permite guardarlo o descargarlo)
+      // Recorte No-Destructivo de Publicaciones Ya Subidas
       const handleApplyBorderCrop = async (alsoDownload = false) => {
         if (!cropModalPost || isCroppingPost || !window.FB) return;
         setIsCroppingPost(true);
@@ -2869,12 +2872,7 @@
               borderCrop
             });
             if (alsoDownload) {
-              const a = document.createElement("a");
-              a.href = croppedDataUrl;
-              a.download = `sunset-recorte-${Date.now()}.jpg`;
-              document.body.appendChild(a);
-              a.click();
-              document.body.removeChild(a);
+              triggerDataUrlDownload(croppedDataUrl, `sunset-recorte-${Date.now()}.jpg`);
             }
           }
           setCropModalPost(null);
@@ -3094,7 +3092,6 @@
         } catch (e) {}
       };
 
-      // Mantener apretado un mensaje en el chat para responder (Long Press)
       const startMessageLongPress = (msg) => {
         if (msgLongPressTimerRef.current) clearTimeout(msgLongPressTimerRef.current);
         msgLongPressTimerRef.current = setTimeout(() => {
@@ -3288,7 +3285,8 @@
         const q = searchQuery.trim().replace(/^@/, "").toLowerCase();
         return users.filter(u => u.username).filter(u => !q || u.username.toLowerCase().includes(q));
       }, [users, searchQuery]);
-      // ====================================================================
+
+    // ====================================================================
       // RENDERIZADO VISUAL COMPLETO Y DEFINITIVO
       // ====================================================================
 
@@ -3442,12 +3440,12 @@
             </div>
           )}
 
-          {/* MODAL RULETA EN VIVO EN LAS 100 PANTALLAS (#4) */}
+          {/* MODAL RULETA EN VIVO EN TODAS LAS PANTALLAS (SIN MENCIONAR "100 PERSONAS") (#4) */}
           {wheelModalState.open && (
             <div className="fixed inset-0 z-50 bg-black/92 backdrop-blur-md flex items-center justify-center p-4">
               <div className="match-card-letter rounded-3xl max-w-md w-full p-7 text-center space-y-5 border-2 border-amber-300 shadow-2xl">
                 <span className="px-3 py-1 rounded-full bg-amber-300 text-[#090105] font-extrabold text-[10px] uppercase tracking-widest animate-bounce">
-                  🎰 ¡Ruleta de Regalos del Admin en Vivo!
+                  🎰 ¡Ruleta de Regalos en Vivo!
                 </span>
                 <h3 className="font-serif text-2xl font-bold text-white">
                   Premio: {wheelModalState.spinData?.prize || "Premio Sorpresa"}
@@ -3462,7 +3460,7 @@
                         className="w-full h-full rounded-full object-cover border-2 border-burgundy-950 bg-burgundy-950"
                       />
                     </div>
-                    <p className="text-sm font-bold text-amber-200 animate-pulse">Girando la ruleta en las 100 pantallas...</p>
+                    <p className="text-sm font-bold text-amber-200 animate-pulse">Girando la ruleta en vivo...</p>
                   </div>
                 ) : (
                   <div className="py-4 space-y-4">
@@ -3474,7 +3472,7 @@
                       />
                     </div>
                     <div>
-                      <p className="text-xs text-nude-200 uppercase font-bold">¡El ganadora o ganador es!</p>
+                      <p className="text-xs text-nude-200 uppercase font-bold">¡La persona ganadora es!</p>
                       <h2 className="text-2xl font-extrabold text-amber-300 mt-1">
                         @{wheelModalState.spinData?.winnerUsername} 👑
                       </h2>
@@ -3494,7 +3492,7 @@
             </div>
           )}
 
-          {/* MODAL RESUMEN PERSONAL SUNSET WRAPPED (#2) */}
+          {/* MODAL RESUMEN PERSONAL SUNSET WRAPPED (#2) CON DESCARGA DIRECTA */}
           {wrappedModalOpen && (
             <div className="fixed inset-0 z-50 bg-black/92 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
               <div className="glass-card rounded-3xl max-w-md w-full p-6 text-center space-y-4 my-auto border-2 border-nude-300">
@@ -3582,7 +3580,7 @@
                     <span className="text-2xl">📸</span>
                     <div>
                       <p className="text-xs font-extrabold text-amber-300 uppercase">¡Ya está listo el Póster Oficial!</p>
-                      <p className="text-xs text-white font-semibold">Toca aquí para ver y descargar el Mosaico de los 100 invitados</p>
+                      <p className="text-xs text-white font-semibold">Toca aquí para ver y descargar el Mosaico Oficial de la fiesta</p>
                     </div>
                   </div>
                   <span className="px-3 py-1 rounded-full bg-amber-300 text-[#090105] font-extrabold text-xs">Ver ✨</span>
@@ -3789,7 +3787,6 @@
                               <span>{isLiked ? "❤️" : "🤍"}</span>
                               <span onClick={(e) => { e.stopPropagation(); setLikesViewerList(post.likes || []); }} className="hover:underline">{post.likes?.length || 0}</span>
                             </button>
-                            {/* Botón de Comentarios que lleva directo a la caja de comentarios */}
                             <button
                               onClick={() => {
                                 const inputRef = commentInputRefs.current[post.id];
@@ -3949,7 +3946,6 @@
                 <button onClick={() => setPartySubTab("paparazzi")} className={`py-2 rounded-xl font-bold transition ${partySubTab === "paparazzi" ? "nude-btn shadow" : "text-nude-200"}`}>📸 Paparazzi</button>
               </div>
 
-              {/* Botón rápido para ir al Mosaico de Fin de Fiesta si está activo */}
               {partyState?.mosaicActive && (
                 <div onClick={() => setPartySubTab("mosaic")} className="match-card-letter rounded-2xl p-3 flex items-center justify-between cursor-pointer">
                   <span className="text-xs font-bold text-amber-300">✨ ¡Mosaico de Fin de Fiesta Disponible!</span>
@@ -4048,7 +4044,6 @@
                 </div>
               )}
 
-              {/* BUZÓN DE CARTAS AL DESTINO (#6) */}
               {partySubTab === "destiny" && (
                 <div className="space-y-4">
                   <div className="glass-card rounded-3xl p-5 space-y-3">
@@ -4091,7 +4086,7 @@
                 </div>
               )}
 
-              {/* MODO PAPARAZZI IN FRAGANTI (#7) */}
+              {/* MODO PAPARAZZI IN FRAGANTI (#7) CON BOTÓN PARA CAMBIAR O REPETIR OBJETIVO */}
               {partySubTab === "paparazzi" && (
                 <div className="glass-card rounded-3xl p-6 text-center space-y-4">
                   <div className="w-16 h-16 rounded-full fire-match-btn mx-auto flex items-center justify-center text-3xl shadow-xl">📸</div>
@@ -4107,15 +4102,23 @@
                         <img src={paparazziTarget.avatar} alt="" className="w-14 h-14 rounded-full object-cover border-2 border-amber-300" />
                         <span className="text-xl font-extrabold text-amber-300">@{paparazziTarget.username}</span>
                       </div>
-                      <button
-                        onClick={() => {
-                          resetUploadStudio();
-                          setUploadModal({ open: true, type: "post", withChallenge: false, isPaparazzi: true });
-                        }}
-                        className="w-full py-3 rounded-xl nude-btn font-extrabold text-xs shadow-lg"
-                      >
-                        📸 ¡Ya lo encontré! Sacar foto
-                      </button>
+                      <div className="grid grid-cols-1 gap-2 pt-1">
+                        <button
+                          onClick={() => {
+                            resetUploadStudio();
+                            setUploadModal({ open: true, type: "post", withChallenge: false, isPaparazzi: true });
+                          }}
+                          className="w-full py-3 rounded-xl nude-btn font-extrabold text-xs shadow-lg"
+                        >
+                          📸 ¡Ya lo encontré! Subir foto de @{paparazziTarget.username}
+                        </button>
+                        <button
+                          onClick={handleAssignPaparazziTarget}
+                          className="w-full py-2.5 rounded-xl bg-burgundy-800 border border-nude-300/40 text-nude-100 font-bold text-xs"
+                        >
+                          🔄 Cambiar / Buscar otro Objetivo
+                        </button>
+                      </div>
                     </div>
                   ) : (
                     <button onClick={handleAssignPaparazziTarget} className="w-full py-3.5 rounded-xl nude-btn font-extrabold text-xs shadow-xl">
@@ -4125,7 +4128,7 @@
                 </div>
               )}
 
-              {/* MOSAICO GIGANTE (#3) */}
+              {/* MOSAICO GIGANTE (#3) CON DESCARGA DIRECTA */}
               {partySubTab === "mosaic" && (
                 <div className="glass-card rounded-3xl p-6 text-center space-y-5">
                   <div className="w-16 h-16 rounded-full nude-btn mx-auto flex items-center justify-center text-3xl shadow-xl">✨</div>
@@ -4136,7 +4139,7 @@
                       <p className="text-lg">🔒</p>
                       <p className="text-sm font-bold text-amber-300">Se desbloqueará al final de la fiesta</p>
                       <p className="text-xs text-nude-200">
-                        Sigue subiendo fotos al muro. Cuando el organizador active el cierre, aquí aparecerá el Mosaico Oficial de los 100 invitados.
+                        Sigue subiendo fotos al muro. Cuando el organizador active el cierre, aquí aparecerá el Mosaico Oficial de todos los invitados.
                       </p>
                     </div>
                   ) : (
@@ -4463,7 +4466,6 @@
                   </div>
                 </div>
 
-                {/* Botón para ver y descargar el Resumen Personal Wrapped (#2) */}
                 <button
                   onClick={handleOpenMyWrapped}
                   className="mt-4 w-full py-3 rounded-2xl fire-match-btn font-extrabold text-xs shadow-xl flex items-center justify-center gap-2"
@@ -4610,7 +4612,7 @@
           )}
 
           {/* ========================================================== */}
-          {/* PESTAÑA 6: PANEL ADMIN (OMNISCIENTE + BLOQUEO DE DISPOSITIVO) */}
+          {/* PESTAÑA 6: PANEL ADMIN (AUDITORÍA POR RETO + BLOQUEO + MODO DIOS) */}
           {/* ========================================================== */}
           {activeTab === "admin" && isAdmin && !viewedProfileUser && (
             <div className="p-4 space-y-4">
@@ -4623,22 +4625,20 @@
                 <div className="grid grid-cols-4 gap-1 bg-burgundy-950 p-1.5 rounded-2xl border border-nude-300/25 text-[11px]">
                   <button onClick={() => setAdminSubTab("controls")} className={`py-2 rounded-xl font-extrabold ${adminSubTab === "controls" ? "nude-btn" : "text-nude-200"}`}>🎰 En Vivo</button>
                   <button onClick={() => setAdminSubTab("guests")} className={`py-2 rounded-xl font-extrabold ${adminSubTab === "guests" ? "nude-btn" : "text-nude-200"}`}>👥 Invitados</button>
-                  <button onClick={() => setAdminSubTab("challenges")} className={`py-2 rounded-xl font-extrabold ${adminSubTab === "challenges" ? "nude-btn" : "text-nude-200"}`}>🎯 Retos</button>
+                  <button onClick={() => { setAdminSubTab("challenges"); setAdminSelectedChallenge(null); }} className={`py-2 rounded-xl font-extrabold ${adminSubTab === "challenges" ? "nude-btn" : "text-nude-200"}`}>🎯 Retos</button>
                   <button onClick={() => setAdminSubTab("godmode")} className={`py-2 rounded-xl font-extrabold ${adminSubTab === "godmode" ? "nude-btn" : "text-nude-200"}`}>👁️ Ojo Dios</button>
                 </div>
 
                 {adminSubTab === "controls" && (
                   <div className="space-y-4 pt-2">
-                    {/* Lanzar Ruleta en las 100 Pantallas (#4) */}
                     <div className="p-4 rounded-2xl bg-burgundy-950 border border-amber-400/40 space-y-3">
-                      <h4 className="text-sm font-extrabold text-amber-300 flex items-center gap-2"><span>🎰</span> Ruleta de Regalos en Vivo (100 Pantallas)</h4>
+                      <h4 className="text-sm font-extrabold text-amber-300 flex items-center gap-2"><span>🎰</span> Ruleta de Regalos en Vivo</h4>
                       <input type="text" placeholder="Premio (ej. 🍾 1 Trago VIP)" value={adminWheelPrize} onChange={(e) => setAdminWheelPrize(e.target.value)} className="w-full px-3.5 py-2.5 rounded-xl bg-burgundy-900 border border-nude-300/35 text-xs text-white" />
                       <button onClick={handleAdminLaunchWheel} className="w-full py-3 rounded-xl fire-match-btn font-extrabold text-xs shadow-xl">
                         Lanzar Ruleta en Todos los Celulares 🚀
                       </button>
                     </div>
 
-                    {/* Lanzar Encuesta Relámpago (#5) */}
                     <form onSubmit={handleAdminLaunchPoll} className="p-4 rounded-2xl bg-burgundy-950 border border-nude-300/30 space-y-2.5">
                       <div className="flex items-center justify-between">
                         <h4 className="text-sm font-extrabold text-white flex items-center gap-2"><span>⚡</span> Encuesta Relámpago (#5)</h4>
@@ -4655,14 +4655,12 @@
                       <button type="submit" className="w-full py-2.5 rounded-xl nude-btn text-xs font-extrabold">Publicar Encuesta en Vivo ⚡</button>
                     </form>
 
-                    {/* Fijar Anuncio en el Muro */}
                     <div className="p-4 rounded-2xl bg-burgundy-950 border border-nude-300/30 space-y-2.5">
                       <h4 className="text-sm font-extrabold text-white flex items-center gap-2"><span>📌</span> Fijar Aviso en el Muro</h4>
                       <input type="text" placeholder="Escribe un anuncio..." value={adminPinInput} onChange={(e) => setAdminPinInput(e.target.value)} className="w-full px-3 py-2 rounded-xl bg-burgundy-900 border border-nude-300/30 text-xs text-white" />
                       <button onClick={() => saveGlobalPartyState({ pinnedAnnouncement: adminPinInput.trim() })} className="w-full py-2.5 rounded-xl nude-btn text-xs font-extrabold">Actualizar Anuncio 📌</button>
                     </div>
 
-                    {/* Activar Póster Mosaico de Fin de Fiesta (#3) */}
                     <div className="p-4 rounded-2xl bg-burgundy-950 border border-amber-400/40 space-y-2.5 text-center">
                       <h4 className="text-sm font-extrabold text-amber-300">✨ Mosaico de Fin de Fiesta (#3)</h4>
                       <p className="text-[11px] text-nude-200">
@@ -4708,25 +4706,71 @@
                   </div>
                 )}
 
+                {/* AUDITORÍA DE FOTOS POR RETO EN EL PANEL DE ADMIN */}
                 {adminSubTab === "challenges" && (
                   <div className="space-y-3 pt-2">
-                    {PHOTO_CHALLENGES.map((ch, idx) => {
-                      const fullTitle = `${ch.emoji} ${ch.title}`;
-                      const chPosts = posts.filter(p => p.challengeId === ch.id || p.challengeTitle === fullTitle);
-                      return (
-                        <div key={ch.id} className="p-3.5 rounded-2xl bg-burgundy-950 border border-nude-300/25 flex items-center justify-between">
+                    {adminSelectedChallenge ? (
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
                           <div>
-                            <span className="text-[10px] text-amber-300 font-bold">Reto #{idx + 1}</span>
-                            <p className="text-xs font-bold text-white">{ch.emoji} {ch.title}</p>
+                            <p className="text-[10px] text-amber-300 font-extrabold uppercase">Fotos subidas en el reto:</p>
+                            <h4 className="text-sm font-bold text-white">{adminSelectedChallenge.emoji} {adminSelectedChallenge.title}</h4>
                           </div>
-                          <span className="px-3 py-1 rounded-full nude-btn text-xs">{chPosts.length} fotos</span>
+                          <button onClick={() => setAdminSelectedChallenge(null)} className="px-3 py-1 rounded-full nude-btn text-xs">← Volver a Retos</button>
                         </div>
-                      );
-                    })}
+
+                        {(() => {
+                          const fullTitle = `${adminSelectedChallenge.emoji} ${adminSelectedChallenge.title}`;
+                          const chPosts = posts.filter(p => p.challengeId === adminSelectedChallenge.id || p.challengeTitle === fullTitle || p.challengeTitle?.includes(adminSelectedChallenge.title));
+                          if (chPosts.length === 0) {
+                            return <p className="text-xs text-nude-200/70 text-center py-8 bg-burgundy-950 rounded-2xl">Todavía ningún invitado ha subido fotos para este reto.</p>;
+                          }
+                          return (
+                            <div className="grid grid-cols-2 gap-3">
+                              {chPosts.map(p => (
+                                <div key={p.id} className="p-2.5 rounded-2xl bg-burgundy-950 border border-nude-300/30 space-y-2">
+                                  <div onClick={() => setFullscreenPostId(p.id)} className="h-36 bg-black rounded-xl overflow-hidden cursor-pointer">
+                                    <MediaRenderer item={p} className="w-full h-full object-cover" controls={false} />
+                                  </div>
+                                  <div className="flex items-center justify-between text-[11px]">
+                                    <button onClick={() => openUserProfile(p.userId)} className="font-bold text-amber-300 underline truncate">@{p.userName}</button>
+                                    <span>❤️ {p.likes?.length || 0}</span>
+                                  </div>
+                                  <div className="flex items-center justify-between gap-1 pt-1 border-t border-nude-300/15">
+                                    <button onClick={() => handleDownloadMedia(p.mediaUrl, p.mediaType)} className="flex-1 py-1 rounded-lg bg-burgundy-800 text-[10px] text-white font-bold">💾 Guardar</button>
+                                    <button onClick={() => handleDeletePost(p)} className="px-2 py-1 rounded-lg bg-rose-950 text-[10px] text-rose-300 font-bold">🗑️</button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    ) : (
+                      <>
+                        <p className="text-xs text-nude-200">Toca cualquier reto para ver todas las fotos y videos que los invitados subieron y elegir a los mejores:</p>
+                        {PHOTO_CHALLENGES.map((ch, idx) => {
+                          const fullTitle = `${ch.emoji} ${ch.title}`;
+                          const chPosts = posts.filter(p => p.challengeId === ch.id || p.challengeTitle === fullTitle || p.challengeTitle?.includes(ch.title));
+                          return (
+                            <button
+                              key={ch.id}
+                              onClick={() => setAdminSelectedChallenge(ch)}
+                              className="w-full p-3.5 rounded-2xl bg-burgundy-950 border border-nude-300/25 flex items-center justify-between text-left hover:border-amber-300 transition"
+                            >
+                              <div>
+                                <span className="text-[10px] text-amber-300 font-bold">Reto #{idx + 1}</span>
+                                <p className="text-xs font-bold text-white">{ch.emoji} {ch.title}</p>
+                              </div>
+                              <span className="px-3 py-1 rounded-full nude-btn text-xs">Ver {chPosts.length} fotos →</span>
+                            </button>
+                          );
+                        })}
+                      </>
+                    )}
                   </div>
                 )}
 
-                {/* MODO DIOS OMNISCIENTE: Ve los autores reales de confesiones anónimas y puede editarlas o borrarlas */}
                 {adminSubTab === "godmode" && (
                   <div className="space-y-3 pt-2 text-xs">
                     <p className="text-amber-300 font-bold">👁️ Ojo de Dios: Aquí puedes ver a los autores reales de cada confesión anónima y borrar cualquier contenido de la web.</p>
@@ -4743,6 +4787,19 @@
                             </div>
                           </div>
                           <p className="text-white">“{c.text}”</p>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="space-y-2 pt-3">
+                      <p className="font-extrabold uppercase text-nude-300">Cartas al Destino Enviadas:</p>
+                      {destinyLetters.map(l => (
+                        <div key={l.id} className="p-3 rounded-2xl bg-burgundy-950 border border-nude-300/30 space-y-1">
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-amber-200">De @{l.fromUsername} → Para @{l.toUsername}</span>
+                            <button onClick={() => handleAdminDeleteExtraDoc(l.id)} className="text-rose-300 underline">Borrar</button>
+                          </div>
+                          <p className="text-white">“{l.text}”</p>
                         </div>
                       ))}
                     </div>
@@ -4930,7 +4987,7 @@
                           ></div>
                         )}
 
-                        {/* Stickers y Sellos con Escala y Rotación (Sin rebordes amarillos feos) */}
+                        {/* Stickers y Sellos con Escala y Rotación */}
                         {placedStickers.map((st) => (
                           <div
                             key={st.id}
@@ -5141,7 +5198,7 @@
           )}
 
           {/* ========================================================== */}
-          {/* MODAL 4: EDITAR MI PERFIL Y VIBE (✏️ REPARADO)             */}
+          {/* MODAL 4: EDITAR MI PERFIL Y VIBE                           */}
           {/* ========================================================== */}
           {editProfileModal && (
             <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
@@ -5237,16 +5294,19 @@
                     <img src={fullscreenPost.userAvatar} alt="" className="w-9 h-9 rounded-full object-cover" />
                     <span className="text-sm font-bold text-white hover:underline">@{fullscreenPost.userName}</span>
                   </button>
-                  <button onClick={() => setFullscreenPostId(null)} className="px-3 py-1 rounded-full nude-btn text-xs">Cerrar ✕</button>
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => handleDownloadMedia(fullscreenPost.mediaUrl, fullscreenPost.mediaType)} className="px-2.5 py-1 rounded-full bg-burgundy-800 border border-nude-300/30 text-xs text-white font-bold">💾 Guardar</button>
+                    <button onClick={() => setFullscreenPostId(null)} className="px-3 py-1 rounded-full nude-btn text-xs">Cerrar ✕</button>
+                  </div>
                 </div>
-                <div className="bg-black max-h-[55vh] flex items-center justify-center overflow-hidden">
-                  <MediaRenderer item={fullscreenPost} className="w-full max-h-[55vh] object-contain" onDoubleTapLike={() => toggleLike(fullscreenPost)} />
+                <div className="bg-black max-h-[65vh] flex items-center justify-center overflow-hidden">
+                  <MediaRenderer item={fullscreenPost} className="w-full max-h-[65vh] object-contain" onDoubleTapLike={() => toggleLike(fullscreenPost)} />
                 </div>
               </div>
             </div>
           )}
 
-          {/* MODAL 8: EDITAR PIE DE FOTO / ADMIN EDITAR USUARIO */}
+          {/* MODAL 8: EDITAR PIE DE FOTO / ADMIN EDITAR USUARIO / ADMIN EDITAR EXTRA */}
           {adminEditPost && (
             <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
               <div className="glass-card rounded-3xl max-w-sm w-full p-6 border border-nude-300/40 space-y-4">
@@ -5257,6 +5317,21 @@
                 <form onSubmit={handleSavePostEdit} className="space-y-3">
                   <input type="text" value={adminEditPost.caption || ""} onChange={(e) => setAdminEditPost({ ...adminEditPost, caption: e.target.value })} className="w-full px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/40 text-xs text-white" />
                   <button type="submit" className="w-full py-3 rounded-xl nude-btn text-xs">Guardar</button>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {adminEditExtra && isAdmin && (
+            <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="glass-card rounded-3xl max-w-sm w-full p-6 border border-nude-300/40 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-serif text-xl font-bold text-white">Editar Contenido (Admin)</h3>
+                  <button onClick={() => setAdminEditExtra(null)} className="text-nude-300 font-bold">✕</button>
+                </div>
+                <form onSubmit={handleAdminSaveExtraDoc} className="space-y-3">
+                  <textarea rows="3" value={adminEditExtra.text || ""} onChange={(e) => setAdminEditExtra({ ...adminEditExtra, text: e.target.value })} className="w-full px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/40 text-xs text-white resize-none"></textarea>
+                  <button type="submit" className="w-full py-3 rounded-xl nude-btn text-xs">Guardar Cambios</button>
                 </form>
               </div>
             </div>

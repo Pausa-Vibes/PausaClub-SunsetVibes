@@ -7,7 +7,6 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>Sunset Vibes — Red Social Oficial</title>
-  <!-- Logo para pestaña del navegador y pantalla de inicio (Sube tu archivo como logo.png a GitHub) -->
   <link rel="icon" type="image/png" href="./logo.png" />
   <link rel="apple-touch-icon" href="./logo.png" />
   <!-- Tailwind CSS -->
@@ -205,6 +204,9 @@
 
     const ADMIN_EMAIL = "joellpethers@gmail.com";
     const BRAND_LOGO_URL = "./logo.png";
+
+    // Limpieza inmediata de cualquier bloqueo local residual de pruebas anteriores
+    try { localStorage.removeItem("sunset_vibes_device_banned"); } catch (e) {}
 
     const getOrCreateDeviceId = () => {
       let devId = localStorage.getItem("sunset_vibes_device_id");
@@ -843,7 +845,7 @@
       return canvas.toDataURL("image/jpeg", 0.9);
     };
 
-    const compressSimpleImage = (file, maxWidth = 500, quality = 0.84) => {
+    const compressSimpleImage = (file, maxWidth = 650, quality = 0.85) => {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -921,7 +923,7 @@
         </span>
       );
     }
-// Barra Universal de Autocompletado cuando se escribe @ en cualquier campo de la aplicación
+    // Barra Universal de Autocompletado cuando se escribe @ en cualquier campo de la aplicación
     function MentionAutocompleteBar({ value, onChange, users, label = "Etiquetar invitado:" }) {
       if (!value) return null;
       const match = value.match(/@([a-zA-Z0-9_]*)$/);
@@ -986,13 +988,24 @@
       }
     };
 
-    // Renderizador Multimedia con Marcos en Videos, Sin Rebordes Amarillos en Stickers y Botón Pantalla Completa
+    // Renderizador Multimedia con Soporte de Carrusel Multi-Foto (Idea D), Optimización Lazy-Loading (Idea F), Marcos en Vivo y Doble Toque
     function MediaRenderer({ item, className = "w-full max-h-[460px] object-contain", onDoubleTapLike, onOpenFullscreen, autoPlay = false, controls = false, paused = false }) {
       const videoRef = useRef(null);
       const [isMuted, setIsMuted] = useState(true);
       const [showHeartBurst, setShowHeartBurst] = useState(false);
+      const [slideIdx, setSlideIdx] = useState(0);
       const lastTapRef = useRef(0);
 
+      const mediaList = useMemo(() => {
+        if (Array.isArray(item.mediaUrls) && item.mediaUrls.length > 0) return item.mediaUrls;
+        return item.mediaUrl ? [item.mediaUrl] : [];
+      }, [item.mediaUrls, item.mediaUrl]);
+
+      useEffect(() => {
+        setSlideIdx(0);
+      }, [item.id]);
+
+      const currentUrl = mediaList[slideIdx] || item.mediaUrl;
       const filterObj = MEDIA_FILTERS.find(f => f.id === item.filterId) || MEDIA_FILTERS[0];
       const textColorObj = TEXT_COLORS.find(c => c.id === item.overlayColorId) || TEXT_COLORS[0];
 
@@ -1020,7 +1033,7 @@
         );
         observer.observe(videoRef.current);
         return () => observer.disconnect();
-      }, [item.mediaUrl, item.mediaType, paused, autoPlay]);
+      }, [currentUrl, item.mediaType, paused, autoPlay]);
 
       const handleTap = (e) => {
         const now = Date.now();
@@ -1041,8 +1054,8 @@
         : "none";
 
       const stickersList = Array.isArray(item.overlayStickers) ? item.overlayStickers : [];
-      const videoPosterUrl = item.mediaType === "video" && item.mediaUrl?.includes("/upload/")
-        ? item.mediaUrl.replace(/\.[^/.]+$/, ".jpg")
+      const videoPosterUrl = item.mediaType === "video" && currentUrl?.includes("/upload/")
+        ? currentUrl.replace(/\.[^/.]+$/, ".jpg")
         : undefined;
 
       const tPos = item.overlayPos || { x: 50, y: item.overlayYPos || 50 };
@@ -1058,12 +1071,13 @@
             <>
               <video
                 ref={videoRef}
-                src={item.mediaUrl}
+                src={currentUrl}
                 poster={videoPosterUrl}
                 muted={isMuted && !autoPlay}
                 controls={controls}
                 loop
                 playsInline
+                preload="metadata"
                 style={{ filter: filterObj.css, clipPath: clipPathStyle }}
                 className={className}
               />
@@ -1111,10 +1125,44 @@
             </>
           ) : (
             <img
-              src={item.mediaUrl}
+              src={currentUrl}
               alt={item.caption || "Sunset Vibes"}
+              loading="lazy"
+              decoding="async"
               className={className}
             />
+          )}
+
+          {/* Controles de Carrusel Multi-Foto estilo Instagram (Idea D) */}
+          {mediaList.length > 1 && (
+            <>
+              <span className="absolute top-3 left-3 px-2.5 py-0.5 rounded-full bg-black/75 border border-white/25 text-white text-[10px] font-extrabold z-20">
+                {slideIdx + 1}/{mediaList.length}
+              </span>
+              {slideIdx > 0 && (
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setSlideIdx(s => s - 1); }}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/70 border border-white/30 text-white font-extrabold text-sm flex items-center justify-center z-20"
+                >
+                  ‹
+                </button>
+              )}
+              {slideIdx < mediaList.length - 1 && (
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setSlideIdx(s => s + 1); }}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/70 border border-white/30 text-white font-extrabold text-sm flex items-center justify-center z-20"
+                >
+                  ›
+                </button>
+              )}
+              <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex gap-1.5 z-20 bg-black/50 px-2 py-1 rounded-full">
+                {mediaList.map((_, i) => (
+                  <span key={i} className={`w-1.5 h-1.5 rounded-full transition-all ${i === slideIdx ? "bg-amber-300 scale-125" : "bg-white/40"}`}></span>
+                ))}
+              </div>
+            </>
           )}
 
           {onOpenFullscreen && (
@@ -1158,7 +1206,7 @@
       const [partySubTab, setPartySubTab] = useState("dj"); // dj | secrets | destiny | paparazzi | mosaic
       const [chatSubTab, setChatSubTab] = useState("group"); // group | private
       const [adminSubTab, setAdminSubTab] = useState("controls"); // controls | guests | challenges | godmode
-      const [adminSelectedChallenge, setAdminSelectedChallenge] = useState(null); // Auditoría de fotos por reto en Admin
+      const [adminSelectedChallenge, setAdminSelectedChallenge] = useState(null);
       const [activeChatFriend, setActiveChatFriend] = useState(null);
       const [searchQuery, setSearchQuery] = useState("");
       const [quoteIndex, setQuoteIndex] = useState(0);
@@ -1180,8 +1228,9 @@
       const [wrappedDataUrl, setWrappedDataUrl] = useState("");
       const [isGeneratingWrapped, setIsGeneratingWrapped] = useState(false);
       const lastSeenSpinIdRef = useRef(null);
+      const autoResetBansDoneRef = useRef(false);
 
-      // Inputs del Admin para Ruleta, Encuesta Relámpago (#5), Anuncio Fijado y Edición Universal
+      // Inputs del Admin
       const [adminWheelPrize, setAdminWheelPrize] = useState("🍾 1 Trago VIP / Premio Sorpresa");
       const [adminPinInput, setAdminPinInput] = useState("");
       const [pollQuestionInput, setPollQuestionInput] = useState("");
@@ -1190,7 +1239,7 @@
       const [pollOpt3Input, setPollOpt3Input] = useState("");
       const [adminEditExtra, setAdminEditExtra] = useState(null);
 
-      // Inputs de Cabina DJ, Confesiones Secretas, Cartas al Destino (#6) y Modo Paparazzi (#7)
+      // Inputs de Fiesta
       const [djSongTitle, setDjSongTitle] = useState("");
       const [djSongDedicated, setDjSongDedicated] = useState("");
       const [secretText, setSecretText] = useState("");
@@ -1199,7 +1248,7 @@
       const [destinyIsAnon, setDestinyIsAnon] = useState(true);
       const [paparazziTarget, setPaparazziTarget] = useState(null);
 
-      // Modal de Recorte por Bordes de Posts ya subidos (No destructivo gracias a originalMediaUrl)
+      // Modal de Recorte por Bordes de Posts ya subidos
       const [cropModalPost, setCropModalPost] = useState(null);
       const [borderCrop, setBorderCrop] = useState({ top: 0, bottom: 0, left: 0, right: 0 });
       const [isCroppingPost, setIsCroppingPost] = useState(false);
@@ -1227,8 +1276,9 @@
       const [setupAvatar, setSetupAvatar] = useState("");
       const [setupError, setSetupError] = useState("");
 
-      // Estudio de Subida con Marcos en Vivo (#1), Rotación, Escala y Movimiento X/Y de Stickers y Texto
+      // Estudio de Subida con Carrusel Multi-Foto (Idea D), Marcos en Vivo (#1), Rotación, Escala y Movimiento
       const [rawMediaUrl, setRawMediaUrl] = useState("");
+      const [extraMediaUrls, setExtraMediaUrls] = useState([]); // Hasta 2 fotos extra para carrusel de 3 fotos
       const [rawVideoFile, setRawVideoFile] = useState(null);
       const [mediaType, setMediaType] = useState("image");
       const [videoDuration, setVideoDuration] = useState(0);
@@ -1261,10 +1311,11 @@
       const longPressTimerRef = useRef(null);
       const wasLongPressRef = useRef(false);
 
-      // Comentarios y Chat (Con Long Press para Responder)
+      // Comentarios, Notas Fugaces (Idea E) y Chat
       const [commentInputs, setCommentInputs] = useState({});
       const commentInputRefs = useRef({});
       const [chatText, setChatText] = useState("");
+      const [quickNoteInput, setQuickNoteInput] = useState("");
       const [replyingToMsg, setReplyingToMsg] = useState(null);
       const [chatImageUploading, setChatImageUploading] = useState(false);
       const chatEndRef = useRef(null);
@@ -1283,7 +1334,6 @@
       const prevMessagesLenRef = useRef(null);
       const prevNotifsLenRef = useRef(null);
 
-      // Botón "Atrás" del celular domesticado para cerrar modales sin salir de la web
       useEffect(() => {
         const handlePopState = () => {
           if (storyViewer.open) setStoryViewer(prev => ({ ...prev, open: false }));
@@ -1321,7 +1371,6 @@
         }
       }, []);
 
-      // Escuchar los 2 servidores de Firebase en paralelo con límites optimizados
       useEffect(() => {
         if (!fbReady || !window.FB) return;
         const { auth, db, chatDb, onAuthStateChanged, collection, onSnapshot, query, orderBy, limit } = window.FB;
@@ -1375,7 +1424,32 @@
         };
       }, [fbReady]);
 
-      // Sincronizar Ruleta en Vivo en todas las Pantallas (#4)
+      // Desbloqueo Automático de todas las cuentas bloqueadas por error antes de esta actualización (banEpoch v2)
+      useEffect(() => {
+        if (!fbReady || !window.FB || autoResetBansDoneRef.current) return;
+        if (partyState && partyState.banEpoch !== 2) {
+          autoResetBansDoneRef.current = true;
+          const cleaned = {
+            ...partyState,
+            bannedDevices: [],
+            bannedUids: [],
+            banEpoch: 2,
+            updatedAt: Date.now()
+          };
+          setPartyState(cleaned);
+          window.FB.setDoc(window.FB.doc(window.FB.chatDb, "notifications", "GLOBAL_PARTY_STATE_DOC"), {
+            isPartyExtra: true,
+            extraType: "global_party_state",
+            partyPayload: cleaned,
+            createdAt: Date.now()
+          }).catch(() => {});
+          users.filter(u => u.isBanned).forEach(u => {
+            window.FB.updateDoc(window.FB.doc(window.FB.db, "users", u.uid), { isBanned: false }).catch(() => {});
+          });
+        }
+      }, [fbReady, partyState, users]);
+
+      // Sincronizar Ruleta en Vivo
       useEffect(() => {
         const wheelSpin = partyState?.wheelSpin;
         if (!wheelSpin || !wheelSpin.id) return;
@@ -1425,15 +1499,6 @@
         };
       }, [partyState?.wheelSpin?.id]);
 
-      // Auto-scroll en el Chat
-      useEffect(() => {
-        if (activeTab === "chat") {
-          setTimeout(() => {
-            chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-          }, 120);
-        }
-      }, [messages.length, activeTab, chatSubTab, activeChatFriend]);
-
       const currentUserDoc = useMemo(() => {
         if (!authSession) return null;
         return users.find(u => u.uid === authSession.uid && u.username) || null;
@@ -1444,29 +1509,37 @@
         return emailToCheck === ADMIN_EMAIL;
       }, [currentUserDoc, authSession]);
 
-      // Detector de Bloqueo por Dispositivo o Cuenta
+      // Marcar mensajes privados como "Visto (✓✓)" cuando se abre la conversación (Idea E)
+      useEffect(() => {
+        if (activeTab === "chat" && chatSubTab === "private" && activeChatFriend && currentUserDoc && window.FB) {
+          const chatKey = [currentUserDoc.uid, activeChatFriend.uid].sort().join("__");
+          messages
+            .filter(m => m.chatKey === chatKey && m.receiverId === currentUserDoc.uid && !m.seen)
+            .forEach(m => {
+              window.FB.updateDoc(window.FB.doc(window.FB.chatDb, "messages", m.id), { seen: true }).catch(() => {});
+            });
+        }
+        if (activeTab === "chat") {
+          setTimeout(() => {
+            chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+          }, 120);
+        }
+      }, [messages, activeTab, chatSubTab, activeChatFriend, currentUserDoc]);
+
+      // Detector de Bloqueo: SOLO se activa si el Admin tocó explícitamente el botón "🚫 Bloquear" (y solo después del banEpoch 2)
       const isCurrentDeviceBlocked = useMemo(() => {
         if (isAdmin) return false;
+        if (partyState?.banEpoch !== 2) return false;
         const bannedDevs = Array.isArray(partyState?.bannedDevices) ? partyState.bannedDevices : [];
         const bannedUids = Array.isArray(partyState?.bannedUids) ? partyState.bannedUids : [];
-        const localBan = localStorage.getItem("sunset_vibes_device_banned") === "true";
 
-        if (
+        return (
           bannedDevs.includes(deviceId) ||
           (authSession?.uid && bannedUids.includes(authSession.uid)) ||
           currentUserDoc?.isBanned === true
-        ) {
-          localStorage.setItem("sunset_vibes_device_banned", "true");
-          return true;
-        }
-        if (localBan && bannedDevs.length > 0 && !bannedDevs.includes(deviceId)) {
-          localStorage.removeItem("sunset_vibes_device_banned");
-          return false;
-        }
-        return localBan && bannedDevs.includes(deviceId);
+        );
       }, [isAdmin, partyState, deviceId, authSession, currentUserDoc]);
 
-      // Insignias Automáticas de los Reyes de la Fiesta
       const userBadgesMap = useMemo(() => {
         const map = {};
         if (users.length === 0) return map;
@@ -1489,7 +1562,7 @@
         return map;
       }, [users, posts]);
 
-      // Barra de Energía del Sunset: Empieza en 0% real y sube solo con la actividad de la fiesta
+      // Barra de Energía: Arranca en 0% y sube con la actividad real
       const sunsetEnergyPct = useMemo(() => {
         const totalLikes = posts.reduce((acc, p) => acc + (p.likes?.length || 0), 0);
         const totalComments = posts.reduce((acc, p) => acc + (p.comments?.length || 0), 0);
@@ -1506,7 +1579,6 @@
         return Math.min(100, Math.round((totalInteractions / 200) * 100));
       }, [posts, stories.length, messages.length, djSongs.length, confessions.length, destinyLetters.length]);
 
-      // Notificaciones sin duplicados
       const myNotifications = useMemo(() => {
         if (!currentUserDoc) return [];
         const raw = notifications.filter(n => n.toUid === currentUserDoc.uid);
@@ -1540,7 +1612,6 @@
         return destinyLetters.filter(l => l.toUid === currentUserDoc.uid);
       }, [destinyLetters, currentUserDoc]);
 
-      // Alerta Externa con Sonido Real + Vibración + Notificación del Sistema
       const triggerExternalAlert = (title, bodyText, soundType = "bell") => {
         playNotificationSound(soundType);
         if (navigator.vibrate) {
@@ -1606,6 +1677,9 @@
           } else if (type === "story_reaction" && storyId) {
             const deterministicId = `streact_${currentUserDoc.uid}_${storyId}`;
             await setDoc(doc(chatDb, "notifications", deterministicId), payload, { merge: true });
+          } else if (type === "story_like" && storyId) {
+            const deterministicId = `stlike_${currentUserDoc.uid}_${storyId}`;
+            await setDoc(doc(chatDb, "notifications", deterministicId), payload, { merge: true });
           } else if (type === "friend_request") {
             const deterministicId = `freq_${currentUserDoc.uid}_${toUid}`;
             await setDoc(doc(chatDb, "notifications", deterministicId), payload, { merge: true });
@@ -1641,9 +1715,18 @@
         });
       };
 
+      // Verificar si puedo ver las historias de un usuario (SOLO AMIGOS, mis propias historias o el Admin)
+      const canAccessUserStories = (targetUid) => {
+        if (!currentUserDoc || !targetUid) return false;
+        if (targetUid === currentUserDoc.uid || isAdmin) return true;
+        return (currentUserDoc.friends || []).includes(targetUid);
+      };
+
+      // Grupos de Historias Filtrados: Solo aparecen las historias de AMIGOS confirmados, las propias y todas para el Admin
       const storyGroups = useMemo(() => {
         const map = new Map();
         stories.forEach((st) => {
+          if (!canAccessUserStories(st.userId)) return;
           if (!map.has(st.userId)) {
             const uObj = users.find(u => u.uid === st.userId);
             map.set(st.userId, {
@@ -1661,7 +1744,7 @@
           }
         });
         return Array.from(map.values()).sort((a, b) => (b.hasUnseen ? 1 : 0) - (a.hasUnseen ? 1 : 0));
-      }, [stories, users, currentUserDoc]);
+      }, [stories, users, currentUserDoc, isAdmin]);
 
       useEffect(() => {
         if (!storyViewer.open || !currentUserDoc || !window.FB) return;
@@ -1744,7 +1827,12 @@
         });
       };
 
+      // Abrir historias verificando que sean amigos primero
       const openStoriesForUser = (uid) => {
+        if (!canAccessUserStories(uid)) {
+          alert("🔒 Las historias son exclusivas para Amigos. ¡Envíale solicitud de amistad o un Fuego de Match 🔥 para ver sus historias!");
+          return;
+        }
         const gIdx = storyGroups.findIndex(g => g.userId === uid);
         if (gIdx !== -1) {
           const grp = storyGroups[gIdx];
@@ -1760,8 +1848,36 @@
         }
       };
 
+      // Dar Me Gusta (❤️) a una Historia (Privado: solo el dueño de la historia y el Admin ven quién le dio MG)
+      const toggleStoryLike = async (storyItem) => {
+        if (!currentUserDoc || !window.FB || !storyItem) return;
+        if (!canAccessUserStories(storyItem.userId)) return;
+        const { db, doc, updateDoc, arrayUnion, arrayRemove } = window.FB;
+        const hasLiked = (storyItem.likes || []).includes(currentUserDoc.uid);
+        try {
+          await updateDoc(doc(db, "stories", storyItem.id), {
+            likes: hasLiked ? arrayRemove(currentUserDoc.uid) : arrayUnion(currentUserDoc.uid)
+          });
+          if (!hasLiked && storyItem.userId !== currentUserDoc.uid) {
+            await sendNotification({
+              toUid: storyItem.userId,
+              type: "story_like",
+              text: `❤️ le dio Me gusta a tu historia.`,
+              storyId: storyItem.id,
+              storyUserId: storyItem.userId
+            });
+          }
+          if (navigator.vibrate) navigator.vibrate(40);
+        } catch (e) {}
+      };
+
+      // Reacciones y Respuestas en Historias (Exclusivas para Amigos)
       const handleSendStoryReply = async (e, storyGroup, storyItem, quickEmoji = null) => {
         if (e) e.preventDefault();
+        if (!canAccessUserStories(storyGroup?.userId)) {
+          alert("🔒 Solo los amigos pueden reaccionar o responder a esta historia.");
+          return;
+        }
         const textToSend = quickEmoji || storyReplyText.trim();
         if (!textToSend || !currentUserDoc || !window.FB) return;
         const { db, chatDb, collection, doc, addDoc, updateDoc } = window.FB;
@@ -1810,6 +1926,41 @@
             action: () => setInAppToast(null)
           });
         } catch (err) {}
+      };
+
+      // Repostear en mi Historia cuando me etiquetan o desde un post (Idea A estilo Instagram)
+      const handleRepostToMyStory = async (sourceItem) => {
+        if (!currentUserDoc || !window.FB || !sourceItem) return;
+        try {
+          await window.FB.addDoc(window.FB.collection(window.FB.db, "stories"), {
+            userId: currentUserDoc.uid,
+            userName: currentUserDoc.username,
+            userAvatar: currentUserDoc.avatar,
+            mediaUrl: sourceItem.mediaUrl,
+            mediaType: sourceItem.mediaType || "image",
+            videoDuration: sourceItem.videoDuration || null,
+            filterId: sourceItem.filterId || "normal",
+            frameId: sourceItem.frameId || "none",
+            borderCrop: sourceItem.borderCrop || { top: 0, bottom: 0, left: 0, right: 0 },
+            overlayText: `🔄 De @${sourceItem.userName}`,
+            overlayColorId: "gold",
+            overlayPos: { x: 50, y: 15 },
+            overlayScale: 0.9,
+            overlayRotation: 0,
+            overlayStickers: [],
+            caption: sourceItem.caption || "",
+            views: [],
+            likes: [],
+            createdAt: Date.now()
+          });
+          setInAppToast({
+            id: Date.now(),
+            icon: "🔄",
+            title: "¡Reposteado en tu Historia!",
+            text: `Compartiste la publicación de @${sourceItem.userName} con tus amigos.`,
+            action: () => openStoriesForUser(currentUserDoc.uid)
+          });
+        } catch (e) {}
       };
 
       const handleDownloadMedia = (mediaUrl, type = "image") => {
@@ -1939,12 +2090,12 @@
       const nextSequentialChallenge = () => {
         setChallengeIndex((prev) => (prev + 1) % PHOTO_CHALLENGES.length);
       };
-    // ====================================================================
-      // CONTROLES EXCLUSIVOS DEL SUPER ADMIN (RULETA, ENCUESTA #5, MOSAICO #3, BLOQUEO Y MODO DIOS)
+      // ====================================================================
+      // CONTROLES EXCLUSIVOS DEL SUPER ADMIN (RULETA, ENCUESTA #5, MOSAICO #3, BLOQUEO SEPARADO DE BORRADO Y MODO DIOS)
       // ====================================================================
       const saveGlobalPartyState = async (newPartialState) => {
         if (!isAdmin || !window.FB) return;
-        const updated = { ...partyState, ...newPartialState, updatedAt: Date.now() };
+        const updated = { ...partyState, ...newPartialState, banEpoch: 2, updatedAt: Date.now() };
         setPartyState(updated);
         try {
           await window.FB.setDoc(window.FB.doc(window.FB.chatDb, "notifications", "GLOBAL_PARTY_STATE_DOC"), {
@@ -1956,7 +2107,24 @@
         } catch (e) {}
       };
 
-      // Bloquear o Desbloquear a un Invitado y su Dispositivo (Hardware Ban en tiempo real)
+      // Botón Maestro para limpiar y desbloquear todas las cuentas/dispositivos de golpe
+      const handleAdminClearAllBans = async () => {
+        if (!isAdmin || !window.FB) return;
+        if (!confirm("🔓 ¿Restablecer y desbloquear absolutamente todos los dispositivos y cuentas?")) return;
+        await saveGlobalPartyState({ bannedDevices: [], bannedUids: [], banEpoch: 2 });
+        users.filter(u => u.isBanned).forEach(u => {
+          window.FB.updateDoc(window.FB.doc(window.FB.db, "users", u.uid), { isBanned: false }).catch(() => {});
+        });
+        setInAppToast({
+          id: Date.now(),
+          icon: "🔓",
+          title: "¡Todos los bloqueos fueron eliminados!",
+          text: "Cualquier invitado bloqueado por error ya puede volver a entrar.",
+          action: () => setInAppToast(null)
+        });
+      };
+
+      // Bloquear o Desbloquear a un Invitado (SOLO se ejecuta cuando el Admin toca el botón "🚫 Bloquear")
       const handleAdminToggleBanUser = async (targetUser) => {
         if (!isAdmin || !window.FB || !targetUser) return;
         const bannedDevs = Array.isArray(partyState?.bannedDevices) ? [...partyState.bannedDevices] : [];
@@ -1964,7 +2132,7 @@
         const isCurrentlyBanned = targetUser.isBanned || bannedUids.includes(targetUser.uid);
 
         if (!isCurrentlyBanned) {
-          if (!confirm(`🚫 ¿Bloquear el acceso y el dispositivo de @${targetUser.username}? No podrá volver a entrar ni crear otra cuenta desde su celular.`)) return;
+          if (!confirm(`🚫 ¿Bloquear el dispositivo de @${targetUser.username}? No podrá volver a entrar a la página desde ese celular.`)) return;
           if (!bannedUids.includes(targetUser.uid)) bannedUids.push(targetUser.uid);
           if (targetUser.deviceId && !bannedDevs.includes(targetUser.deviceId)) {
             bannedDevs.push(targetUser.deviceId);
@@ -2062,7 +2230,6 @@
         }
       };
 
-      // Descarga Directa Garantizada del Póster Mosaico Oficial (#3)
       const handleDownloadMosaicPoster = async () => {
         setIsGeneratingPoster(true);
         try {
@@ -2076,7 +2243,6 @@
         }
       };
 
-      // Resumen Personal — Sunset Wrapped (#2) con Descarga Directa Garantizada
       const handleOpenMyWrapped = async () => {
         if (!currentUserDoc) return;
         setWrappedModalOpen(true);
@@ -2099,7 +2265,6 @@
         triggerDataUrlDownload(wrappedDataUrl, `Sunset-Wrapped-${currentUserDoc?.username || "invitado"}.jpg`);
       };
 
-      // Cabina DJ, Confesiones Anónimas (Con autor real para Admin), Cartas al Destino (#6) y Modo Paparazzi (#7)
       const handleAddDjSong = async (e) => {
         e.preventDefault();
         if (!djSongTitle.trim() || !currentUserDoc || !window.FB) return;
@@ -2173,7 +2338,6 @@
         } catch (e) {}
       };
 
-      // Buzón de Cartas al Destino (#6)
       const handleSendDestinyLetter = async (e) => {
         e.preventDefault();
         if (!destinyTargetUser.trim() || !destinyMessage.trim() || !currentUserDoc || !window.FB) return;
@@ -2214,7 +2378,6 @@
         } catch (e) {}
       };
 
-      // Modo Paparazzi In Fraganti (#7) — Permite cambiar o repetir objetivo todas las veces que el invitado quiera
       const handleAssignPaparazziTarget = () => {
         const others = users.filter(u => u.username && u.uid !== currentUserDoc?.uid && !u.isBanned);
         if (others.length === 0) {
@@ -2229,7 +2392,6 @@
         setPaparazziTarget(chosen);
       };
 
-      // Borrar o Editar cualquier elemento extra (DJ, Confesiones, Cartas, Notificaciones) por el Admin
       const handleAdminDeleteExtraDoc = async (docId) => {
         if (!isAdmin || !window.FB) return;
         if (!confirm("¿Eliminar este registro permanentemente?")) return;
@@ -2343,7 +2505,7 @@
             await sendNotification({
               toUid: notif.fromUid,
               type: "friend_accepted",
-              text: `aceptó tu solicitud de amistad. ¡Ya son amigos y pueden chatear en privado! 🎉`,
+              text: `aceptó tu solicitud de amistad. ¡Ya son amigos y pueden ver sus historias y chatear en privado! 🎉`,
               status: "info",
               customDocId: `facc_${currentUserDoc.uid}_${notif.fromUid}`
             });
@@ -2416,7 +2578,7 @@
             await sendNotification({
               toUid: matchEntry.fromUid,
               type: "match_accepted",
-              text: `🔥💖 ¡Aceptó tu Carta de Match! Ahora son amigos oficialmente y tienen el chat privado habilitado.`,
+              text: `🔥💖 ¡Aceptó tu Carta de Match! Ahora son amigos oficialmente, pueden ver sus historias y chatear en privado.`,
               status: "info",
               customDocId: `macc_${currentUserDoc.uid}_${matchEntry.fromUid}`
             });
@@ -2517,6 +2679,7 @@
             email: emailVal,
             avatar: avatarVal,
             vibeStatus: "🥂 En la barra",
+            quickNote: "",
             deviceId,
             isBanned: false,
             friends: [],
@@ -2565,6 +2728,7 @@
           email: authSession.email,
           avatar: finalAvatar,
           vibeStatus: "🥂 En la barra",
+          quickNote: "",
           deviceId,
           isBanned: false,
           friends: [],
@@ -2601,10 +2765,11 @@
       };
 
       // ====================================================================
-      // ESTUDIO DE SUBIDA (MARCOS EN VIVO #1, RECORTE 4 BORDES, ESCALA, GIRO Y MOVIMIENTO)
+      // ESTUDIO DE SUBIDA (CARRUSEL MULTI-FOTO, MARCOS EN VIVO #1, RECORTE, ESCALA Y GIRO)
       // ====================================================================
       const resetUploadStudio = () => {
         setRawMediaUrl("");
+        setExtraMediaUrls([]);
         setRawVideoFile(null);
         setMediaType("image");
         setVideoDuration(0);
@@ -2670,32 +2835,50 @@
         }
       };
 
+      // Selección de archivo (Soporta elegir hasta 3 fotos a la vez para Carrusel estilo Instagram)
       const handleMediaFileChange = async (e) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
+        const files = Array.from(e.target.files || []);
+        if (files.length === 0) return;
         setMediaError("");
+        const first = files[0];
 
-        if (file.type.startsWith("video/")) {
+        if (first.type.startsWith("video/")) {
           try {
-            const { previewUrl, duration } = await validateVideoFile(file);
+            const { previewUrl, duration } = await validateVideoFile(first);
             setMediaType("video");
             setVideoDuration(duration);
-            setRawVideoFile(file);
+            setRawVideoFile(first);
             setRawMediaUrl(previewUrl);
+            setExtraMediaUrls([]);
           } catch (err) {
             setMediaError(err.message);
             setRawMediaUrl("");
             setRawVideoFile(null);
           }
         } else {
-          const reader = new FileReader();
-          reader.readAsDataURL(file);
-          reader.onload = (ev) => {
-            setMediaType("image");
-            setVideoDuration(0);
-            setRawVideoFile(null);
-            setRawMediaUrl(ev.target.result);
-          };
+          const readAsDataUrl = (f) => new Promise((res) => {
+            const r = new FileReader();
+            r.onload = (ev) => res(ev.target.result);
+            r.readAsDataURL(f);
+          });
+          const mainUrl = await readAsDataUrl(first);
+          setMediaType("image");
+          setVideoDuration(0);
+          setRawVideoFile(null);
+          setRawMediaUrl(mainUrl);
+
+          if (files.length > 1 && uploadModal.type === "post") {
+            const extras = [];
+            for (let i = 1; i < Math.min(files.length, 3); i++) {
+              if (!files[i].type.startsWith("video/")) {
+                const compressedExtra = await compressSimpleImage(files[i], 1400, 0.85);
+                extras.push(compressedExtra);
+              }
+            }
+            setExtraMediaUrls(extras);
+          } else {
+            setExtraMediaUrls([]);
+          }
         }
       };
 
@@ -2710,6 +2893,7 @@
         try {
           let finalCloudUrl = "";
           let uncroppedCloudUrl = "";
+          const uploadedCarouselUrls = [];
 
           if (mediaType === "image") {
             const hdBakedDataUrl = await bakeEditedImage(rawMediaUrl, {
@@ -2728,6 +2912,8 @@
 
             try {
               finalCloudUrl = await uploadMediaFile(hdBakedDataUrl, "image", (pct) => setUploadProgress(pct));
+              uploadedCarouselUrls.push(finalCloudUrl);
+
               const hasCrop = uploadBorderCrop.top > 0 || uploadBorderCrop.bottom > 0 || uploadBorderCrop.left > 0 || uploadBorderCrop.right > 0;
               if (hasCrop) {
                 const uncroppedBaked = await bakeEditedImage(rawMediaUrl, {
@@ -2747,6 +2933,12 @@
               } else {
                 uncroppedCloudUrl = finalCloudUrl;
               }
+
+              // Subir fotos extra del carrusel si el usuario seleccionó 2 o 3 fotos
+              for (const extraDataUrl of extraMediaUrls) {
+                const extCloud = await uploadMediaFile(extraDataUrl, "image").catch(() => extraDataUrl);
+                uploadedCarouselUrls.push(extCloud);
+              }
             } catch (cloudErr) {
               finalCloudUrl = await bakeEditedImage(rawMediaUrl, {
                 filterCss: selectedFilter.css,
@@ -2762,11 +2954,13 @@
                 quality: 0.74
               });
               uncroppedCloudUrl = finalCloudUrl;
+              uploadedCarouselUrls.push(finalCloudUrl);
             }
           } else {
             const videoSource = rawVideoFile || rawMediaUrl;
             finalCloudUrl = await uploadMediaFile(videoSource, "video", (pct) => setUploadProgress(pct));
             uncroppedCloudUrl = finalCloudUrl;
+            uploadedCarouselUrls.push(finalCloudUrl);
           }
 
           const basePayload = {
@@ -2774,6 +2968,7 @@
             userName: currentUserDoc.username,
             userAvatar: currentUserDoc.avatar,
             mediaUrl: finalCloudUrl,
+            mediaUrls: uploadedCarouselUrls.length > 1 ? uploadedCarouselUrls : [finalCloudUrl],
             originalMediaUrl: uncroppedCloudUrl || finalCloudUrl,
             mediaType,
             videoDuration: mediaType === "video" ? videoDuration : null,
@@ -2794,12 +2989,18 @@
           const myFriendsList = currentUserDoc.friends || [];
 
           if (uploadModal.type === "story") {
-            await addDoc(collection(db, "stories"), basePayload);
+            const createdSt = await addDoc(collection(db, "stories"), {
+              ...basePayload,
+              views: [],
+              likes: []
+            });
+            notifyMentionedUsers(caption.trim(), "una historia", null);
             myFriendsList.forEach(friendUid => {
               sendNotification({
                 toUid: friendUid,
                 type: "friend_story",
-                text: `🌅 subió una nueva historia. ¡Toca para verla!`,
+                text: `🌅 subió una nueva historia para amigos. ¡Toca para verla!`,
+                storyId: createdSt.id,
                 storyUserId: currentUserDoc.uid
               });
             });
@@ -2814,6 +3015,7 @@
               ...basePayload,
               challengeId: uploadModal.withChallenge ? currentChallenge.id : null,
               challengeTitle: chTitle,
+              pinnedInProfile: false,
               likes: [],
               reactions: {},
               comments: []
@@ -2928,6 +3130,17 @@
         } catch (e) {}
       };
 
+      // Fijar o Desfijar Foto Arriba en el Perfil (Idea B)
+      const togglePinPostInProfile = async (post) => {
+        if (!currentUserDoc || !window.FB) return;
+        if (post.userId !== currentUserDoc.uid && !isAdmin) return;
+        try {
+          await window.FB.updateDoc(window.FB.doc(window.FB.db, "posts", post.id), {
+            pinnedInProfile: !post.pinnedInProfile
+          });
+        } catch (e) {}
+      };
+
       const handleAddComment = async (postId) => {
         const text = (commentInputs[postId] || "").trim();
         if (!text || !currentUserDoc || !window.FB) return;
@@ -2939,6 +3152,8 @@
           userName: currentUserDoc.username,
           userAvatar: currentUserDoc.avatar,
           text,
+          likes: [],
+          pinned: false,
           createdAt: Date.now()
         };
         try {
@@ -2953,6 +3168,34 @@
               postId
             });
           }
+        } catch (e) {}
+      };
+
+      // Dar Me Gusta (❤️) a un Comentario estilo Instagram (Idea C)
+      const toggleCommentLike = async (post, commentId) => {
+        if (!currentUserDoc || !window.FB) return;
+        const updated = (post.comments || []).map(c => {
+          if (c.id !== commentId) return c;
+          const likesArr = Array.isArray(c.likes) ? [...c.likes] : [];
+          const idx = likesArr.indexOf(currentUserDoc.uid);
+          if (idx > -1) likesArr.splice(idx, 1);
+          else likesArr.push(currentUserDoc.uid);
+          return { ...c, likes: likesArr };
+        });
+        try {
+          await window.FB.updateDoc(window.FB.doc(window.FB.db, "posts", post.id), { comments: updated });
+        } catch (e) {}
+      };
+
+      // Fijar Comentario Destacado debajo de una Foto (Idea B)
+      const togglePinComment = async (post, commentId) => {
+        if (!currentUserDoc || !window.FB) return;
+        if (post.userId !== currentUserDoc.uid && !isAdmin) return;
+        const updated = (post.comments || []).map(c =>
+          c.id === commentId ? { ...c, pinned: !c.pinned } : c
+        );
+        try {
+          await window.FB.updateDoc(window.FB.doc(window.FB.db, "posts", post.id), { comments: updated });
         } catch (e) {}
       };
 
@@ -3020,24 +3263,14 @@
         } catch (e) {}
       };
 
-      // BORRADO EN CASCADA TOTAL + BLOQUEO OPCIONAL DE DISPOSITIVO
-      const handleAdminDeleteUser = async (targetUser, alsoBanDevice = true) => {
+      // 🗑️ ELIMINAR INVITADO EN CASCADA (SIN BLOQUEAR SU DISPOSITIVO NI SU ACCESO)
+      const handleAdminDeleteUser = async (targetUser) => {
         if (!isAdmin || !window.FB) return;
-        if (!confirm(`⚠️ ¿Eliminar por completo a @${targetUser.username} y bloquear su dispositivo? Se borrarán su perfil, fotos, historias, chats, notificaciones, likes y comentarios.`)) return;
+        if (!confirm(`🗑️ ¿Eliminar todos los registros de @${targetUser.username} (perfil, fotos, historias, chats, likes y notificaciones) SIN bloquear su celular?`)) return;
         const { db, chatDb, doc, deleteDoc, updateDoc, arrayRemove } = window.FB;
         const tUid = targetUser.uid;
 
         try {
-          if (alsoBanDevice) {
-            const bannedDevs = Array.isArray(partyState?.bannedDevices) ? [...partyState.bannedDevices] : [];
-            const bannedUids = Array.isArray(partyState?.bannedUids) ? [...partyState.bannedUids] : [];
-            if (!bannedUids.includes(tUid)) bannedUids.push(tUid);
-            if (targetUser.deviceId && !bannedDevs.includes(targetUser.deviceId)) {
-              bannedDevs.push(targetUser.deviceId);
-            }
-            await saveGlobalPartyState({ bannedDevices: bannedDevs, bannedUids });
-          }
-
           await deleteDoc(doc(db, "users", tUid));
 
           posts.forEach(p => {
@@ -3084,9 +3317,9 @@
           if (viewedProfileUid === tUid) setViewedProfileUid(null);
           setInAppToast({
             id: Date.now(),
-            icon: "🚫",
-            title: `@${targetUser.username} eliminado y bloqueado`,
-            text: "Sus registros fueron borrados y su celular bloqueado.",
+            icon: "🗑️",
+            title: `Registros de @${targetUser.username} eliminados`,
+            text: "Su cuenta fue borrada limpiamente sin bloquear su dispositivo.",
             action: () => setInAppToast(null)
           });
         } catch (e) {}
@@ -3105,6 +3338,26 @@
           clearTimeout(msgLongPressTimerRef.current);
           msgLongPressTimerRef.current = null;
         }
+      };
+
+      // Guardar Nota Fugaz estilo Instagram Notes en la bandeja del Chat (Idea E)
+      const handleSaveQuickNote = async (e) => {
+        e.preventDefault();
+        if (!currentUserDoc || !window.FB) return;
+        try {
+          await window.FB.updateDoc(window.FB.doc(window.FB.db, "users", currentUserDoc.uid), {
+            quickNote: quickNoteInput.trim().slice(0, 28),
+            quickNoteAt: Date.now()
+          });
+          setQuickNoteInput("");
+          setInAppToast({
+            id: Date.now(),
+            icon: "💭",
+            title: "¡Nota publicada!",
+            text: "Tus amigos la verán arriba en la pestaña de Chat.",
+            action: () => setInAppToast(null)
+          });
+        } catch (e) {}
       };
 
       const handleSendMessage = async (e, customImgUrl = null) => {
@@ -3130,6 +3383,7 @@
             sharedMediaUrl: customImgUrl || null,
             sharedMediaType: customImgUrl ? "image" : null,
             replyTo: replyingToMsg ? { senderName: replyingToMsg.senderName, text: replyingToMsg.text } : null,
+            seen: false,
             createdAt: Date.now()
           });
           setChatText("");
@@ -3156,6 +3410,7 @@
             sharedMediaUrl: shareModalPost.mediaUrl,
             sharedMediaType: shareModalPost.mediaType || "image",
             sharedPostId: shareModalPost.id,
+            seen: false,
             createdAt: Date.now()
           });
           setShareModalPost(null);
@@ -3244,7 +3499,13 @@
         } catch (e) {}
       };
 
-      const myPosts = posts.filter(p => p.userId === currentUserDoc?.uid);
+      // Mis publicaciones ordenadas con las Fijadas (📌) primero
+      const myPosts = useMemo(() => {
+        return posts
+          .filter(p => p.userId === currentUserDoc?.uid)
+          .sort((a, b) => (b.pinnedInProfile ? 1 : 0) - (a.pinnedInProfile ? 1 : 0));
+      }, [posts, currentUserDoc]);
+
       const myStories = stories.filter(s => s.userId === currentUserDoc?.uid);
       const myTotalLikes = myPosts.reduce((s, p) => s + (p.likes?.length || 0), 0);
 
@@ -3285,12 +3546,10 @@
         const q = searchQuery.trim().replace(/^@/, "").toLowerCase();
         return users.filter(u => u.username).filter(u => !q || u.username.toLowerCase().includes(q));
       }, [users, searchQuery]);
-
-    // ====================================================================
+      // ====================================================================
       // RENDERIZADO VISUAL COMPLETO Y DEFINITIVO
       // ====================================================================
 
-      // Pantalla de Bloqueo Permanente si el Admin expulsó el dispositivo o la cuenta
       if (isCurrentDeviceBlocked) {
         return (
           <div className="min-h-screen flex items-center justify-center p-6 text-center">
@@ -3300,7 +3559,7 @@
               </div>
               <h1 className="font-serif text-2xl font-bold text-white">Acceso Restringido</h1>
               <p className="text-xs text-nude-200 leading-relaxed">
-                El organizador ha bloqueado el acceso a la aplicación desde este dispositivo. No es posible volver a ingresar ni crear cuentas nuevas en este equipo.
+                El organizador ha bloqueado el acceso a la aplicación desde este dispositivo.
               </p>
               <div className="pt-2">
                 <span className="text-[10px] text-nude-300 font-mono">Sunset Vibes • Seguridad Activa</span>
@@ -3440,7 +3699,7 @@
             </div>
           )}
 
-          {/* MODAL RULETA EN VIVO EN TODAS LAS PANTALLAS (SIN MENCIONAR "100 PERSONAS") (#4) */}
+          {/* MODAL RULETA EN VIVO (#4) */}
           {wheelModalState.open && (
             <div className="fixed inset-0 z-50 bg-black/92 backdrop-blur-md flex items-center justify-center p-4">
               <div className="match-card-letter rounded-3xl max-w-md w-full p-7 text-center space-y-5 border-2 border-amber-300 shadow-2xl">
@@ -3492,7 +3751,7 @@
             </div>
           )}
 
-          {/* MODAL RESUMEN PERSONAL SUNSET WRAPPED (#2) CON DESCARGA DIRECTA */}
+          {/* MODAL RESUMEN PERSONAL SUNSET WRAPPED (#2) */}
           {wrappedModalOpen && (
             <div className="fixed inset-0 z-50 bg-black/92 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
               <div className="glass-card rounded-3xl max-w-md w-full p-6 text-center space-y-4 my-auto border-2 border-nude-300">
@@ -3522,7 +3781,7 @@
             </div>
           )}
 
-          {/* BARRA SUPERIOR CON LOGO, CAMPANITA (🔔), AUDIO (🔊) Y QR */}
+          {/* BARRA SUPERIOR */}
           <header className="sticky top-0 z-30 glass-nav px-4 py-3 flex items-center justify-between border-b border-nude-300/25">
             <div onClick={() => { setViewedProfileUid(null); setActiveTab("feed"); }} className="flex items-center gap-2.5 cursor-pointer">
               <BrandLogo size="md" />
@@ -3565,12 +3824,11 @@
           </header>
 
           {/* ========================================================== */}
-          {/* PESTAÑA 1: MURO PRINCIPAL + TERMÓMETRO (ARRANCA EN 0%)      */}
+          {/* PESTAÑA 1: MURO PRINCIPAL + TERMÓMETRO                     */}
           {/* ========================================================== */}
           {activeTab === "feed" && !viewedProfileUser && (
             <div className="p-4 space-y-5">
 
-              {/* Banner si el Admin ya activó el Mosaico de Fin de Fiesta (#3) */}
               {partyState?.mosaicActive && (
                 <div
                   onClick={() => { setActiveTab("party"); setPartySubTab("mosaic"); }}
@@ -3587,7 +3845,6 @@
                 </div>
               )}
 
-              {/* Termómetro de Energía del Sunset (Arranca en 0% real) */}
               <div className="glass-card rounded-2xl p-3.5 border border-amber-400/30 flex items-center gap-3">
                 <span className="text-2xl animate-pulse">🔥</span>
                 <div className="flex-1">
@@ -3601,7 +3858,6 @@
                 </div>
               </div>
 
-              {/* Encuesta Relámpago en Vivo del Admin (#5) */}
               {partyState?.livePoll?.active && (
                 <div className="match-card-letter rounded-3xl p-5 space-y-3">
                   <div className="flex items-center justify-between">
@@ -3639,7 +3895,6 @@
                 </div>
               )}
 
-              {/* Anuncio Fijado por el Admin */}
               {partyState?.pinnedAnnouncement && (
                 <div className="glass-card rounded-2xl p-4 border border-amber-400/40 bg-burgundy-900/90 flex items-center gap-3">
                   <span className="text-2xl">📌</span>
@@ -3650,7 +3905,7 @@
                 </div>
               )}
 
-              {/* Burbuja Ovalada de Historias */}
+              {/* Burbuja de Historias (Solo muestra historias de Amigos, propias o del Admin) */}
               <div className="stories-oval-bubble rounded-full px-5 py-3.5 flex items-center gap-3.5 overflow-x-auto no-scrollbar">
                 <button
                   onClick={() => {
@@ -3671,10 +3926,7 @@
                   return (
                     <button
                       key={group.userId}
-                      onClick={() => {
-                        setStoryMenuOpen(false);
-                        setStoryViewer({ open: true, groupIndex: gIdx, storyIndex: 0, paused: false, progress: 0 });
-                      }}
+                      onClick={() => openStoriesForUser(group.userId)}
                       className="flex flex-col items-center shrink-0 relative"
                     >
                       <div className={`w-[60px] h-[60px] rounded-full p-[2.5px] relative shadow-lg ${
@@ -3694,14 +3946,12 @@
                 })}
               </div>
 
-              {/* Filtros Superiores del Muro */}
               <div className="grid grid-cols-3 gap-1.5 bg-burgundy-950 p-1 rounded-2xl border border-nude-300/30 text-xs">
                 <button onClick={() => { setFeedFilter("recent"); setSelectedChallengeFilter(null); }} className={`py-2 rounded-xl font-bold transition ${feedFilter === "recent" && !selectedChallengeFilter ? "nude-btn" : "text-nude-200"}`}>🕒 Recientes</button>
                 <button onClick={() => { setFeedFilter("trending"); setSelectedChallengeFilter(null); }} className={`py-2 rounded-xl font-bold transition ${feedFilter === "trending" ? "nude-btn" : "text-nude-200"}`}>🔥 Tendencias</button>
                 <button onClick={() => { setFeedFilter("friends"); setSelectedChallengeFilter(null); }} className={`py-2 rounded-xl font-bold transition ${feedFilter === "friends" ? "nude-btn" : "text-nude-200"}`}>🥂 Amigos</button>
               </div>
 
-              {/* Retos Secuenciales (1 al 20) */}
               <div className="glass-card rounded-2xl p-4 border border-nude-300/40">
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-[10px] uppercase tracking-widest px-2.5 py-0.5 rounded-full nude-btn">Reto {challengeIndex + 1} de 20</span>
@@ -3717,7 +3967,6 @@
                 </div>
               </div>
 
-              {/* Muro Principal */}
               {sortedAndFilteredPosts.length === 0 ? (
                 <div className="glass-card rounded-3xl p-8 text-center">
                   <p className="text-3xl mb-2">🌅</p>
@@ -3731,6 +3980,12 @@
                   const online = isUserOnline(authorObj);
                   const postReactions = post.reactions || {};
                   const authorBadges = userBadgesMap[post.userId] || [];
+
+                  // Ordenar comentarios con los Fijados (📌) primero
+                  const sortedComments = useMemo(() => {
+                    const list = Array.isArray(post.comments) ? [...post.comments] : [];
+                    return list.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
+                  }, [post.comments]);
 
                   return (
                     <div key={post.id} className="glass-card rounded-3xl overflow-hidden">
@@ -3755,16 +4010,10 @@
                         </button>
                         {canManage && (
                           <div className="flex items-center gap-1.5">
-                            <button
-                              onClick={() => {
-                                setBorderCrop(post.borderCrop || { top: 0, bottom: 0, left: 0, right: 0 });
-                                setCropModalPost(post);
-                              }}
-                              className="text-xs px-2 py-1 rounded-lg nude-btn"
-                              title="Recortar bordes"
-                            >
-                              ✂️
+                            <button onClick={() => togglePinPostInProfile(post)} className={`text-xs px-2 py-1 rounded-lg ${post.pinnedInProfile ? "bg-amber-400 text-[#090105] font-extrabold" : "bg-burgundy-900 text-nude-200"}`} title="Fijar en Perfil">
+                              📌
                             </button>
+                            <button onClick={() => { setBorderCrop(post.borderCrop || { top: 0, bottom: 0, left: 0, right: 0 }); setCropModalPost(post); }} className="text-xs px-2 py-1 rounded-lg nude-btn" title="Recortar">✂️</button>
                             <button onClick={() => setAdminEditPost({ ...post })} className="text-xs text-nude-200 px-2 py-1 rounded-lg bg-burgundy-900 border border-nude-300/25">✏️</button>
                             <button onClick={() => handleDeletePost(post)} className="text-xs text-rose-300 px-2 py-1 rounded-lg bg-burgundy-950">🗑️</button>
                           </div>
@@ -3790,17 +4039,15 @@
                             <button
                               onClick={() => {
                                 const inputRef = commentInputRefs.current[post.id];
-                                if (inputRef) {
-                                  inputRef.focus();
-                                  inputRef.scrollIntoView({ behavior: "smooth", block: "center" });
-                                } else {
-                                  setFullscreenPostId(post.id);
-                                }
+                                if (inputRef) { inputRef.focus(); inputRef.scrollIntoView({ behavior: "smooth", block: "center" }); }
+                                else setFullscreenPostId(post.id);
                               }}
                               className="flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-full bg-burgundy-900 border border-nude-300/35 text-nude-100"
-                              title="Ir a comentar"
                             >
                               <span>💬</span><span>{post.comments?.length || 0}</span>
+                            </button>
+                            <button onClick={() => handleRepostToMyStory(post)} className="flex items-center gap-1 text-xs font-extrabold px-3 py-1.5 rounded-full bg-burgundy-950 border border-nude-300/35 text-amber-300" title="Repostear en mi historia">
+                              <span>🔄</span><span>Repost</span>
                             </button>
                             <button onClick={() => setShareModalPost(post)} className="flex items-center gap-1 text-xs font-extrabold px-3 py-1.5 rounded-full nude-btn">
                               <span>📤</span><span>Enviar</span>
@@ -3832,20 +4079,38 @@
                           </p>
                         )}
 
-                        {(post.comments || []).length > 0 && (
+                        {sortedComments.length > 0 && (
                           <div className="space-y-1.5 pt-2 border-t border-nude-300/20 max-h-36 overflow-y-auto no-scrollbar">
-                            {post.comments.map((c) => {
-                              const canDelComment = c.userId === currentUserDoc.uid || post.userId === currentUserDoc.uid || isAdmin;
+                            {sortedComments.map((c) => {
+                              const canManageComment = c.userId === currentUserDoc.uid || post.userId === currentUserDoc.uid || isAdmin;
+                              const canPinComment = post.userId === currentUserDoc.uid || isAdmin;
                               const cAuthor = users.find(u => u.uid === c.userId);
+                              const cLikesArr = Array.isArray(c.likes) ? c.likes : [];
+                              const cLikedByMe = cLikesArr.includes(currentUserDoc.uid);
+
                               return (
-                                <div key={c.id} className="flex items-center justify-between text-xs text-nude-100 gap-2">
-                                  <p>
-                                    <button onClick={() => openUserProfile(c.userId)} className="font-bold text-white mr-1.5 hover:underline">
-                                      @{cAuthor?.username || c.userName}:
+                                <div key={c.id} className={`flex items-center justify-between text-xs gap-2 p-1 rounded-xl ${c.pinned ? "bg-amber-400/10 border border-amber-300/30" : ""}`}>
+                                  <div className="flex items-center gap-1.5 flex-1">
+                                    {c.pinned && <span className="text-[10px]" title="Comentario fijado">📌</span>}
+                                    <p className="text-nude-100 flex-1">
+                                      <button onClick={() => openUserProfile(c.userId)} className="font-bold text-white mr-1.5 hover:underline">
+                                        @{cAuthor?.username || c.userName}:
+                                      </button>
+                                      <RichMentionText text={c.text} users={users} onOpenProfile={openUserProfile} />
+                                    </p>
+                                  </div>
+                                  <div className="flex items-center gap-2 shrink-0">
+                                    <button onClick={() => toggleCommentLike(post, c.id)} className={`text-[11px] flex items-center gap-0.5 ${cLikedByMe ? "text-rose-400 font-bold" : "text-nude-300"}`}>
+                                      <span>{cLikedByMe ? "❤️" : "🤍"}</span>
+                                      {cLikesArr.length > 0 && <span>{cLikesArr.length}</span>}
                                     </button>
-                                    <RichMentionText text={c.text} users={users} onOpenProfile={openUserProfile} />
-                                  </p>
-                                  {canDelComment && <button onClick={() => handleDeleteComment(post, c)} className="text-[10px] text-rose-300">✕</button>}
+                                    {canPinComment && (
+                                      <button onClick={() => togglePinComment(post, c.id)} className="text-[10px] text-amber-300" title="Fijar comentario">📌</button>
+                                    )}
+                                    {canManageComment && (
+                                      <button onClick={() => handleDeleteComment(post, c)} className="text-[10px] text-rose-300 font-bold">✕</button>
+                                    )}
+                                  </div>
                                 </div>
                               );
                             })}
@@ -3863,7 +4128,7 @@
                             <input
                               type="text"
                               ref={(el) => { if (el) commentInputRefs.current[post.id] = el; }}
-                              placeholder="Escribe un comentario o etiqueta con @usuario..."
+                              placeholder="Escribe un comentario o @usuario..."
                               value={commentInputs[post.id] || ""}
                               onChange={(e) => setCommentInputs(prev => ({ ...prev, [post.id]: e.target.value }))}
                               onKeyDown={(e) => e.key === "Enter" && handleAddComment(post.id)}
@@ -3935,7 +4200,7 @@
           )}
 
           {/* ========================================================== */}
-          {/* PESTAÑA 3: FIESTA (CABINA DJ, BUZÓN CARTAS #6, PAPARAZZI #7) */}
+          {/* PESTAÑA 3: FIESTA                                          */}
           {/* ========================================================== */}
           {activeTab === "party" && !viewedProfileUser && (
             <div className="p-4 space-y-4">
@@ -4006,7 +4271,7 @@
                 <div className="space-y-4">
                   <div className="glass-card rounded-3xl p-5 space-y-3">
                     <h3 className="font-serif text-xl font-bold text-white">🤫 Confesiones Anónimas</h3>
-                    <p className="text-xs text-nude-200">Envía un mensaje secreto o menciona a alguien con <strong>@usuario</strong>. Para ti como Admin nada es oculto.</p>
+                    <p className="text-xs text-nude-200">Envía un mensaje secreto o menciona a alguien con <strong>@usuario</strong>.</p>
                     <form onSubmit={handleAddSecretConfession} className="space-y-2.5">
                       <textarea required rows="2" placeholder="Escribe tu confesión..." value={secretText} onChange={(e) => setSecretText(e.target.value)} className="w-full px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/40 text-xs text-white resize-none"></textarea>
                       <MentionAutocompleteBar value={secretText} onChange={setSecretText} users={users} label="Arrobar en confesión:" />
@@ -4048,7 +4313,7 @@
                 <div className="space-y-4">
                   <div className="glass-card rounded-3xl p-5 space-y-3">
                     <h3 className="font-serif text-xl font-bold text-white">💌 Buzón de Cartas al Destino</h3>
-                    <p className="text-xs text-nude-200">Manda una carta secreta o con tu firma a cualquier invitado. Le llegará a su campanita.</p>
+                    <p className="text-xs text-nude-200">Manda una carta secreta o con tu firma a cualquier invitado.</p>
                     <form onSubmit={handleSendDestinyLetter} className="space-y-2.5">
                       <div>
                         <input type="text" required placeholder="Destinatario (@usuario)..." value={destinyTargetUser} onChange={(e) => setDestinyTargetUser(e.target.value)} className="w-full px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/40 text-xs text-white" />
@@ -4086,13 +4351,12 @@
                 </div>
               )}
 
-              {/* MODO PAPARAZZI IN FRAGANTI (#7) CON BOTÓN PARA CAMBIAR O REPETIR OBJETIVO */}
               {partySubTab === "paparazzi" && (
                 <div className="glass-card rounded-3xl p-6 text-center space-y-4">
                   <div className="w-16 h-16 rounded-full fire-match-btn mx-auto flex items-center justify-center text-3xl shadow-xl">📸</div>
                   <h3 className="font-serif text-2xl font-bold text-white">Modo Paparazzi In Fraganti</h3>
                   <p className="text-xs text-nude-200 leading-relaxed">
-                    Obtén un objetivo al azar de la fiesta, búscalo por el salón, sácale una foto desprevenido y súbela al muro con insignia especial de Paparazzi.
+                    Obtén un objetivo al azar de la fiesta, búscalo por el salón y sácale una foto desprevenido.
                   </p>
 
                   {paparazziTarget ? (
@@ -4128,7 +4392,6 @@
                 </div>
               )}
 
-              {/* MOSAICO GIGANTE (#3) CON DESCARGA DIRECTA */}
               {partySubTab === "mosaic" && (
                 <div className="glass-card rounded-3xl p-6 text-center space-y-5">
                   <div className="w-16 h-16 rounded-full nude-btn mx-auto flex items-center justify-center text-3xl shadow-xl">✨</div>
@@ -4138,25 +4401,15 @@
                     <div className="p-5 rounded-2xl bg-burgundy-950 border border-nude-300/25 space-y-2">
                       <p className="text-lg">🔒</p>
                       <p className="text-sm font-bold text-amber-300">Se desbloqueará al final de la fiesta</p>
-                      <p className="text-xs text-nude-200">
-                        Sigue subiendo fotos al muro. Cuando el organizador active el cierre, aquí aparecerá el Mosaico Oficial de todos los invitados.
-                      </p>
                     </div>
                   ) : (
                     <>
-                      <p className="text-xs text-nude-200">
-                        ¡El Mosaico de Fin de Fiesta está activo! Aquí están los rostros y las mejores fotos de esta noche épica.
-                      </p>
-
+                      <p className="text-xs text-nude-200">¡El Mosaico de Fin de Fiesta está activo!</p>
                       <div className="grid grid-cols-5 gap-1.5 p-3 rounded-2xl bg-burgundy-950 border border-amber-300/40 max-h-72 overflow-y-auto no-scrollbar">
                         {users.filter(u => u.username).map(u => (
                           <img key={u.uid} src={u.avatar} alt={u.username} onClick={() => openUserProfile(u.uid)} className="w-full h-14 object-cover rounded-lg border border-nude-300/30 cursor-pointer" />
                         ))}
-                        {posts.filter(p => p.mediaType !== "video").slice(0, 20).map(p => (
-                          <img key={p.id} src={p.mediaUrl} alt="" onClick={() => setFullscreenPostId(p.id)} className="w-full h-14 object-cover rounded-lg border border-amber-300/40 cursor-pointer" />
-                        ))}
                       </div>
-
                       <button
                         onClick={handleDownloadMosaicPoster}
                         disabled={isGeneratingPoster}
@@ -4172,7 +4425,7 @@
           )}
 
           {/* ========================================================== */}
-          {/* PESTAÑA 4: CHAT GRUPAL Y PRIVADO (LONG PRESS PARA REPLY)     */}
+          {/* PESTAÑA 4: CHAT CON NOTAS FUFACES Y VISTO (✓✓)             */}
           {/* ========================================================== */}
           {activeTab === "chat" && !viewedProfileUser && (
             <div className="p-4 space-y-4">
@@ -4329,7 +4582,7 @@
                                 onTouchStart={() => startMessageLongPress(m)}
                                 onMouseUp={cancelMessageLongPress}
                                 onTouchEnd={cancelMessageLongPress}
-                                className={`max-w-[78%] px-3.5 py-2.5 rounded-2xl text-xs select-none ${isMine ? "light-surface font-semibold rounded-br-none" : "bg-burgundy-900 border border-nude-300/30 text-white rounded-bl-none"}`}
+                                className={`max-w-[78%] px-3.5 py-2.5 rounded-2xl text-xs select-none relative ${isMine ? "light-surface font-semibold rounded-br-none" : "bg-burgundy-900 border border-nude-300/30 text-white rounded-bl-none"}`}
                               >
                                 <div className="flex items-center justify-between gap-3 mb-0.5">
                                   <button onClick={(e) => { e.stopPropagation(); openUserProfile(m.senderId); }} className={`text-[10px] font-extrabold hover:underline ${isMine ? "text-[#2E071B]" : "text-nude-300"}`}>@{m.senderName}</button>
@@ -4347,6 +4600,11 @@
                                   </div>
                                 )}
                                 <p><RichMentionText text={m.text} users={users} onOpenProfile={openUserProfile} /></p>
+                                {isMine && (
+                                  <div className="text-[9px] text-right mt-1 font-extrabold text-[#2E071B]/70">
+                                    {m.seen ? "✓✓ Visto" : "✓ Enviado"}
+                                  </div>
+                                )}
                               </div>
                             </div>
                           );
@@ -4381,31 +4639,59 @@
                     </div>
                   </div>
                 ) : (
-                  <div className="space-y-2.5">
-                    {myFriendUsers.length === 0 ? (
-                      <div className="glass-card rounded-3xl p-7 text-center space-y-3">
-                        <p className="text-3xl">🥂</p>
-                        <p className="text-sm font-bold text-white">El Chat Privado es exclusivo para Amigos</p>
-                        <p className="text-xs text-nude-200">Envía una solicitud de amistad o acepta un Fuego de Match 🔥.</p>
-                        <button onClick={() => setActiveTab("search")} className="px-5 py-2.5 rounded-full nude-btn text-xs shadow">🔍 Buscar Amigos o Match</button>
+                  <div className="space-y-4">
+                    {/* Sección de Notas Fugaces Estilo Instagram Notes (Idea E) */}
+                    <div className="glass-card rounded-2xl p-3.5 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-amber-300">💭 Tus Notas Fugaces</span>
+                        <form onSubmit={handleSaveQuickNote} className="flex gap-1.5 flex-1 max-w-[220px]">
+                          <input type="text" maxLength="28" placeholder="Escribe una nota..." value={quickNoteInput} onChange={(e) => setQuickNoteInput(e.target.value)} className="w-full px-3 py-1 rounded-full bg-burgundy-950 border border-nude-300/30 text-[11px] text-white" />
+                          <button type="submit" className="px-3 py-1 rounded-full nude-btn text-[11px]">Publicar</button>
+                        </form>
                       </div>
-                    ) : (
-                      myFriendUsers.map((friend) => (
-                        <div key={friend.uid} className="glass-card rounded-2xl p-3.5 flex items-center justify-between">
-                          <button onClick={() => openUserProfile(friend.uid)} className="flex items-center gap-3 text-left">
-                            <div className="relative">
-                              <img src={friend.avatar} alt="" className="w-11 h-11 rounded-full object-cover border border-nude-300/50" />
-                              <span className={`absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-burgundy-950 ${isUserOnline(friend) ? "bg-emerald-500" : "bg-red-500"}`}></span>
+
+                      <div className="flex gap-3 overflow-x-auto no-scrollbar pt-1">
+                        {myFriendUsers.concat([currentUserDoc]).filter(Boolean).map(u => {
+                          const note = u.quickNote || (u.uid === currentUserDoc?.uid ? "Escribe tu nota..." : null);
+                          if (!note) return null;
+                          return (
+                            <div key={u.uid} onClick={() => u.uid !== currentUserDoc?.uid && setActiveChatFriend(u)} className="flex flex-col items-center shrink-0 cursor-pointer relative group">
+                              <div className="absolute -top-6 bg-white text-[#090105] text-[10px] font-extrabold px-2 py-0.5 rounded-xl shadow-lg border border-nude-300 whitespace-nowrap max-w-[90px] truncate">
+                                {note}
+                              </div>
+                              <img src={u.avatar} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-amber-300" />
+                              <span className="text-[10px] text-white mt-1">@{u.username}</span>
                             </div>
-                            <div>
-                              <p className="text-sm font-bold text-white">@{friend.username}</p>
-                              <p className="text-[10px] text-nude-300">{friend.vibeStatus || "🥂 En la barra"}</p>
-                            </div>
-                          </button>
-                          <button onClick={() => setActiveChatFriend(friend)} className="px-4 py-2 rounded-xl nude-btn text-xs shadow">💬 Chatear</button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="space-y-2.5">
+                      {myFriendUsers.length === 0 ? (
+                        <div className="glass-card rounded-3xl p-7 text-center space-y-3">
+                          <p className="text-3xl">🥂</p>
+                          <p className="text-sm font-bold text-white">El Chat Privado es exclusivo para Amigos</p>
+                          <button onClick={() => setActiveTab("search")} className="px-5 py-2.5 rounded-full nude-btn text-xs shadow">🔍 Buscar Amigos o Match</button>
                         </div>
-                      ))
-                    )}
+                      ) : (
+                        myFriendUsers.map((friend) => (
+                          <div key={friend.uid} className="glass-card rounded-2xl p-3.5 flex items-center justify-between">
+                            <button onClick={() => openUserProfile(friend.uid)} className="flex items-center gap-3 text-left">
+                              <div className="relative">
+                                <img src={friend.avatar} alt="" className="w-11 h-11 rounded-full object-cover border border-nude-300/50" />
+                                <span className={`absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-burgundy-950 ${isUserOnline(friend) ? "bg-emerald-500" : "bg-red-500"}`}></span>
+                              </div>
+                              <div>
+                                <p className="text-sm font-bold text-white">@{friend.username}</p>
+                                <p className="text-[10px] text-nude-300">{friend.vibeStatus || "🥂 En la barra"}</p>
+                              </div>
+                            </button>
+                            <button onClick={() => setActiveChatFriend(friend)} className="px-4 py-2 rounded-xl nude-btn text-xs shadow">💬 Chatear</button>
+                          </div>
+                        ))
+                      )}
+                    </div>
                   </div>
                 )
               )}
@@ -4413,7 +4699,7 @@
           )}
 
           {/* ========================================================== */}
-          {/* PESTAÑA 5: MI PERFIL (SUNSET WRAPPED #2 + CARTAS DESTINO)    */}
+          {/* PESTAÑA 5: MI PERFIL (CON VISTA INTERACTIVA COMPLETA DE FOTOS) */}
           {/* ========================================================== */}
           {activeTab === "profile" && !viewedProfileUser && (
             <div className="p-4 space-y-5">
@@ -4573,33 +4859,28 @@
                 )}
               </div>
 
-              {/* Mis Publicaciones Subidas con botón ✂️ para recortar */}
+              {/* Mis Publicaciones Subidas (Al tocarlas se abre la vista interactiva completa con comentarios, likes, etc.) */}
               <div>
                 <h3 className="text-xs font-extrabold uppercase tracking-wider text-nude-300 mb-3">
-                  Mis Publicaciones ({myPosts.length}) • Toca ✂️ para recortar bordes
+                  Mis Publicaciones ({myPosts.length}) • Toca cualquier foto para ver comentarios y acciones
                 </h3>
                 {myPosts.length === 0 ? (
                   <p className="text-xs text-nude-200/70 glass-card p-6 rounded-2xl text-center">Aún no has subido fotos ni videos.</p>
                 ) : (
                   <div className="grid grid-cols-2 gap-3">
                     {myPosts.map((p) => (
-                      <div key={p.id} className="glass-card rounded-2xl overflow-hidden">
+                      <div key={p.id} className="glass-card rounded-2xl overflow-hidden relative">
+                        {p.pinnedInProfile && (
+                          <span className="absolute top-2 left-2 z-10 px-2 py-0.5 rounded-full bg-amber-400 text-[#090105] text-[10px] font-extrabold shadow">📌 Fijado</span>
+                        )}
                         <div onClick={() => setFullscreenPostId(p.id)} className="h-40 bg-black overflow-hidden cursor-pointer">
                           <MediaRenderer item={p} className="w-full h-full object-cover" controls={false} />
                         </div>
                         <div className="p-2.5 flex items-center justify-between text-xs">
                           <span>❤️ {p.likes?.length || 0} • 💬 {p.comments?.length || 0}</span>
                           <div className="flex items-center gap-1.5">
-                            <button
-                              onClick={() => {
-                                setBorderCrop(p.borderCrop || { top: 0, bottom: 0, left: 0, right: 0 });
-                                setCropModalPost(p);
-                              }}
-                              className="px-1.5 py-0.5 rounded nude-btn text-[10px]"
-                            >
-                              ✂️
-                            </button>
-                            <button onClick={() => setAdminEditPost({ ...p })} className="text-nude-200">✏️</button>
+                            <button onClick={() => togglePinPostInProfile(p)} className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${p.pinnedInProfile ? "bg-amber-400 text-[#090105]" : "bg-burgundy-900 text-nude-200"}`}>📌</button>
+                            <button onClick={() => { setBorderCrop(p.borderCrop || { top: 0, bottom: 0, left: 0, right: 0 }); setCropModalPost(p); }} className="px-1.5 py-0.5 rounded nude-btn text-[10px]">✂️</button>
                             <button onClick={() => handleDeletePost(p)} className="text-rose-300 font-bold">🗑️</button>
                           </div>
                         </div>
@@ -4612,7 +4893,7 @@
           )}
 
           {/* ========================================================== */}
-          {/* PESTAÑA 6: PANEL ADMIN (AUDITORÍA POR RETO + BLOQUEO + MODO DIOS) */}
+          {/* PESTAÑA 6: PANEL ADMIN (CON BOTÓN DE DESBLOQUEO MASIVO)    */}
           {/* ========================================================== */}
           {activeTab === "admin" && isAdmin && !viewedProfileUser && (
             <div className="p-4 space-y-4">
@@ -4648,31 +4929,26 @@
                           </button>
                         )}
                       </div>
-                      <input type="text" required placeholder="Pregunta (ej. ¿Qué música ponemos?)" value={pollQuestionInput} onChange={(e) => setPollQuestionInput(e.target.value)} className="w-full px-3 py-2 rounded-xl bg-burgundy-900 border border-nude-300/30 text-xs text-white" />
+                      <input type="text" required placeholder="Pregunta..." value={pollQuestionInput} onChange={(e) => setPollQuestionInput(e.target.value)} className="w-full px-3 py-2 rounded-xl bg-burgundy-900 border border-nude-300/30 text-xs text-white" />
                       <input type="text" required placeholder="Opción 1" value={pollOpt1Input} onChange={(e) => setPollOpt1Input(e.target.value)} className="w-full px-3 py-2 rounded-xl bg-burgundy-900 border border-nude-300/30 text-xs text-white" />
                       <input type="text" required placeholder="Opción 2" value={pollOpt2Input} onChange={(e) => setPollOpt2Input(e.target.value)} className="w-full px-3 py-2 rounded-xl bg-burgundy-900 border border-nude-300/30 text-xs text-white" />
-                      <input type="text" placeholder="Opción 3 (opcional)" value={pollOpt3Input} onChange={(e) => setPollOpt3Input(e.target.value)} className="w-full px-3 py-2 rounded-xl bg-burgundy-900 border border-nude-300/30 text-xs text-white" />
                       <button type="submit" className="w-full py-2.5 rounded-xl nude-btn text-xs font-extrabold">Publicar Encuesta en Vivo ⚡</button>
                     </form>
 
-                    <div className="p-4 rounded-2xl bg-burgundy-950 border border-nude-300/30 space-y-2.5">
-                      <h4 className="text-sm font-extrabold text-white flex items-center gap-2"><span>📌</span> Fijar Aviso en el Muro</h4>
-                      <input type="text" placeholder="Escribe un anuncio..." value={adminPinInput} onChange={(e) => setAdminPinInput(e.target.value)} className="w-full px-3 py-2 rounded-xl bg-burgundy-900 border border-nude-300/30 text-xs text-white" />
-                      <button onClick={() => saveGlobalPartyState({ pinnedAnnouncement: adminPinInput.trim() })} className="w-full py-2.5 rounded-xl nude-btn text-xs font-extrabold">Actualizar Anuncio 📌</button>
+                    {/* Botón de Emergencia para Desbloquear a Todos de Golpe */}
+                    <div className="p-4 rounded-2xl bg-burgundy-950 border border-emerald-400/40 space-y-2.5 text-center">
+                      <h4 className="text-sm font-extrabold text-emerald-300">🔓 Desbloquear Todos los Dispositivos</h4>
+                      <p className="text-[11px] text-nude-200">Si algún invitado quedó bloqueado por error en pruebas anteriores, toca este botón para liberarlos a todos instantáneamente.</p>
+                      <button onClick={handleAdminClearAllBans} className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs shadow-lg">
+                        🔓 Desbloquear a Todos Ahora
+                      </button>
                     </div>
 
                     <div className="p-4 rounded-2xl bg-burgundy-950 border border-amber-400/40 space-y-2.5 text-center">
                       <h4 className="text-sm font-extrabold text-amber-300">✨ Mosaico de Fin de Fiesta (#3)</h4>
-                      <p className="text-[11px] text-nude-200">
-                        Estado actual: <strong>{partyState?.mosaicActive ? "✅ ACTIVO PARA TODOS" : "🔒 OCULTO HASTA EL FINAL"}</strong>
-                      </p>
-                      <div className="grid grid-cols-2 gap-2">
-                        <button onClick={() => handleAdminToggleMosaic(true)} className="py-3 rounded-xl nude-btn text-xs font-extrabold shadow-lg">
-                          Activar Mosaico 📸
-                        </button>
-                        <button onClick={() => handleAdminToggleMosaic(false)} className="py-3 rounded-xl bg-burgundy-900 border border-nude-300/30 text-xs text-nude-200 font-bold">
-                          Ocultar 🔒
-                        </button>
+                      <div className="grid grid-cols-2 gap-2 pt-1">
+                        <button onClick={() => handleAdminToggleMosaic(true)} className="py-3 rounded-xl nude-btn text-xs font-extrabold shadow-lg">Activar Mosaico 📸</button>
+                        <button onClick={() => handleAdminToggleMosaic(false)} className="py-3 rounded-xl bg-burgundy-900 border border-nude-300/30 text-xs text-nude-200 font-bold">Ocultar 🔒</button>
                       </div>
                     </div>
                   </div>
@@ -4692,12 +4968,11 @@
                             </div>
                           </button>
                           <div className="flex items-center gap-1.5">
-                            <button onClick={() => handleAdminToggleBanUser(g)} className={`px-2.5 py-1 rounded-lg text-xs font-bold ${isBannedUser ? "bg-emerald-700 text-white" : "bg-rose-900 text-rose-100"}`} title="Bloquear dispositivo y cuenta">
-                              {isBannedUser ? "Desbloquear" : "🚫 Ban Dispositivo"}
+                            <button onClick={() => handleAdminToggleBanUser(g)} className={`px-2 py-1 rounded-lg text-[11px] font-bold ${isBannedUser ? "bg-emerald-700 text-white" : "bg-rose-900 text-rose-100"}`} title="Bloquear o desbloquear dispositivo">
+                              {isBannedUser ? "Desbloquear" : "🚫 Bloquear"}
                             </button>
-                            <button onClick={() => setAdminEditUser({ ...g })} className="px-2 py-1 rounded-lg bg-burgundy-800 text-xs text-nude-200 font-bold">✏️</button>
                             {g.uid !== currentUserDoc.uid && (
-                              <button onClick={() => handleAdminDeleteUser(g, true)} className="px-2 py-1 rounded-lg bg-rose-950 text-xs text-rose-200 font-bold" title="Borrar en cascada total">🗑️</button>
+                              <button onClick={() => handleAdminDeleteUser(g)} className="px-2.5 py-1 rounded-lg bg-burgundy-800 text-xs text-rose-200 font-bold" title="Eliminar registro sin bloquear dispositivo">🗑️ Eliminar</button>
                             )}
                           </div>
                         </div>
@@ -4706,7 +4981,6 @@
                   </div>
                 )}
 
-                {/* AUDITORÍA DE FOTOS POR RETO EN EL PANEL DE ADMIN */}
                 {adminSubTab === "challenges" && (
                   <div className="space-y-3 pt-2">
                     {adminSelectedChallenge ? (
@@ -4748,7 +5022,7 @@
                       </div>
                     ) : (
                       <>
-                        <p className="text-xs text-nude-200">Toca cualquier reto para ver todas las fotos y videos que los invitados subieron y elegir a los mejores:</p>
+                        <p className="text-xs text-nude-200">Toca cualquier reto para ver todas las fotos y videos que los invitados subieron:</p>
                         {PHOTO_CHALLENGES.map((ch, idx) => {
                           const fullTitle = `${ch.emoji} ${ch.title}`;
                           const chPosts = posts.filter(p => p.challengeId === ch.id || p.challengeTitle === fullTitle || p.challengeTitle?.includes(ch.title));
@@ -4773,46 +5047,16 @@
 
                 {adminSubTab === "godmode" && (
                   <div className="space-y-3 pt-2 text-xs">
-                    <p className="text-amber-300 font-bold">👁️ Ojo de Dios: Aquí puedes ver a los autores reales de cada confesión anónima y borrar cualquier contenido de la web.</p>
-
+                    <p className="text-amber-300 font-bold">👁️ Ojo de Dios: Aquí puedes ver a los autores reales de cada confesión anónima y borrar cualquier contenido.</p>
                     <div className="space-y-2">
                       <p className="font-extrabold uppercase text-nude-300">Confesiones Anónimas Activas:</p>
                       {confessions.map(c => (
                         <div key={c.id} className="p-3 rounded-2xl bg-burgundy-950 border border-amber-300/30 space-y-1">
                           <div className="flex items-center justify-between">
                             <span className="font-bold text-amber-200">Autor real: @{c.fromUsername || "Desconocido"}</span>
-                            <div className="flex gap-2">
-                              <button onClick={() => setAdminEditExtra({ id: c.id, text: c.text })} className="text-nude-300 underline">Editar</button>
-                              <button onClick={() => handleAdminDeleteExtraDoc(c.id)} className="text-rose-300 underline">Borrar</button>
-                            </div>
+                            <button onClick={() => handleAdminDeleteExtraDoc(c.id)} className="text-rose-300 underline">Borrar</button>
                           </div>
                           <p className="text-white">“{c.text}”</p>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="space-y-2 pt-3">
-                      <p className="font-extrabold uppercase text-nude-300">Cartas al Destino Enviadas:</p>
-                      {destinyLetters.map(l => (
-                        <div key={l.id} className="p-3 rounded-2xl bg-burgundy-950 border border-nude-300/30 space-y-1">
-                          <div className="flex items-center justify-between">
-                            <span className="font-bold text-amber-200">De @{l.fromUsername} → Para @{l.toUsername}</span>
-                            <button onClick={() => handleAdminDeleteExtraDoc(l.id)} className="text-rose-300 underline">Borrar</button>
-                          </div>
-                          <p className="text-white">“{l.text}”</p>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="space-y-2 pt-3">
-                      <p className="font-extrabold uppercase text-nude-300">Pedidos de la Cabina DJ:</p>
-                      {djSongs.map(s => (
-                        <div key={s.id} className="p-3 rounded-2xl bg-burgundy-950 border border-nude-300/30 flex items-center justify-between">
-                          <div>
-                            <p className="font-bold text-white">🎵 {s.songTitle} (De @{s.fromUsername})</p>
-                            {s.dedicatedTo && <p className="text-amber-200">Dedicatoria: {s.dedicatedTo}</p>}
-                          </div>
-                          <button onClick={() => handleAdminDeleteExtraDoc(s.id)} className="text-rose-300 underline font-bold">Borrar</button>
                         </div>
                       ))}
                     </div>
@@ -4822,7 +5066,7 @@
             </div>
           )}
 
-          {/* VISTA DE PERFIL DE OTRO INVITADO */}
+          {/* VISTA DE PERFIL DE OTRO INVITADO (CON VISTA INTERACTIVA COMPLETA DE FOTOS) */}
           {viewedProfileUser && (
             <div className="p-4 space-y-5">
               <button onClick={() => setViewedProfileUid(null)} className="px-4 py-1.5 rounded-full nude-btn text-xs shadow">← Volver</button>
@@ -4866,24 +5110,30 @@
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                {viewedUserPosts.map((p) => (
-                  <div key={p.id} onClick={() => setFullscreenPostId(p.id)} className="glass-card rounded-2xl overflow-hidden cursor-pointer">
-                    <div className="h-40 bg-black overflow-hidden">
-                      <MediaRenderer item={p} className="w-full h-full object-cover" controls={false} />
+              <div>
+                <h3 className="text-xs font-extrabold uppercase tracking-wider text-nude-300 mb-3">Publicaciones de @{viewedProfileUser.username}</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  {viewedUserPosts.map((p) => (
+                    <div key={p.id} onClick={() => setFullscreenPostId(p.id)} className="glass-card rounded-2xl overflow-hidden cursor-pointer relative">
+                      {p.pinnedInProfile && (
+                        <span className="absolute top-2 left-2 z-10 px-2 py-0.5 rounded-full bg-amber-400 text-[#090105] text-[10px] font-extrabold shadow">📌 Fijado</span>
+                      )}
+                      <div className="h-40 bg-black overflow-hidden">
+                        <MediaRenderer item={p} className="w-full h-full object-cover" controls={false} />
+                      </div>
+                      <div className="p-2.5 flex items-center justify-between text-xs">
+                        <span>❤️ {p.likes?.length || 0} • 💬 {p.comments?.length || 0}</span>
+                        <span className="text-[10px] text-nude-300 font-bold">Ver Todo ⤢</span>
+                      </div>
                     </div>
-                    <div className="p-2.5 flex items-center justify-between text-xs">
-                      <span>❤️ {p.likes?.length || 0} • 💬 {p.comments?.length || 0}</span>
-                      <span className="text-[10px] text-nude-300 font-bold">Abrir ⤢</span>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
           )}
 
           {/* ========================================================== */}
-          {/* MODAL 1: CENTRO DE NOTIFICACIONES (🔔 CAMPANITA Y PERFIL)    */}
+          {/* MODAL 1: CENTRO DE NOTIFICACIONES                          */}
           {/* ========================================================== */}
           {notifModalOpen && (
             <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
@@ -4898,9 +5148,7 @@
 
                 <div className="flex-1 overflow-y-auto space-y-2.5 no-scrollbar pr-1">
                   {myNotifications.length === 0 ? (
-                    <p className="text-xs text-nude-200/70 text-center py-10">
-                      Aún no tienes notificaciones. Aquí verás solicitudes de amistad, Matches 🔥, Cartas al Destino y menciones.
-                    </p>
+                    <p className="text-xs text-nude-200/70 text-center py-10">Aún no tienes notificaciones.</p>
                   ) : (
                     myNotifications.map((n) => {
                       const senderLive = users.find(u => u.uid === n.fromUid);
@@ -4923,9 +5171,6 @@
                             {n.storyUserId && (
                               <button onClick={() => { setNotifModalOpen(false); openStoriesForUser(n.storyUserId); }} className="px-2.5 py-1 rounded-xl nude-btn text-[10px] shrink-0">Ver Story</button>
                             )}
-                            {n.type === "match_received" && (
-                              <button onClick={() => { setNotifModalOpen(false); setViewedProfileUid(null); setActiveTab("profile"); }} className="px-2.5 py-1 rounded-xl fire-match-btn text-[10px] font-extrabold shrink-0">🔥 Carta</button>
-                            )}
                           </div>
 
                           {n.type === "friend_request" && n.status === "pending" && (
@@ -4944,7 +5189,7 @@
           )}
 
           {/* ========================================================== */}
-          {/* MODAL 2: ESTUDIO DE SUBIDA CON MARCOS EN VIVO (#1) Y EDICIÓN COMPLETA */}
+          {/* MODAL 2: ESTUDIO DE SUBIDA (CARRUSEL HASTA 3 FOTOS, MARCOS EN VIVO #1) */}
           {/* ========================================================== */}
           {uploadModal.open && (
             <div
@@ -4956,7 +5201,7 @@
               <div className="glass-card rounded-3xl max-w-md w-full p-5 border border-nude-300/40 space-y-4 my-auto">
                 <div className="flex items-center justify-between">
                   <h3 className="font-serif text-xl font-bold text-white">
-                    {uploadModal.type === "story" ? "Subir Historia" : uploadModal.isPaparazzi ? "📸 Paparazzi In Fraganti" : uploadModal.withChallenge ? `Reto: ${currentChallenge.title}` : "Subir Publicación"}
+                    {uploadModal.type === "story" ? "Subir Historia (Amigos)" : uploadModal.isPaparazzi ? "📸 Paparazzi In Fraganti" : uploadModal.withChallenge ? `Reto: ${currentChallenge.title}` : "Subir Publicación"}
                   </h3>
                   <button onClick={() => { resetUploadStudio(); setUploadModal({ open: false, type: "post", withChallenge: false, isPaparazzi: false }); }} className="text-nude-300 font-bold text-sm">✕ Cerrar</button>
                 </div>
@@ -4971,10 +5216,8 @@
                           <img src={rawMediaUrl} alt="" style={{ filter: selectedFilter.css }} className="w-full h-full object-contain" />
                         )}
 
-                        {/* Marcos en Vivo mientras editas */}
                         <LiveFrameOverlay frameId={selectedFrame.id} />
 
-                        {/* Marco visual de Recorte 4 Bordes */}
                         {(uploadBorderCrop.top > 0 || uploadBorderCrop.bottom > 0 || uploadBorderCrop.left > 0 || uploadBorderCrop.right > 0 || activeStudioTool === "crop") && (
                           <div
                             style={{
@@ -4987,7 +5230,6 @@
                           ></div>
                         )}
 
-                        {/* Stickers y Sellos con Escala y Rotación */}
                         {placedStickers.map((st) => (
                           <div
                             key={st.id}
@@ -5014,7 +5256,6 @@
                           </div>
                         ))}
 
-                        {/* Texto Superpuesto Movible, Escalable y Rotable */}
                         {overlayText.trim() && (
                           <div
                             style={{
@@ -5034,9 +5275,9 @@
                     ) : (
                       <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer text-center p-4">
                         <span className="text-3xl">📸 🎥</span>
-                        <p className="text-xs font-bold text-white mt-2">Toca aquí para elegir Foto o Video (Máx 15s)</p>
-                        <p className="text-[11px] text-nude-300 mt-1">Usa los botones para marcos Polaroid, recorte, filtros y texto móvil</p>
-                        <input type="file" accept="image/*,video/*" onChange={handleMediaFileChange} className="hidden" />
+                        <p className="text-xs font-bold text-white mt-2">Toca aquí para elegir hasta 3 Fotos o 1 Video</p>
+                        <p className="text-[11px] text-nude-300 mt-1">Crea carruseles multi-foto estilo Instagram</p>
+                        <input type="file" accept="image/*,video/*" multiple={uploadModal.type === "post"} onChange={handleMediaFileChange} className="hidden" />
                       </label>
                     )}
                   </div>
@@ -5084,7 +5325,7 @@
 
                       {activeStudioTool === "text" && (
                         <div className="bg-burgundy-950 p-3.5 rounded-2xl border border-nude-300/30 space-y-2.5">
-                          <input type="text" placeholder="Escribe el texto (arrástralo con el dedo)..." value={overlayText} onChange={(e) => setOverlayText(e.target.value)} className="w-full px-3 py-2 rounded-xl bg-burgundy-900 border border-nude-300/30 text-xs text-white" />
+                          <input type="text" placeholder="Escribe el texto..." value={overlayText} onChange={(e) => setOverlayText(e.target.value)} className="w-full px-3 py-2 rounded-xl bg-burgundy-900 border border-nude-300/30 text-xs text-white" />
                           <div className="flex items-center justify-between gap-2 flex-wrap">
                             <div className="flex gap-1.5">
                               {TEXT_COLORS.map(tc => (
@@ -5097,12 +5338,6 @@
                               <span className="text-xs font-extrabold text-amber-300">{Math.round(overlayScale * 100)}%</span>
                               <button type="button" onClick={() => setOverlayScale(Math.min(2.2, overlayScale + 0.2))} className="px-2 py-0.5 rounded bg-burgundy-900 text-xs font-bold">➕</button>
                             </div>
-                            <div className="flex items-center gap-1">
-                              <span className="text-[10px] text-nude-200 font-bold">Giro:</span>
-                              <button type="button" onClick={() => setOverlayRotation((overlayRotation - 15) % 360)} className="px-2 py-0.5 rounded bg-burgundy-900 text-xs font-bold">↺</button>
-                              <span className="text-xs font-extrabold text-amber-300">{overlayRotation}°</span>
-                              <button type="button" onClick={() => setOverlayRotation((overlayRotation + 15) % 360)} className="px-2 py-0.5 rounded bg-burgundy-900 text-xs font-bold">↻</button>
-                            </div>
                           </div>
                         </div>
                       )}
@@ -5110,26 +5345,14 @@
                       {activeStudioTool === "stickers" && (
                         <div className="bg-burgundy-950 p-3.5 rounded-2xl border border-nude-300/30 space-y-2">
                           <div className="flex items-center justify-between flex-wrap gap-2">
-                            <p className="text-[11px] font-bold text-nude-200">Toca para agregar (arrástralos):</p>
+                            <p className="text-[11px] font-bold text-nude-200">Toca para agregar:</p>
                             {selectedStickerId && (
-                              <div className="flex items-center gap-1 flex-wrap">
-                                <span className="text-[10px] text-amber-300 font-bold">Escala:</span>
-                                <button type="button" onClick={() => updateSelectedStickerScale(-0.2)} className="px-2 py-0.5 rounded bg-burgundy-900 text-xs font-bold">➖</button>
-                                <button type="button" onClick={() => updateSelectedStickerScale(0.2)} className="px-2 py-0.5 rounded bg-burgundy-900 text-xs font-bold">➕</button>
-                                <button type="button" onClick={() => updateSelectedStickerRotation(-15)} className="px-2 py-0.5 rounded bg-burgundy-900 text-xs font-bold">↺</button>
-                                <button type="button" onClick={() => updateSelectedStickerRotation(15)} className="px-2 py-0.5 rounded bg-burgundy-900 text-xs font-bold">↻</button>
-                                <button type="button" onClick={() => removeStickerFromCanvas(selectedStickerId)} className="px-2 py-0.5 rounded bg-rose-950 text-rose-200 text-xs font-bold">Borrar</button>
-                              </div>
+                              <button type="button" onClick={() => removeStickerFromCanvas(selectedStickerId)} className="px-2 py-0.5 rounded bg-rose-950 text-rose-200 text-xs font-bold">Borrar Sticker</button>
                             )}
                           </div>
                           <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
                             {STICKERS.map(st => (
                               <button type="button" key={st} onClick={() => addStickerToCanvas(st)} className="text-lg px-2.5 py-1 rounded-lg bg-burgundy-900 shrink-0">+{st}</button>
-                            ))}
-                          </div>
-                          <div className="flex flex-wrap gap-1 pt-1">
-                            {VIP_STAMPS.map(st => (
-                              <button type="button" key={st} onClick={() => addStickerToCanvas(st)} className="px-2 py-1 rounded-lg bg-burgundy-900 border border-amber-300/40 text-amber-300 font-bold text-[10px]">+{st}</button>
                             ))}
                           </div>
                         </div>
@@ -5151,7 +5374,7 @@
           )}
 
           {/* ========================================================== */}
-          {/* MODAL 3: RECORTAR BORDES DE PUBLICACIÓN YA SUBIDA (✂️ NO DESTRUCTIVO) */}
+          {/* MODAL 3: RECORTAR BORDES (NO DESTRUCTIVO)                 */}
           {/* ========================================================== */}
           {cropModalPost && (
             <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md p-4 flex items-center justify-center overflow-y-auto">
@@ -5162,11 +5385,7 @@
                 </div>
 
                 <div className="relative w-full h-64 bg-black rounded-2xl overflow-hidden flex items-center justify-center border border-nude-300/30">
-                  {cropModalPost.mediaType === "video" ? (
-                    <video src={cropModalPost.mediaUrl} className="w-full h-full object-contain" muted autoPlay loop />
-                  ) : (
-                    <img src={cropModalPost.originalMediaUrl || cropModalPost.mediaUrl} alt="" className="w-full h-full object-contain" />
-                  )}
+                  <img src={cropModalPost.originalMediaUrl || cropModalPost.mediaUrl} alt="" className="w-full h-full object-contain" />
                   <div
                     style={{
                       top: `${borderCrop.top}%`,
@@ -5186,20 +5405,14 @@
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">
-                  <button onClick={() => handleApplyBorderCrop(false)} disabled={isCroppingPost} className="py-3.5 rounded-xl nude-btn text-xs shadow-lg">
-                    {isCroppingPost ? "Guardando..." : "Guardar Recorte ✨"}
-                  </button>
-                  <button onClick={() => handleApplyBorderCrop(true)} disabled={isCroppingPost} className="py-3.5 rounded-xl bg-burgundy-800 border border-nude-300/40 text-white font-bold text-xs shadow-lg">
-                    💾 Guardar y Descargar (.JPG)
-                  </button>
+                  <button onClick={() => handleApplyBorderCrop(false)} disabled={isCroppingPost} className="py-3.5 rounded-xl nude-btn text-xs shadow-lg">Guardar Recorte ✨</button>
+                  <button onClick={() => handleApplyBorderCrop(true)} disabled={isCroppingPost} className="py-3.5 rounded-xl bg-burgundy-800 border border-nude-300/40 text-white font-bold text-xs shadow-lg">💾 Guardar y Descargar</button>
                 </div>
               </div>
             </div>
           )}
 
-          {/* ========================================================== */}
-          {/* MODAL 4: EDITAR MI PERFIL Y VIBE                           */}
-          {/* ========================================================== */}
+          {/* MODAL 4: EDITAR PERFIL */}
           {editProfileModal && (
             <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
               <div className="glass-card rounded-3xl max-w-sm w-full p-6 border border-nude-300/40 space-y-4 my-auto">
@@ -5207,7 +5420,6 @@
                   <h3 className="font-serif text-xl font-bold text-white">Editar Mi Perfil y Vibe</h3>
                   <button onClick={() => setEditProfileModal(false)} className="text-nude-300 font-bold">✕</button>
                 </div>
-
                 <form onSubmit={handleSaveProfileEdit} className="space-y-3.5">
                   <div className="flex flex-col items-center">
                     <label className="cursor-pointer text-center">
@@ -5216,51 +5428,37 @@
                       <input type="file" accept="image/*" onChange={async (e) => { const f = e.target.files?.[0]; if (f) setNewProfileAvatar(await compressSimpleImage(f)); }} className="hidden" />
                     </label>
                   </div>
-
                   <div>
                     <label className="text-xs text-nude-200 font-bold">Nombre de usuario</label>
                     <input type="text" required value={newProfileUsername} onChange={(e) => setNewProfileUsername(e.target.value)} className="w-full mt-1 px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/40 text-sm text-white" />
                   </div>
-
                   <div>
                     <label className="text-xs text-nude-200 font-bold">Tu Etiqueta de Vibe</label>
                     <select value={newProfileVibe} onChange={(e) => setNewProfileVibe(e.target.value)} className="w-full mt-1 px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/40 text-xs text-white">
                       {VIBE_STATUS_LIST.map(v => <option key={v} value={v}>{v}</option>)}
                     </select>
                   </div>
-
-                  <div>
-                    <label className="text-xs text-nude-200 font-bold">Nueva contraseña (opcional)</label>
-                    <input type="password" placeholder="Contraseña" value={newProfilePassword} onChange={(e) => setNewProfilePassword(e.target.value)} className="w-full mt-1 px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/40 text-sm text-white" />
-                  </div>
-
                   {profileEditError && <p className="text-xs text-rose-300 font-bold">{profileEditError}</p>}
-
                   <button type="submit" className="w-full py-3 rounded-xl nude-btn text-xs shadow">Guardar Cambios ✨</button>
                 </form>
               </div>
             </div>
           )}
 
-          {/* ========================================================== */}
-          {/* MODAL 5: CÓDIGO QR OFICIAL                                 */}
-          {/* ========================================================== */}
+          {/* MODAL 5: QR */}
           {qrModalOpen && (
             <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
               <div className="glass-card rounded-3xl max-w-sm w-full p-6 text-center border border-nude-300/40 space-y-4">
                 <h3 className="font-serif text-2xl font-bold text-white">QR Oficial Sunset Vibes</h3>
-                <p className="text-xs text-nude-200">Escanea con la cámara para entrar al muro, dar Match 🔥 y unirte a la fiesta.</p>
                 <div className="bg-white p-4 rounded-2xl inline-block mx-auto shadow-2xl">
-                  <img src={`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(window.location.href)}`} alt="QR Sunset Vibes" className="w-48 h-48" />
+                  <img src={`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(window.location.href)}`} alt="QR" className="w-48 h-48" />
                 </div>
                 <button onClick={() => setQrModalOpen(false)} className="w-full py-3 rounded-xl nude-btn text-xs">Cerrar</button>
               </div>
             </div>
           )}
 
-          {/* ========================================================== */}
-          {/* MODAL 6: COMPARTIR PUBLICACIÓN EN EL CHAT                  */}
-          {/* ========================================================== */}
+          {/* MODAL 6: COMPARTIR */}
           {shareModalPost && (
             <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
               <div className="glass-card rounded-3xl max-w-sm w-full p-6 border border-nude-300/40 space-y-4">
@@ -5270,43 +5468,88 @@
                 </div>
                 <button onClick={() => handleSendPostToChat("group")} className="w-full py-3 px-4 rounded-2xl nude-btn text-xs shadow">🎉 Enviar al Chat Grupal</button>
                 <button onClick={() => handleExternalShare(shareModalPost)} className="w-full py-3 px-4 rounded-2xl bg-burgundy-800 border border-nude-300/40 text-white font-bold text-xs">📲 Compartir fuera de la App</button>
-                <div className="pt-2 border-t border-nude-300/20">
-                  <p className="text-xs font-bold text-nude-300 mb-2">Enviar por privado a un Amigo:</p>
-                  <div className="max-h-40 overflow-y-auto space-y-2 no-scrollbar">
-                    {myFriendUsers.map(u => (
-                      <button key={u.uid} onClick={() => handleSendPostToChat("private", u)} className="w-full p-2.5 rounded-xl bg-burgundy-950 flex items-center justify-between border border-nude-300/20">
-                        <div className="flex items-center gap-2"><img src={u.avatar} alt="" className="w-7 h-7 rounded-full object-cover" /><span className="text-xs font-bold text-white">@{u.username}</span></div>
-                        <span className="text-xs text-nude-300 font-bold">Enviar →</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
               </div>
             </div>
           )}
 
-          {/* MODAL 7: VISTA PANTALLA COMPLETA DE PUBLICACIÓN */}
+          {/* MODAL 7: VISTA PANTALLA COMPLETA INTERACTIVA (CON COMENTARIOS, LIKES Y ACCIONES) */}
           {fullscreenPost && (
             <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md overflow-y-auto p-4 flex items-center justify-center">
-              <div className="glass-card rounded-3xl max-w-md w-full overflow-hidden my-auto border border-nude-300/40">
-                <div className="p-3.5 bg-burgundy-950 flex items-center justify-between border-b border-nude-300/20">
-                  <button onClick={() => openUserProfile(fullscreenPost.userId)} className="flex items-center gap-2.5 text-left">
+              <div className="glass-card rounded-3xl max-w-md w-full overflow-hidden my-auto border border-nude-300/40 max-h-[90vh] flex flex-col">
+                <div className="p-3.5 bg-burgundy-950 flex items-center justify-between border-b border-nude-300/20 shrink-0">
+                  <button onClick={() => { setFullscreenPostId(null); openUserProfile(fullscreenPost.userId); }} className="flex items-center gap-2.5 text-left">
                     <img src={fullscreenPost.userAvatar} alt="" className="w-9 h-9 rounded-full object-cover" />
                     <span className="text-sm font-bold text-white hover:underline">@{fullscreenPost.userName}</span>
                   </button>
-                  <div className="flex items-center gap-2">
-                    <button onClick={() => handleDownloadMedia(fullscreenPost.mediaUrl, fullscreenPost.mediaType)} className="px-2.5 py-1 rounded-full bg-burgundy-800 border border-nude-300/30 text-xs text-white font-bold">💾 Guardar</button>
-                    <button onClick={() => setFullscreenPostId(null)} className="px-3 py-1 rounded-full nude-btn text-xs">Cerrar ✕</button>
-                  </div>
+                  <button onClick={() => setFullscreenPostId(null)} className="px-3 py-1 rounded-full nude-btn text-xs">Cerrar ✕</button>
                 </div>
-                <div className="bg-black max-h-[65vh] flex items-center justify-center overflow-hidden">
-                  <MediaRenderer item={fullscreenPost} className="w-full max-h-[65vh] object-contain" onDoubleTapLike={() => toggleLike(fullscreenPost)} />
+
+                <div className="bg-black max-h-[45vh] flex items-center justify-center overflow-hidden shrink-0">
+                  <MediaRenderer item={fullscreenPost} className="w-full max-h-[45vh] object-contain" onDoubleTapLike={() => toggleLike(fullscreenPost)} />
+                </div>
+
+                <div className="p-4 space-y-3 overflow-y-auto flex-1 no-scrollbar">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <button onClick={() => toggleLike(fullscreenPost)} className={`flex items-center gap-1 text-xs font-extrabold px-3 py-1.5 rounded-full transition ${(fullscreenPost.likes || []).includes(currentUserDoc.uid) ? "bg-rose-500 text-white" : "light-surface"}`}>
+                        <span>{(fullscreenPost.likes || []).includes(currentUserDoc.uid) ? "❤️" : "🤍"}</span>
+                        <span>{fullscreenPost.likes?.length || 0} Me gusta</span>
+                      </button>
+                      <button onClick={() => handleDownloadMedia(fullscreenPost.mediaUrl, fullscreenPost.mediaType)} className="px-3 py-1.5 rounded-full bg-burgundy-900 border border-nude-300/30 text-xs text-white font-bold">💾 Guardar</button>
+                    </div>
+                  </div>
+
+                  {fullscreenPost.caption && (
+                    <p className="text-sm text-white">
+                      <span className="font-bold text-nude-300 mr-1.5">@{fullscreenPost.userName}:</span>
+                      <RichMentionText text={fullscreenPost.caption} users={users} onOpenProfile={openUserProfile} />
+                    </p>
+                  )}
+
+                  {/* Lista de Comentarios en Vista Completa */}
+                  <div className="space-y-2 pt-2 border-t border-nude-300/20">
+                    {Array.isArray(fullscreenPost.comments) && fullscreenPost.comments.map(c => {
+                      const cAuthor = users.find(u => u.uid === c.userId);
+                      const cLiked = (c.likes || []).includes(currentUserDoc.uid);
+                      const canManageC = c.userId === currentUserDoc.uid || fullscreenPost.userId === currentUserDoc.uid || isAdmin;
+
+                      return (
+                        <div key={c.id} className="flex items-center justify-between text-xs bg-burgundy-950 p-2 rounded-xl">
+                          <p className="text-white flex-1">
+                            <span className="font-bold text-amber-300 mr-1">@{cAuthor?.username || c.userName}:</span>
+                            <RichMentionText text={c.text} users={users} onOpenProfile={openUserProfile} />
+                          </p>
+                          <div className="flex items-center gap-2">
+                            <button onClick={() => toggleCommentLike(fullscreenPost, c.id)} className="text-[11px] text-rose-400">
+                              {cLiked ? "❤️" : "🤍"} {(c.likes || []).length}
+                            </button>
+                            {canManageC && (
+                              <button onClick={() => handleDeleteComment(fullscreenPost, c)} className="text-[10px] text-rose-300 font-bold">✕</button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="pt-2">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        placeholder="Escribe un comentario..."
+                        value={commentInputs[fullscreenPost.id] || ""}
+                        onChange={(e) => setCommentInputs(prev => ({ ...prev, [fullscreenPost.id]: e.target.value }))}
+                        onKeyDown={(e) => e.key === "Enter" && handleAddComment(fullscreenPost.id)}
+                        className="flex-1 px-3.5 py-2 rounded-full bg-burgundy-950 border border-nude-300/35 text-xs text-white focus:outline-none"
+                      />
+                      <button onClick={() => handleAddComment(fullscreenPost.id)} className="px-4 py-2 rounded-full nude-btn text-xs">Comentar</button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* MODAL 8: EDITAR PIE DE FOTO / ADMIN EDITAR USUARIO / ADMIN EDITAR EXTRA */}
           {adminEditPost && (
             <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
               <div className="glass-card rounded-3xl max-w-sm w-full p-6 border border-nude-300/40 space-y-4">
@@ -5317,21 +5560,6 @@
                 <form onSubmit={handleSavePostEdit} className="space-y-3">
                   <input type="text" value={adminEditPost.caption || ""} onChange={(e) => setAdminEditPost({ ...adminEditPost, caption: e.target.value })} className="w-full px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/40 text-xs text-white" />
                   <button type="submit" className="w-full py-3 rounded-xl nude-btn text-xs">Guardar</button>
-                </form>
-              </div>
-            </div>
-          )}
-
-          {adminEditExtra && isAdmin && (
-            <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
-              <div className="glass-card rounded-3xl max-w-sm w-full p-6 border border-nude-300/40 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-serif text-xl font-bold text-white">Editar Contenido (Admin)</h3>
-                  <button onClick={() => setAdminEditExtra(null)} className="text-nude-300 font-bold">✕</button>
-                </div>
-                <form onSubmit={handleAdminSaveExtraDoc} className="space-y-3">
-                  <textarea rows="3" value={adminEditExtra.text || ""} onChange={(e) => setAdminEditExtra({ ...adminEditExtra, text: e.target.value })} className="w-full px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/40 text-xs text-white resize-none"></textarea>
-                  <button type="submit" className="w-full py-3 rounded-xl nude-btn text-xs">Guardar Cambios</button>
                 </form>
               </div>
             </div>
@@ -5350,7 +5578,7 @@
                     <input type="text" value={adminEditUser.username || ""} onChange={(e) => setAdminEditUser({ ...adminEditUser, username: e.target.value })} className="w-full mt-1 px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/40 text-xs text-white" />
                   </div>
                   <div>
-                    <label className="text-xs font-bold text-nude-200">Contraseña del invitado</label>
+                    <label className="text-xs font-bold text-nude-200">Contraseña</label>
                     <input type="text" value={adminEditUser.password || ""} onChange={(e) => setAdminEditUser({ ...adminEditUser, password: e.target.value })} className="w-full mt-1 px-4 py-2.5 rounded-xl bg-burgundy-950 border border-nude-300/40 text-xs text-white" />
                   </div>
                   <button type="submit" className="w-full py-3 rounded-xl nude-btn text-xs">Guardar Cambios</button>
@@ -5359,7 +5587,7 @@
             </div>
           )}
 
-          {/* VISOR DE HISTORIAS PANTALLA COMPLETA */}
+          {/* VISOR DE HISTORIAS EXCLUSIVAS PARA AMIGOS CON CORAZÓN (❤️) PRIVADO */}
           {storyViewer.open && activeStoryGroup && activeStoryItem && (
             <div
               className="fixed inset-0 z-50 bg-black flex flex-col justify-between select-none"
@@ -5410,12 +5638,9 @@
 
                   <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                     {(activeStoryItem.userId === currentUserDoc.uid || isAdmin) && (
-                      <>
-                        <button onClick={() => setStoryViewsModal(activeStoryItem.views || [])} className="px-2.5 py-1 rounded-full bg-black/70 border border-white/40 text-white text-xs font-bold">
-                          👁️ {(activeStoryItem.views || []).length}
-                        </button>
-                        <button onClick={() => handleDeleteStory(activeStoryItem)} className="px-2.5 py-1 rounded-full bg-rose-600 text-white text-xs font-bold">🗑️</button>
-                      </>
+                      <button onClick={() => setStoryViewsModal(activeStoryItem.views || [])} className="px-2.5 py-1 rounded-full bg-black/70 border border-white/40 text-white text-xs font-bold">
+                        👁️ {(activeStoryItem.views || []).length} • ❤️ {(activeStoryItem.likes || []).length}
+                      </button>
                     )}
                     <button onClick={() => setStoryViewer(prev => ({ ...prev, paused: !prev.paused }))} className="px-3 py-1 rounded-full bg-black/70 border border-white/40 text-white text-xs font-extrabold">
                       {storyViewer.paused ? "▶" : "⏸"}
@@ -5427,12 +5652,22 @@
 
               <div className="w-full h-full flex items-center justify-center relative overflow-hidden">
                 <MediaRenderer item={activeStoryItem} className="w-full h-full object-contain" autoPlay={true} controls={false} paused={isStoryEffectivelyPaused} />
-                <div onClick={() => { if (!wasLongPressRef.current) goPrevStory(); }} className="absolute inset-y-20 left-0 w-1/3 z-20 cursor-pointer"></div>
-                <div onClick={() => { if (!wasLongPressRef.current) goNextStory(); }} className="absolute inset-y-20 right-0 w-2/3 z-20 cursor-pointer"></div>
+                <div onClick={() => { if (!wasLongPressRef.current) goPrevStory(); }} className="absolute inset-y-20 left-0 w-1/3 z-25 cursor-pointer"></div>
+                <div onClick={() => { if (!wasLongPressRef.current) goNextStory(); }} className="absolute inset-y-20 right-0 w-2/3 z-25 cursor-pointer"></div>
               </div>
 
+              {/* Barra inferior de historia con Botón de MG Privado (❤️) y Emojis */}
               <div onClick={(e) => e.stopPropagation()} className="absolute bottom-0 left-0 right-0 z-40 p-3 bg-gradient-to-t from-black/95 via-black/75 to-transparent space-y-2.5">
                 <div className="flex items-center justify-center gap-3">
+                  <button
+                    onClick={() => toggleStoryLike(activeStoryItem)}
+                    className={`w-10 h-10 rounded-full border text-xl flex items-center justify-center shadow-lg transition ${
+                      (activeStoryItem.likes || []).includes(currentUserDoc.uid) ? "bg-rose-600 border-rose-400 text-white" : "bg-black/75 border-white/30 text-white"
+                    }`}
+                    title="Me gusta privado"
+                  >
+                    ❤️
+                  </button>
                   {["🔥", "🥂", "😍", "👏"].map(emo => (
                     <button key={emo} onClick={() => handleSendStoryReply(null, activeStoryGroup, activeStoryItem, emo)} className="w-10 h-10 rounded-full bg-black/70 border border-white/30 text-xl flex items-center justify-center hover:scale-125 transition">
                       {emo}
@@ -5448,24 +5683,23 @@
             </div>
           )}
 
-          {/* MODAL LISTA DE VISTOS EN HISTORIA O LIKES EN POST */}
-          {(likesViewerList || storyViewsModal) && (
+          {storyViewsModal && (
             <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
               <div className="glass-card rounded-3xl max-w-sm w-full p-5 border border-nude-300/40 space-y-4 max-h-[70vh] flex flex-col">
                 <div className="flex items-center justify-between border-b border-nude-300/20 pb-3">
-                  <h3 className="font-serif text-lg font-bold text-white">{likesViewerList ? "❤️ Me gusta" : "👁️ Visto por"}</h3>
-                  <button onClick={() => { setLikesViewerList(null); setStoryViewsModal(null); }} className="px-3 py-1 rounded-full nude-btn text-xs">✕</button>
+                  <h3 className="font-serif text-lg font-bold text-white">👁️ Vistas y ❤️ Likes de la Historia</h3>
+                  <button onClick={() => setStoryViewsModal(null)} className="px-3 py-1 rounded-full nude-btn text-xs">✕</button>
                 </div>
                 <div className="flex-1 overflow-y-auto space-y-2.5 no-scrollbar">
-                  {(likesViewerList || storyViewsModal).length === 0 ? (
-                    <p className="text-xs text-nude-200/70 text-center py-6">Nadie por aquí todavía.</p>
+                  {storyViewsModal.length === 0 ? (
+                    <p className="text-xs text-nude-200/70 text-center py-6">Nadie ha visto la historia todavía.</p>
                   ) : (
-                    (likesViewerList || storyViewsModal).map(uId => {
+                    storyViewsModal.map(uId => {
                       const uObj = users.find(u => u.uid === uId);
                       if (!uObj) return null;
                       return (
                         <div key={uId} className="flex items-center justify-between p-2.5 rounded-2xl bg-burgundy-950">
-                          <button onClick={() => { setLikesViewerList(null); setStoryViewsModal(null); openUserProfile(uObj.uid); }} className="flex items-center gap-2.5 text-left">
+                          <button onClick={() => { setStoryViewsModal(null); openUserProfile(uObj.uid); }} className="flex items-center gap-2.5 text-left">
                             <img src={uObj.avatar} alt="" className="w-9 h-9 rounded-full object-cover" />
                             <span className="text-xs font-bold text-white underline">@{uObj.username}</span>
                           </button>

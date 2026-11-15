@@ -933,941 +933,1194 @@
         </span>
       );
     }
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#090105" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>Sunset Vibes — Red Social Oficial</title>
-  <link rel="icon" type="image/png" href="./logo.png" />
-  <link rel="apple-touch-icon" href="./logo.png" />
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            burgundy: {
-              950: '#090105',
-              900: '#16030C',
-              800: '#2E071B',
-              700: '#4B0E2E',
-            },
-            nude: {
-              100: '#FDF4F5',
-              200: '#F7DFE2',
-              300: '#E8B4B8',
-              400: '#D4959A',
-            }
-          },
-          fontFamily: {
-            serif: ['"Playfair Display"', 'serif'],
-            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-          }
-        }
-      }
-    }
-  </script>
-  <style>
-    body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background-color: #090105;
-      color: #FFFFFF;
-      overflow-x: hidden;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
-    }
-    .sunset-bg {
-      background: radial-gradient(circle at 50% 5%, rgba(232, 180, 184, 0.14) 0%, rgba(75, 14, 46, 0.42) 32%, #090105 72%, #050003 100%);
-      background-attachment: fixed;
-    }
-    .glass-card {
-      background: rgba(22, 3, 12, 0.92);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(232, 180, 184, 0.26);
-      box-shadow: 0 14px 34px -6px rgba(0, 0, 0, 0.8);
-    }
-    .stories-oval-bubble {
-      background: linear-gradient(135deg, rgba(46, 7, 27, 0.96) 0%, rgba(22, 3, 12, 0.98) 60%, rgba(75, 14, 46, 0.92) 100%);
-      border: 1.5px solid rgba(232, 180, 184, 0.45);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.85), inset 0 1px 12px rgba(232, 180, 184, 0.18);
-    }
-    .match-card-letter {
-      background: radial-gradient(circle at 50% 0%, rgba(251, 113, 133, 0.38) 0%, rgba(75, 14, 46, 0.96) 55%, #12020A 100%);
-      border: 2px solid #FBBF24;
-      box-shadow: 0 0 50px rgba(251, 113, 133, 0.45), inset 0 0 25px rgba(251, 191, 36, 0.2);
-    }
-    .glass-nav {
-      background: rgba(9, 1, 5, 0.96);
-      backdrop-filter: blur(22px);
-      -webkit-backdrop-filter: blur(22px);
-      border-top: 1px solid rgba(232, 180, 184, 0.24);
-    }
-    .light-surface {
-      background-color: #F7DFE2;
-      color: #090105 !important;
-    }
-    .nude-btn {
-      background-color: #E8B4B8;
-      color: #090105 !important;
-      font-weight: 800;
-    }
-    .nude-btn:hover {
-      background-color: #F7DFE2;
-    }
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    .sticker-draggable {
-      touch-action: none;
-      user-select: none;
-      -webkit-user-select: none;
-    }
-    .vip-pill-badge {
-      background: linear-gradient(135deg, rgba(22, 3, 12, 0.88) 0%, rgba(75, 14, 46, 0.92) 100%);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.32);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.65);
-    }
-    @keyframes slideDown {
-      from { transform: translate(-50%, -100%); opacity: 0; }
-      to { transform: translate(-50%, 0); opacity: 1; }
-    }
-    .toast-enter { animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-    @keyframes pulseGlow {
-      0%, 100% { transform: scale(1); box-shadow: 0 0 18px rgba(251, 146, 60, 0.55); }
-      50% { transform: scale(1.04); box-shadow: 0 0 28px rgba(244, 63, 94, 0.85); }
-    }
-    .fire-match-btn {
-      background: linear-gradient(135deg, #F59E0B 0%, #EA580C 50%, #E11D48 100%);
-      color: #FFFFFF !important;
-      animation: pulseGlow 2.4s infinite ease-in-out;
-    }
-    @keyframes heartPop {
-      0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-      35% { transform: translate(-50%, -50%) scale(1.35); opacity: 1; }
-      65% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-      100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
-    }
-    .heart-burst {
-      animation: heartPop 0.85s ease-out forwards;
-    }
-  </style>
-</head>
-<body class="sunset-bg min-h-screen text-white selection:bg-nude-300 selection:text-burgundy-950">
+    // Barra Universal de Autocompletado cuando se escribe @ en cualquier campo de la aplicación
+    function MentionAutocompleteBar({ value, onChange, users, label = "Etiquetar invitado:" }) {
+      if (!value) return null;
+      const match = String(value).match(/@([a-zA-Z0-9_]*)$/);
+      if (!match) return null;
+      const queryStr = match[1].toLowerCase();
+      const candidates = users
+        .filter(u => u.username && u.username.toLowerCase().includes(queryStr))
+        .slice(0, 8);
 
-  <div id="root"></div>
+      if (candidates.length === 0) return null;
 
-  <!-- React & ReactDOM -->
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  <!-- Babel -->
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-  <!-- Firebase Modular SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { 
-      getAuth, 
-      GoogleAuthProvider, 
-      signInWithPopup, 
-      signOut as fbSignOut, 
-      onAuthStateChanged 
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { 
-      getFirestore, 
-      collection, 
-      doc, 
-      setDoc, 
-      addDoc, 
-      updateDoc, 
-      deleteDoc, 
-      onSnapshot, 
-      query, 
-      orderBy, 
-      limit,
-      arrayUnion, 
-      arrayRemove 
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-    const primaryConfig = {
-      apiKey: "AIzaSyASRyF6gzetEzPIBN-1ED_5M_X6pjft4nw",
-      authDomain: "sunset-vibess.firebaseapp.com",
-      projectId: "sunset-vibess",
-      storageBucket: "sunset-vibess.firebasestorage.app",
-      messagingSenderId: "318152436326",
-      appId: "1:318152436326:web:5152fba6916ad505009ba7",
-      measurementId: "G-7LFGEPP334"
-    };
-
-    const chatConfig = {
-      apiKey: "AIzaSyCOk3-Zyb-X149BgX8OeQqrI8E5-SFKVaw",
-      authDomain: "sunset-vibess-chat.firebaseapp.com",
-      projectId: "sunset-vibess-chat",
-      storageBucket: "sunset-vibess-chat.firebasestorage.app",
-      messagingSenderId: "486946526031",
-      appId: "1:486946526031:web:277406a90830ec1ccaab3a",
-      measurementId: "G-KWYVLH136Z"
-    };
-
-    const primaryApp = initializeApp(primaryConfig, "primary");
-    const chatApp = initializeApp(chatConfig, "chatServer");
-
-    const auth = getAuth(primaryApp);
-    const db = getFirestore(primaryApp);
-    const chatDb = getFirestore(chatApp);
-    const googleProvider = new GoogleAuthProvider();
-
-    window.FB = {
-      auth, db, chatDb, googleProvider,
-      signInWithPopup, fbSignOut, onAuthStateChanged,
-      collection, doc, setDoc, addDoc, updateDoc, deleteDoc,
-      onSnapshot, query, orderBy, limit, arrayUnion, arrayRemove
-    };
-    window.dispatchEvent(new Event("firebase-ready"));
-  </script>
-
-  <script type="text/babel">
-    const { useState, useEffect, useRef, useMemo } = React;
-
-    const ADMIN_EMAIL = "joellpethers@gmail.com";
-    const BRAND_LOGO_URL = "./logo.png";
-
-    // Limpieza inmediata de cualquier bloqueo local residual de pruebas anteriores
-    try { localStorage.removeItem("sunset_vibes_device_banned"); } catch (e) {}
-
-    const getOrCreateDeviceId = () => {
-      try {
-        let devId = localStorage.getItem("sunset_vibes_device_id");
-        if (!devId) {
-          devId = "dev_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 10);
-          localStorage.setItem("sunset_vibes_device_id", devId);
-        }
-        return devId;
-      } catch (e) {
-        return "dev_fallback_" + Math.random().toString(36).slice(2, 8);
-      }
-    };
-
-    // Función auxiliar pura para ordenar comentarios (Fijados primero) SIN usar hooks dentro de bucles
-    const getSortedComments = (commentsArr) => {
-      if (!Array.isArray(commentsArr)) return [];
-      return [...commentsArr].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
-    };
-
-    function BrandLogo({ size = "md" }) {
-      const [imgErr, setImgErr] = useState(false);
-      const dims = size === "lg" ? "w-20 h-20" : "w-9 h-9";
       return (
-        <div className={`${dims} rounded-full bg-gradient-to-tr from-burgundy-800 via-rose-500 to-amber-300 p-0.5 shadow-2xl flex items-center justify-center overflow-hidden shrink-0`}>
-          {!imgErr && BRAND_LOGO_URL ? (
-            <img
-              src={BRAND_LOGO_URL}
-              alt="Sunset Vibes"
-              onError={() => setImgErr(true)}
-              className="w-full h-full object-cover rounded-full bg-burgundy-950"
-            />
+        <div className="my-1.5 p-2 rounded-2xl bg-burgundy-900 border border-amber-300/60 shadow-2xl space-y-1 z-30">
+          <p className="text-[10px] font-extrabold text-amber-300 px-1">{label}</p>
+          <div className="flex gap-2 overflow-x-auto no-scrollbar py-1">
+            {candidates.map(u => (
+              <button
+                type="button"
+                key={u.uid}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  const replaced = String(value).replace(/@([a-zA-Z0-9_]*)$/, `@${u.username} `);
+                  onChange(replaced);
+                }}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-burgundy-950 border border-nude-300/40 shrink-0 hover:border-amber-300"
+              >
+                <img src={u.avatar} alt="" className="w-5 h-5 rounded-full object-cover" />
+                <span className="text-xs font-bold text-white">@{u.username}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    // Descarga Universal de DataURL / Blob (Funciona al 100% en iPhone Safari, Chrome Android y PC)
+    const triggerDataUrlDownload = (dataUrl, filename) => {
+      try {
+        const parts = dataUrl.split(",");
+        const mime = parts[0].match(/:(.*?);/)[1];
+        const bstr = atob(parts[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) {
+          u8arr[n] = bstr.charCodeAt(n);
+        }
+        const blob = new Blob([u8arr], { type: mime });
+        const blobUrl = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 6000);
+      } catch (err) {
+        const win = window.open();
+        if (win) {
+          win.document.write(`<body style="margin:0;background:#090105;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;color:#fff;font-family:sans-serif;"><p style="margin-bottom:12px;font-size:14px;">Mantén presionada la imagen para guardarla en tus Fotos:</p><img src="${dataUrl}" style="max-width:95%;max-height:85vh;border-radius:16px;"/></body>`);
+        }
+      }
+    };
+
+    // Renderizador Multimedia con Soporte de Carrusel Multi-Foto, Optimización Lazy-Loading, Marcos en Vivo y Doble Toque
+    function MediaRenderer({ item, className = "w-full max-h-[460px] object-contain", onDoubleTapLike, onOpenFullscreen, autoPlay = false, controls = false, paused = false }) {
+      const videoRef = useRef(null);
+      const [isMuted, setIsMuted] = useState(true);
+      const [showHeartBurst, setShowHeartBurst] = useState(false);
+      const [slideIdx, setSlideIdx] = useState(0);
+      const lastTapRef = useRef(0);
+
+      const mediaList = useMemo(() => {
+        if (!item) return [];
+        if (Array.isArray(item.mediaUrls) && item.mediaUrls.length > 0) return item.mediaUrls;
+        return item.mediaUrl ? [item.mediaUrl] : [];
+      }, [item?.mediaUrls, item?.mediaUrl]);
+
+      useEffect(() => {
+        setSlideIdx(0);
+      }, [item?.id]);
+
+      const currentUrl = mediaList[slideIdx] || item?.mediaUrl || "";
+      const filterObj = MEDIA_FILTERS.find(f => f.id === item?.filterId) || MEDIA_FILTERS[0];
+      const textColorObj = TEXT_COLORS.find(c => c.id === item?.overlayColorId) || TEXT_COLORS[0];
+
+      useEffect(() => {
+        if (!item || item.mediaType !== "video" || !videoRef.current) return;
+        if (paused) {
+          videoRef.current.pause();
+          return;
+        }
+        if (autoPlay) {
+          videoRef.current.play().catch(() => {});
+          return;
+        }
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting && !paused) {
+                videoRef.current?.play().catch(() => {});
+              } else {
+                videoRef.current?.pause();
+              }
+            });
+          },
+          { threshold: 0.55 }
+        );
+        observer.observe(videoRef.current);
+        return () => observer.disconnect();
+      }, [currentUrl, item?.mediaType, paused, autoPlay]);
+
+      if (!item) return null;
+
+      const handleTap = (e) => {
+        const now = Date.now();
+        if (now - lastTapRef.current < 320) {
+          e.stopPropagation();
+          setShowHeartBurst(true);
+          if (navigator.vibrate) navigator.vibrate(50);
+          if (onDoubleTapLike) onDoubleTapLike();
+          setTimeout(() => setShowHeartBurst(false), 850);
+        }
+        lastTapRef.current = now;
+      };
+
+      const bCrop = item.borderCrop || { top: 0, bottom: 0, left: 0, right: 0 };
+      const hasVideoBorderCrop = bCrop.top > 0 || bCrop.bottom > 0 || bCrop.left > 0 || bCrop.right > 0;
+      const clipPathStyle = hasVideoBorderCrop
+        ? `inset(${bCrop.top}% ${bCrop.right}% ${bCrop.bottom}% ${bCrop.left}%)`
+        : "none";
+
+      const stickersList = Array.isArray(item.overlayStickers) ? item.overlayStickers : [];
+      const videoPosterUrl = item.mediaType === "video" && currentUrl?.includes("/upload/")
+        ? currentUrl.replace(/\.[^/.]+$/, ".jpg")
+        : undefined;
+
+      const tPos = item.overlayPos || { x: 50, y: item.overlayYPos || 50 };
+      const tScale = item.overlayScale || 1;
+      const tRot = item.overlayRotation || 0;
+
+      return (
+        <div
+          onClick={handleTap}
+          className="relative w-full h-full flex items-center justify-center bg-black overflow-hidden select-none"
+        >
+          {item.mediaType === "video" ? (
+            <>
+              <video
+                ref={videoRef}
+                src={currentUrl}
+                poster={videoPosterUrl}
+                muted={isMuted && !autoPlay}
+                controls={controls}
+                loop
+                playsInline
+                preload="metadata"
+                style={{ filter: filterObj.css, clipPath: clipPathStyle }}
+                className={className}
+              />
+              <LiveFrameOverlay frameId={item.frameId} />
+              {!controls && (
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setIsMuted(!isMuted); }}
+                  className="absolute bottom-3 right-3 px-2.5 py-1 rounded-full bg-black/75 text-white text-[11px] font-bold border border-white/30 z-20"
+                >
+                  {isMuted ? "🔇 Audio" : "🔊 Sonando"}
+                </button>
+              )}
+              {stickersList.map((st) => (
+                <span
+                  key={st.id}
+                  style={{
+                    left: `${st.x}%`,
+                    top: `${st.y}%`,
+                    transform: `translate(-50%, -50%) scale(${st.scale || 1}) rotate(${st.rotation || 0}deg)`
+                  }}
+                  className={`absolute pointer-events-none drop-shadow-xl z-10 ${
+                    st.emoji.length > 4
+                      ? "px-3 py-1 rounded-full vip-pill-badge text-white font-extrabold text-[10px] whitespace-nowrap"
+                      : "text-4xl"
+                  }`}
+                >
+                  {st.emoji}
+                </span>
+              ))}
+              {item.overlayText && (
+                <div
+                  style={{
+                    left: `${tPos.x}%`,
+                    top: `${tPos.y}%`,
+                    transform: `translate(-50%, -50%) scale(${tScale}) rotate(${tRot}deg)`,
+                    backgroundColor: textColorObj.bg,
+                    color: textColorObj.hex
+                  }}
+                  className="absolute px-4 py-1.5 rounded-2xl font-extrabold text-sm text-center pointer-events-none shadow-lg max-w-[88%] z-10"
+                >
+                  {item.overlayText}
+                </div>
+              )}
+            </>
           ) : (
-            <div className="w-full h-full rounded-full bg-burgundy-950 flex flex-col items-center justify-center">
-              <span className={size === "lg" ? "text-2xl" : "text-lg"}>🌅</span>
-              {size === "lg" && <span className="text-[8px] tracking-widest uppercase text-nude-300 font-bold">Sunset</span>}
+            <img
+              src={currentUrl}
+              alt={item.caption || "Sunset Vibes"}
+              loading="lazy"
+              decoding="async"
+              className={className}
+            />
+          )}
+
+          {/* Controles de Carrusel Multi-Foto estilo Instagram */}
+          {mediaList.length > 1 && (
+            <>
+              <span className="absolute top-3 left-3 px-2.5 py-0.5 rounded-full bg-black/75 border border-white/25 text-white text-[10px] font-extrabold z-20">
+                {slideIdx + 1}/{mediaList.length}
+              </span>
+              {slideIdx > 0 && (
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setSlideIdx(s => s - 1); }}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/70 border border-white/30 text-white font-extrabold text-sm flex items-center justify-center z-20"
+                >
+                  ‹
+                </button>
+              )}
+              {slideIdx < mediaList.length - 1 && (
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setSlideIdx(s => s + 1); }}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/70 border border-white/30 text-white font-extrabold text-sm flex items-center justify-center z-20"
+                >
+                  ›
+                </button>
+              )}
+              <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex gap-1.5 z-20 bg-black/50 px-2 py-1 rounded-full">
+                {mediaList.map((_, i) => (
+                  <span key={i} className={`w-1.5 h-1.5 rounded-full transition-all ${i === slideIdx ? "bg-amber-300 scale-125" : "bg-white/40"}`}></span>
+                ))}
+              </div>
+            </>
+          )}
+
+          {onOpenFullscreen && (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onOpenFullscreen(); }}
+              className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/75 border border-white/35 text-white text-xs font-extrabold flex items-center justify-center shadow-lg z-20 hover:scale-110 transition"
+              title="Ver en pantalla completa"
+            >
+              ⤢
+            </button>
+          )}
+
+          {showHeartBurst && (
+            <div className="absolute left-1/2 top-1/2 pointer-events-none z-30 text-7xl drop-shadow-[0_6px_25px_rgba(244,63,94,0.9)] heart-burst">
+              ❤️
             </div>
           )}
         </div>
       );
     }
 
-    const CLOUDINARY_ACCOUNTS = [
-      { cloudName: "i1uvypzh", uploadPreset: "sunset_vibes" },
-      { cloudName: "uzr7jcxh", uploadPreset: "sunset_vibes" },
-      { cloudName: "g83ttzfm", uploadPreset: "sunset_vibes" },
-      { cloudName: "ggn5rjdw", uploadPreset: "sunset_vibes" },
-      { cloudName: "plhp0zsj", uploadPreset: "sunset_vibes" },
-      { cloudName: "wvcns1k3", uploadPreset: "sunset_vibes" }
-    ];
+    function SunsetVibesApp() {
+      const [fbReady, setFbReady] = useState(!!window.FB);
+      const [usersLoaded, setUsersLoaded] = useState(false);
+      const [deviceId] = useState(() => getOrCreateDeviceId());
+      const [authSession, setAuthSession] = useState(null);
+      const [users, setUsers] = useState([]);
+      const [posts, setPosts] = useState([]);
+      const [stories, setStories] = useState([]);
+      const [messages, setMessages] = useState([]);
+      const [notifications, setNotifications] = useState([]);
+      const [partyState, setPartyState] = useState({});
+      const [djSongs, setDjSongs] = useState([]);
+      const [confessions, setConfessions] = useState([]);
+      const [destinyLetters, setDestinyLetters] = useState([]);
 
-    const uploadToSingleAccount = (account, fileOrDataUrl, resourceType = "auto", onProgress = null) => {
-      return new Promise((resolve, reject) => {
-        const url = `https://api.cloudinary.com/v1_1/${account.cloudName}/${resourceType}/upload`;
-        const xhr = new XMLHttpRequest();
-        const formData = new FormData();
-        formData.append("file", fileOrDataUrl);
-        formData.append("upload_preset", account.uploadPreset);
+      // Navegación Principal
+      const [activeTab, setActiveTab] = useState("feed"); // feed | search | party | chat | profile | admin
+      const [feedFilter, setFeedFilter] = useState("recent"); // recent | trending | friends | challenge
+      const [selectedChallengeFilter, setSelectedChallengeFilter] = useState(null);
+      const [partySubTab, setPartySubTab] = useState("dj"); // dj | secrets | destiny | paparazzi | mosaic
+      const [chatSubTab, setChatSubTab] = useState("group"); // group | private
+      const [adminSubTab, setAdminSubTab] = useState("controls"); // controls | guests | challenges | godmode
+      const [adminSelectedChallenge, setAdminSelectedChallenge] = useState(null);
+      const [activeChatFriend, setActiveChatFriend] = useState(null);
+      const [searchQuery, setSearchQuery] = useState("");
+      const [quoteIndex, setQuoteIndex] = useState(0);
 
-        xhr.open("POST", url, true);
-        if (xhr.upload && onProgress) {
-          xhr.upload.onprogress = (e) => {
-            if (e.lengthComputable) {
-              const pct = Math.round((e.loaded / e.total) * 100);
-              onProgress(pct);
-            }
-          };
-        }
+      // Modales e Interacciones
+      const [notifModalOpen, setNotifModalOpen] = useState(false);
+      const [matchBoxOpen, setMatchBoxOpen] = useState(false);
+      const [destinyBoxOpen, setDestinyBoxOpen] = useState(false);
+      const [viewedProfileUid, setViewedProfileUid] = useState(null);
+      const [fullscreenPostId, setFullscreenPostId] = useState(null);
+      const [likesViewerList, setLikesViewerList] = useState(null);
+      const [storyViewsModal, setStoryViewsModal] = useState(null);
 
-        xhr.onload = () => {
-          if (xhr.status >= 200 && xhr.status < 300) {
-            const response = JSON.parse(xhr.responseText);
-            const optimizedUrl = response.secure_url
-              ? response.secure_url.replace("/upload/", "/upload/a_auto,q_auto:good,f_auto/")
-              : response.secure_url;
-            resolve(optimizedUrl);
-          } else {
-            reject(new Error("Reintentando subida..."));
-          }
+      // Estado de Ruleta Sincronizada, Mosaico y Resumen Personal Wrapped
+      const [wheelModalState, setWheelModalState] = useState({ open: false, spinning: false, displayIndex: 0, spinData: null });
+      const [mosaicPosterImg, setMosaicPosterImg] = useState("");
+      const [isGeneratingPoster, setIsGeneratingPoster] = useState(false);
+      const [wrappedModalOpen, setWrappedModalOpen] = useState(false);
+      const [wrappedDataUrl, setWrappedDataUrl] = useState("");
+      const [isGeneratingWrapped, setIsGeneratingWrapped] = useState(false);
+      const lastSeenSpinIdRef = useRef(null);
+      const autoResetBansDoneRef = useRef(false);
+
+      // Inputs del Admin
+      const [adminWheelPrize, setAdminWheelPrize] = useState("🍾 1 Trago VIP / Premio Sorpresa");
+      const [adminPinInput, setAdminPinInput] = useState("");
+      const [pollQuestionInput, setPollQuestionInput] = useState("");
+      const [pollOpt1Input, setPollOpt1Input] = useState("");
+      const [pollOpt2Input, setPollOpt2Input] = useState("");
+      const [pollOpt3Input, setPollOpt3Input] = useState("");
+      const [adminEditExtra, setAdminEditExtra] = useState(null);
+
+      // Inputs de Fiesta
+      const [djSongTitle, setDjSongTitle] = useState("");
+      const [djSongDedicated, setDjSongDedicated] = useState("");
+      const [secretText, setSecretText] = useState("");
+      const [destinyTargetUser, setDestinyTargetUser] = useState("");
+      const [destinyMessage, setDestinyMessage] = useState("");
+      const [destinyIsAnon, setDestinyIsAnon] = useState(true);
+      const [paparazziTarget, setPaparazziTarget] = useState(null);
+
+      // Modal de Recorte por Bordes de Posts ya subidos
+      const [cropModalPost, setCropModalPost] = useState(null);
+      const [borderCrop, setBorderCrop] = useState({ top: 0, bottom: 0, left: 0, right: 0 });
+      const [isCroppingPost, setIsCroppingPost] = useState(false);
+
+      // Retos Secuenciales del 1 al 20
+      const [challengeIndex, setChallengeIndex] = useState(0);
+      const currentChallenge = PHOTO_CHALLENGES[challengeIndex];
+
+      // Modales Generales
+      const [uploadModal, setUploadModal] = useState({ open: false, type: "post", withChallenge: false, isPaparazzi: false });
+      const [qrModalOpen, setQrModalOpen] = useState(false);
+      const [shareModalPost, setShareModalPost] = useState(null);
+      const [editProfileModal, setEditProfileModal] = useState(false);
+      const [adminEditPost, setAdminEditPost] = useState(null);
+      const [adminEditUser, setAdminEditUser] = useState(null);
+
+      // Login / Registro
+      const [authMode, setAuthMode] = useState("login");
+      const [loginUsername, setLoginUsername] = useState("");
+      const [loginPassword, setLoginPassword] = useState("");
+      const [authError, setAuthError] = useState("");
+
+      const [setupUsername, setSetupUsername] = useState("");
+      const [setupPassword, setSetupPassword] = useState("");
+      const [setupAvatar, setSetupAvatar] = useState("");
+      const [setupError, setSetupError] = useState("");
+
+      // Estudio de Subida con Carrusel Multi-Foto, Marcos en Vivo, Rotación, Escala y Movimiento
+      const [rawMediaUrl, setRawMediaUrl] = useState("");
+      const [extraMediaUrls, setExtraMediaUrls] = useState([]);
+      const [rawVideoFile, setRawVideoFile] = useState(null);
+      const [mediaType, setMediaType] = useState("image");
+      const [videoDuration, setVideoDuration] = useState(0);
+      const [activeStudioTool, setActiveStudioTool] = useState(null);
+      const [uploadBorderCrop, setUploadBorderCrop] = useState({ top: 0, bottom: 0, left: 0, right: 0 });
+      const [selectedFilter, setSelectedFilter] = useState(MEDIA_FILTERS[0]);
+      const [selectedFrame, setSelectedFrame] = useState(PHOTO_FRAMES[0]);
+      const [overlayText, setOverlayText] = useState("");
+      const [overlayColor, setOverlayColor] = useState(TEXT_COLORS[0]);
+      const [overlayPos, setOverlayPos] = useState({ x: 50, y: 50 });
+      const [overlayScale, setOverlayScale] = useState(1);
+      const [overlayRotation, setOverlayRotation] = useState(0);
+      const [draggingText, setDraggingText] = useState(false);
+      const [placedStickers, setPlacedStickers] = useState([]);
+      const [selectedStickerId, setSelectedStickerId] = useState(null);
+      const [draggingStickerId, setDraggingStickerId] = useState(null);
+      const previewBoxRef = useRef(null);
+      const [caption, setCaption] = useState("");
+      const [mediaError, setMediaError] = useState("");
+      const [isSubmitting, setIsSubmitting] = useState(false);
+      const [uploadProgress, setUploadProgress] = useState(0);
+
+      // Visor de Historias
+      const [storyViewer, setStoryViewer] = useState({ open: false, groupIndex: 0, storyIndex: 0, paused: false, progress: 0 });
+      const [storyMenuOpen, setStoryMenuOpen] = useState(false);
+      const [storyReplyText, setStoryReplyText] = useState("");
+      const [storyInputFocused, setStoryInputFocused] = useState(false);
+      const storyPausedRef = useRef(false);
+      const touchStartXRef = useRef(null);
+      const longPressTimerRef = useRef(null);
+      const wasLongPressRef = useRef(false);
+
+      // Comentarios, Notas Fugaces y Chat
+      const [commentInputs, setCommentInputs] = useState({});
+      const commentInputRefs = useRef({});
+      const [chatText, setChatText] = useState("");
+      const [quickNoteInput, setQuickNoteInput] = useState("");
+      const [replyingToMsg, setReplyingToMsg] = useState(null);
+      const [chatImageUploading, setChatImageUploading] = useState(false);
+      const chatEndRef = useRef(null);
+      const msgLongPressTimerRef = useRef(null);
+
+      // Editar Perfil
+      const [newProfileAvatar, setNewProfileAvatar] = useState("");
+      const [newProfileUsername, setNewProfileUsername] = useState("");
+      const [newProfilePassword, setNewProfilePassword] = useState("");
+      const [newProfileVibe, setNewProfileVibe] = useState("");
+      const [profileEditError, setProfileEditError] = useState("");
+
+      // Toasts y Contadores
+      const [inAppToast, setInAppToast] = useState(null);
+      const [unreadChatCount, setUnreadChatCount] = useState(0);
+      const prevMessagesLenRef = useRef(null);
+      const prevNotifsLenRef = useRef(null);
+
+      useEffect(() => {
+        const handlePopState = () => {
+          if (storyViewer.open) setStoryViewer(prev => ({ ...prev, open: false }));
+          else if (fullscreenPostId) setFullscreenPostId(null);
+          else if (wrappedModalOpen) setWrappedModalOpen(false);
+          else if (notifModalOpen) setNotifModalOpen(false);
+          else if (editProfileModal) setEditProfileModal(false);
+          else if (qrModalOpen) setQrModalOpen(false);
+          else if (cropModalPost) setCropModalPost(null);
+          else if (shareModalPost) setShareModalPost(null);
+          else if (viewedProfileUid) setViewedProfileUid(null);
+          else if (uploadModal.open) setUploadModal({ open: false, type: "post", withChallenge: false, isPaparazzi: false });
+          else if (activeTab !== "feed") setActiveTab("feed");
+          window.history.pushState({ sunset: true }, "");
         };
+        window.history.pushState({ sunset: true }, "");
+        window.addEventListener("popstate", handlePopState);
+        return () => window.removeEventListener("popstate", handlePopState);
+      }, [storyViewer.open, fullscreenPostId, wrappedModalOpen, notifModalOpen, editProfileModal, qrModalOpen, cropModalPost, shareModalPost, viewedProfileUid, uploadModal.open, activeTab]);
 
-        xhr.onerror = () => reject(new Error("Error de conexión"));
-        xhr.send(formData);
-      });
-    };
+      const isStoryEffectivelyPaused = storyViewer.paused || storyMenuOpen || storyInputFocused || !!storyViewsModal;
+      useEffect(() => { storyPausedRef.current = isStoryEffectivelyPaused; }, [isStoryEffectivelyPaused]);
 
-    const uploadMediaFile = async (fileOrDataUrl, resourceType = "auto", onProgress = null) => {
-      const shuffledPool = [...CLOUDINARY_ACCOUNTS].sort(() => Math.random() - 0.5);
-      let lastErr = null;
-      for (const acc of shuffledPool) {
-        if (!acc || !acc.cloudName) continue;
-        try {
-          return await uploadToSingleAccount(acc, fileOrDataUrl, resourceType, onProgress);
-        } catch (err) {
-          lastErr = err;
+      useEffect(() => {
+        const t = setInterval(() => setQuoteIndex(p => (p + 1) % INSPIRATIONAL_QUOTES.length), 4500);
+        return () => clearInterval(t);
+      }, []);
+
+      useEffect(() => {
+        if (window.FB) setFbReady(true);
+        else {
+          const onReady = () => setFbReady(true);
+          window.addEventListener("firebase-ready", onReady);
+          return () => window.removeEventListener("firebase-ready", onReady);
         }
-      }
-      throw lastErr || new Error("No se pudo subir el archivo. Verifica tu señal de internet.");
-    };
+      }, []);
 
-    const playNotificationSound = (type = "bell") => {
-      try {
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        if (!AudioCtx) return;
-        const ctx = new AudioCtx();
-        const now = ctx.currentTime;
+      useEffect(() => {
+        if (!fbReady || !window.FB) return;
+        const { auth, db, chatDb, onAuthStateChanged, collection, onSnapshot, query, orderBy, limit } = window.FB;
 
-        const playTone = (freq, start, duration, vol = 0.18) => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = type === "wheel" ? "triangle" : "sine";
-          osc.frequency.setValueAtTime(freq, start);
-          gain.gain.setValueAtTime(vol, start);
-          gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start(start);
-          osc.stop(start + duration);
-        };
-
-        if (type === "match") {
-          playTone(587.33, now, 0.16, 0.22);
-          playTone(880, now + 0.13, 0.22, 0.24);
-          playTone(1174.66, now + 0.28, 0.45, 0.28);
-        } else if (type === "wheel") {
-          playTone(523.25, now, 0.12, 0.22);
-          playTone(659.25, now + 0.12, 0.12, 0.22);
-          playTone(783.99, now + 0.24, 0.12, 0.22);
-          playTone(1046.5, now + 0.36, 0.5, 0.28);
-        } else {
-          playTone(880, now, 0.15, 0.18);
-          playTone(1318.5, now + 0.14, 0.32, 0.2);
-        }
-      } catch (e) {}
-    };
-
-    const PHOTO_CHALLENGES = [
-      { id: 1, title: "El Brindis Dorado", desc: "Sube una foto o video corto chocando tu copa con el atardecer.", emoji: "🥂" },
-      { id: 2, title: "Silueta contra el Sol", desc: "Captura la silueta de alguien bailando frente a la luz del cielo.", emoji: "🌅" },
-      { id: 3, title: "Look Sunset", desc: "Presume tu outfit, gafas de sol o el detalle más cool que lleves hoy.", emoji: "🕶️" },
-      { id: 4, title: "Selfie con un Desconocido", desc: "Sácate una foto divertida con alguien que acabas de conocer en la fiesta.", emoji: "🤳" },
-      { id: 5, title: "Manos al Cielo (Video 15s)", desc: "Graba unos segundos cuando todos levanten las manos con la música.", emoji: "🙌" },
-      { id: 6, title: "Risa Espontánea", desc: "Captura a un amigo o invitado riendo a carcajadas.", emoji: "😂" },
-      { id: 7, title: "El Rincón más Aesthetic", desc: "Muestra la decoración, luces o tu rincón favorito del evento.", emoji: "✨" },
-      { id: 8, title: "Foto Grupal Épica", desc: "Reúne a 3 o más personas y hagan su pose más creativa.", emoji: "📸" },
-      { id: 9, title: "Reflejos del Atardecer", desc: "Una toma de cerca donde se vea reflejada la fiesta o las luces.", emoji: "🔥" },
-      { id: 10, title: "El Rey o Reina de la Pista", desc: "Foto o video de máximo 15s de los mejores pasos prohibidos.", emoji: "💃" },
-      { id: 11, title: "Cazando al DJ", desc: "Saca una toma épica de la cabina musical mientras suena un temazo.", emoji: "🎧" },
-      { id: 12, title: "Duelo de Miradas", desc: "Foto mirándote fijamente con un amigo intentando no reírse.", emoji: "👀" },
-      { id: 13, title: "El Trago más Fotogénico", desc: "Primer plano artístico de tu bebida con las luces de fondo.", emoji: "🍹" },
-      { id: 14, title: "Salto en el Aire", desc: "Congela el momento exacto en que tú o tu grupo saltan al mismo tiempo.", emoji: "🚀" },
-      { id: 15, title: "Abrazo de Fiesta", desc: "Captura el abrazo más genuino con esa persona especial del evento.", emoji: "🫂" },
-      { id: 16, title: "Calzado en la Pista", desc: "Foto grupal apuntando hacia abajo mostrando los zapatos de todos.", emoji: "👟" },
-      { id: 17, title: "Cara de Viernes en Domingo", desc: "Tu gesto más loco o divertido disfrutando del Sunset.", emoji: "🤪" },
-      { id: 18, title: "Mesa VIP Completa", desc: "Selfie panorámica con todos los integrantes de tu mesa o sector.", emoji: "🍾" },
-      { id: 19, title: "Susurro al Oído", desc: "Foto contando un secreto en medio del ruido de la música.", emoji: "🤫" },
-      { id: 20, title: "Los Indestructibles", desc: "Foto demostrando quiénes siguen con la energía al 100%.", emoji: "👑" }
-    ];
-
-    const REACTION_EMOJIS = ["🔥", "🥂", "😍", "👏"];
-
-    const VIBE_STATUS_LIST = [
-      "🥂 En la barra",
-      "💃 Rompiendo la pista",
-      "🔥 Abierto a Match",
-      "📸 Modo Paparazzi",
-      "🌅 Viendo el Sunset",
-      "🍾 Brindando con amigos"
-    ];
-
-    const SECRET_ALIASES = [
-      "🦊 Zorro Dorado",
-      "🍸 Copa Misteriosa",
-      "🌅 Sol Oculto",
-      "🕶️ Mirada Secreta",
-      "🪩 Estrella de Pista",
-      "🔥 Chispa Nocturna",
-      "🥂 Alma Bohemio"
-    ];
-
-    const MEDIA_FILTERS = [
-      { id: "normal", name: "Original", css: "none" },
-      { id: "golden", name: "Golden Hour", css: "sepia(0.35) saturate(1.6) contrast(1.08) brightness(1.04)" },
-      { id: "rose", name: "Sunset Rosé", css: "contrast(1.12) saturate(1.4) hue-rotate(-14deg) brightness(1.03)" },
-      { id: "vintage", name: "Retro 90s", css: "sepia(0.55) contrast(0.95) brightness(1.05)" },
-      { id: "bw", name: "B&W", css: "grayscale(1) contrast(1.22)" },
-      { id: "cyber", name: "Neon Night", css: "saturate(1.85) contrast(1.18) hue-rotate(15deg)" }
-    ];
-
-    const PHOTO_FRAMES = [
-      { id: "none", name: "Sin Marco" },
-      { id: "polaroid", name: "📸 Polaroid Sunset" },
-      { id: "vip_gold", name: "👑 Marco VIP" },
-      { id: "magazine", name: "✨ Portada Revista" },
-      { id: "cinema", name: "🎬 Cine Retro" }
-    ];
-
-    const STICKERS = ["🌅", "🥂", "🔥", "✨", "💃", "🕶️", "❤️", "👑", "🎶", "🍾", "🪩", "🌴", "🍹", "⚡", "💋", "🎉", "🤩", "🦋"];
-
-    const VIP_STAMPS = [
-      "🌅 SUNSET VIBES • VIP",
-      "🔥 MATCH NIGHT • OFICIAL",
-      "🥂 GOLDEN HOUR CLUB",
-      "📍 NOCHE ÉPICA 2026",
-      "📸 PAPARAZZI IN FRAGANTI",
-      "👑 REALEZA DE LA PISTA",
-      "⚡ ENERGÍA AL 100%"
-    ];
-
-    const TEXT_COLORS = [
-      { id: "white", hex: "#FFFFFF", bg: "rgba(9, 1, 5, 0.78)" },
-      { id: "nude", hex: "#E8B4B8", bg: "rgba(9, 1, 5, 0.88)" },
-      { id: "gold", hex: "#FBBF24", bg: "rgba(9, 1, 5, 0.88)" },
-      { id: "dark", hex: "#090105", bg: "rgba(247, 223, 226, 0.94)" }
-    ];
-
-    const INSPIRATIONAL_QUOTES = [
-      "“Los mejores atardeceres son los que se comparten. Captura cada instante.”",
-      "“Hoy el cielo se viste de rosa y borgoña. ¡Haz que esta noche sea eterna!”",
-      "“Congela las sonrisas, los brindis y la magia de este Sunset.”"
-    ];
-
-    const formatRelativeTime = (timestamp) => {
-      if (!timestamp) return "Ahora";
-      const diffSec = Math.floor((Date.now() - timestamp) / 1000);
-      if (diffSec < 50) return "Ahora";
-      const diffMin = Math.floor(diffSec / 60);
-      if (diffMin < 60) return `Hace ${diffMin} min`;
-      const diffHour = Math.floor(diffMin / 60);
-      if (diffHour < 24) return `Hace ${diffHour} h`;
-      return "Ayer";
-    };
-
-    function LiveFrameOverlay({ frameId }) {
-      if (!frameId || frameId === "none") return null;
-      if (frameId === "polaroid") {
-        return (
-          <div className="absolute inset-0 pointer-events-none z-10 border-t-[10px] border-x-[10px] border-b-[38px] border-[#FDF4F5] flex items-end justify-center">
-            <span className="text-[#2E071B] font-serif font-bold text-[11px] -mb-[27px] tracking-wide">
-              🌅 Sunset Vibes • Recuerdo Oficial
-            </span>
-          </div>
-        );
-      }
-      if (frameId === "vip_gold") {
-        return (
-          <div className="absolute inset-0 pointer-events-none z-10 border-[4px] border-amber-400 flex items-end justify-center">
-            <div className="w-full bg-black/80 py-1 text-center border-t border-amber-400/50">
-              <span className="text-amber-300 font-extrabold text-[10px] tracking-widest uppercase">
-                👑 SUNSET VIBES • EDICIÓN VIP 👑
-              </span>
-            </div>
-          </div>
-        );
-      }
-      if (frameId === "magazine") {
-        return (
-          <div className="absolute inset-2.5 pointer-events-none z-10 border-2 border-white/85 flex flex-col justify-between p-2">
-            <span className="font-serif font-bold text-white/95 text-lg tracking-widest text-center drop-shadow-md">
-              SUNSET VIBES
-            </span>
-            <span className="text-[9px] text-white/80 font-bold uppercase tracking-widest text-right">
-              Edición Especial
-            </span>
-          </div>
-        );
-      }
-      if (frameId === "cinema") {
-        return (
-          <div className="absolute inset-0 pointer-events-none z-10 flex flex-col justify-between">
-            <div className="w-full h-6 bg-black"></div>
-            <div className="w-full h-7 bg-black flex items-center justify-center">
-              <span className="text-amber-300 italic text-[10px] font-semibold">
-                “Una noche para recordar siempre” • Sunset Vibes
-              </span>
-            </div>
-          </div>
-        );
-      }
-      return null;
-    }
-
-    const bakeEditedImage = (rawDataUrl, { filterCss, borderCrop, frameId = "none", overlayText, textColorObj, textPos = { x: 50, y: 50 }, textScale = 1, textRotation = 0, stickers = [], maxDim = 1600, quality = 0.88 }) => {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.crossOrigin = "anonymous";
-        img.src = rawDataUrl;
-        img.onload = () => {
-          const topPct = borderCrop?.top || 0;
-          const bottomPct = borderCrop?.bottom || 0;
-          const leftPct = borderCrop?.left || 0;
-          const rightPct = borderCrop?.right || 0;
-
-          const srcX = Math.round((leftPct / 100) * img.width);
-          const srcY = Math.round((topPct / 100) * img.height);
-          const srcW = Math.max(40, Math.round(((100 - leftPct - rightPct) / 100) * img.width));
-          const srcH = Math.max(40, Math.round(((100 - topPct - bottomPct) / 100) * img.height));
-
-          let baseW = srcW, baseH = srcH;
-          if (baseW > maxDim) { baseH = Math.round((baseH * maxDim) / baseW); baseW = maxDim; }
-          if (baseH > maxDim) { baseW = Math.round((baseW * maxDim) / baseH); baseH = maxDim; }
-
-          const isPolaroid = frameId === "polaroid";
-          const padSide = isPolaroid ? Math.round(baseW * 0.06) : 0;
-          const padTop = isPolaroid ? Math.round(baseW * 0.06) : 0;
-          const padBot = isPolaroid ? Math.round(baseW * 0.22) : 0;
-
-          const outW = baseW + padSide * 2;
-          const outH = baseH + padTop + padBot;
-
-          const canvas = document.createElement("canvas");
-          canvas.width = outW;
-          canvas.height = outH;
-          const ctx = canvas.getContext("2d");
-
-          if (isPolaroid) {
-            ctx.fillStyle = "#FDF4F5";
-            ctx.fillRect(0, 0, outW, outH);
-          }
-
-          if (filterCss && filterCss !== "none") {
-            ctx.filter = filterCss;
-          }
-          ctx.drawImage(img, srcX, srcY, srcW, srcH, padSide, padTop, baseW, baseH);
-          ctx.filter = "none";
-
-          if (isPolaroid) {
-            ctx.fillStyle = "#2E071B";
-            ctx.font = `700 ${Math.max(22, Math.round(baseW * 0.048))}px "Playfair Display", serif`;
-            ctx.textAlign = "center";
-            ctx.fillText("🌅 Sunset Vibes • Recuerdo Oficial", outW / 2, baseH + padTop + Math.round(padBot * 0.58));
-          } else if (frameId === "vip_gold") {
-            const bWidth = Math.max(12, Math.round(outW * 0.024));
-            ctx.strokeStyle = "#FBBF24";
-            ctx.lineWidth = bWidth;
-            ctx.strokeRect(bWidth / 2, bWidth / 2, outW - bWidth, outH - bWidth);
-            ctx.fillStyle = "rgba(9, 1, 5, 0.85)";
-            ctx.fillRect(0, outH - Math.round(outW * 0.08), outW, Math.round(outW * 0.08));
-            ctx.fillStyle = "#FBBF24";
-            ctx.font = `800 ${Math.max(18, Math.round(outW * 0.032))}px "Plus Jakarta Sans", sans-serif`;
-            ctx.textAlign = "center";
-            ctx.fillText("👑 SUNSET VIBES • EDICIÓN VIP 👑", outW / 2, outH - Math.round(outW * 0.03));
-          } else if (frameId === "magazine") {
-            ctx.strokeStyle = "rgba(255,255,255,0.85)";
-            ctx.lineWidth = Math.max(6, Math.round(outW * 0.012));
-            const m = Math.round(outW * 0.035);
-            ctx.strokeRect(m, m, outW - m * 2, outH - m * 2);
-            ctx.fillStyle = "rgba(255,255,255,0.92)";
-            ctx.font = `700 ${Math.max(28, Math.round(outW * 0.075))}px "Playfair Display", serif`;
-            ctx.textAlign = "center";
-            ctx.fillText("SUNSET VIBES", outW / 2, m + Math.round(outW * 0.085));
-          } else if (frameId === "cinema") {
-            const barH = Math.round(outH * 0.1);
-            ctx.fillStyle = "#000000";
-            ctx.fillRect(0, 0, outW, barH);
-            ctx.fillRect(0, outH - barH, outW, barH);
-            ctx.fillStyle = "#FBBF24";
-            ctx.font = `600 italic ${Math.max(16, Math.round(outW * 0.028))}px "Plus Jakarta Sans", sans-serif`;
-            ctx.textAlign = "center";
-            ctx.fillText("“Una noche para recordar siempre” • Sunset Vibes", outW / 2, outH - Math.round(barH * 0.38));
-          }
-
-          if (Array.isArray(stickers) && stickers.length > 0) {
-            stickers.forEach((st) => {
-              const sx = padSide + (st.x / 100) * baseW;
-              const sy = padTop + (st.y / 100) * baseH;
-              const sc = st.scale || 1;
-              const rotRad = ((st.rotation || 0) * Math.PI) / 180;
-
-              ctx.save();
-              ctx.translate(sx, sy);
-              ctx.rotate(rotRad);
-
-              if (st.emoji.length > 4) {
-                const stampFont = Math.max(14, Math.round(baseW * 0.031 * sc));
-                ctx.font = `800 ${stampFont}px "Plus Jakarta Sans", sans-serif`;
-                ctx.textAlign = "center";
-                ctx.textBaseline = "middle";
-                const m = ctx.measureText(st.emoji);
-                const bw = m.width + 28 * sc;
-                const bh = stampFont + 16 * sc;
-                ctx.fillStyle = "rgba(22, 3, 12, 0.88)";
-                ctx.beginPath();
-                ctx.roundRect(-bw / 2, -bh / 2, bw, bh, 18);
-                ctx.fill();
-                ctx.strokeStyle = "rgba(232, 180, 184, 0.55)";
-                ctx.lineWidth = 2;
-                ctx.stroke();
-                ctx.fillStyle = "#FDF4F5";
-                ctx.fillText(st.emoji, 0, 0);
-              } else {
-                const stickerSize = Math.round(baseW * 0.11 * sc);
-                ctx.font = `${stickerSize}px sans-serif`;
-                ctx.textAlign = "center";
-                ctx.textBaseline = "middle";
-                ctx.fillText(st.emoji, 0, 0);
-              }
-              ctx.restore();
+        const unsubAuth = onAuthStateChanged(auth, (u) => {
+          if (u) {
+            setAuthSession({
+              uid: u.uid,
+              email: (u.email || "").toLowerCase(),
+              defaultName: (u.displayName || "").replace(/\s+/g, "_").toLowerCase(),
+              defaultAvatar: u.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${u.uid}`,
+              isGoogle: true
             });
+          } else {
+            try {
+              const saved = localStorage.getItem("sunset_vibes_session");
+              if (saved) setAuthSession(JSON.parse(saved));
+              else setAuthSession(null);
+            } catch (e) {
+              setAuthSession(null);
+            }
           }
+        });
 
-          if (overlayText && overlayText.trim()) {
-            const tScale = textScale || 1;
-            const fontSize = Math.max(18, Math.round(baseW * 0.045 * tScale));
-            const xCoord = padSide + Math.round(((textPos?.x ?? 50) / 100) * baseW);
-            const yCoord = padTop + Math.round(((textPos?.y ?? 50) / 100) * baseH);
-            const rotRad = ((textRotation || 0) * Math.PI) / 180;
+        const unsubUsers = onSnapshot(collection(db, "users"), (snap) => {
+          setUsers(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+          setUsersLoaded(true);
+        });
 
-            ctx.save();
-            ctx.translate(xCoord, yCoord);
-            ctx.rotate(rotRad);
+        const unsubPosts = onSnapshot(query(collection(db, "posts"), orderBy("createdAt", "desc"), limit(150)), (snap) => {
+          setPosts(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+        });
 
-            ctx.font = `800 ${fontSize}px "Plus Jakarta Sans", sans-serif`;
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
+        const unsubStories = onSnapshot(query(collection(db, "stories"), orderBy("createdAt", "asc"), limit(120)), (snap) => {
+          setStories(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+        });
 
-            const textStr = overlayText.trim();
-            const metrics = ctx.measureText(textStr);
-            const padX = Math.round(baseW * 0.03 * tScale), padY = Math.round(baseW * 0.016 * tScale);
-            const boxW = Math.min(baseW - 16, metrics.width + padX * 2);
-            const boxH = fontSize + padY * 2;
+        const unsubMessages = onSnapshot(query(collection(chatDb, "messages"), orderBy("createdAt", "desc"), limit(100)), (snap) => {
+          const list = snap.docs.map(d => ({ id: d.id, ...d.data() })).reverse();
+          setMessages(list);
+        });
 
-            ctx.fillStyle = textColorObj?.bg || "rgba(9, 1, 5, 0.82)";
-            ctx.beginPath();
-            ctx.roundRect(-boxW / 2, -boxH / 2, boxW, boxH, 16);
-            ctx.fill();
-
-            ctx.fillStyle = textColorObj?.hex || "#FFFFFF";
-            ctx.fillText(textStr, 0, 0, baseW - 24);
-            ctx.restore();
+        const unsubNotifs = onSnapshot(query(collection(chatDb, "notifications"), orderBy("createdAt", "desc"), limit(160)), (snap) => {
+          const allNotifs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          setNotifications(allNotifs.filter(n => !n.isPartyExtra));
+          setDjSongs(allNotifs.filter(n => n.extraType === "dj_song"));
+          setConfessions(allNotifs.filter(n => n.extraType === "secret_confession"));
+          setDestinyLetters(allNotifs.filter(n => n.extraType === "destiny_letter"));
+          const stateDoc = allNotifs.find(n => n.extraType === "global_party_state");
+          if (stateDoc && stateDoc.partyPayload) {
+            setPartyState(stateDoc.partyPayload);
           }
+        });
 
-          resolve(canvas.toDataURL("image/jpeg", quality));
+        return () => {
+          unsubAuth(); unsubUsers(); unsubPosts(); unsubStories(); unsubMessages(); unsubNotifs();
         };
-        img.onerror = (e) => reject(e);
-      });
-    };
+      }, [fbReady]);
 
-    const cropImageByBorders = (imageUrl, { top = 0, bottom = 0, left = 0, right = 0 }) => {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.crossOrigin = "anonymous";
-        img.src = imageUrl;
-        img.onload = () => {
-          const sx = Math.round((left / 100) * img.width);
-          const sy = Math.round((top / 100) * img.height);
-          const sw = Math.max(40, Math.round(((100 - left - right) / 100) * img.width));
-          const sh = Math.max(40, Math.round(((100 - top - bottom) / 100) * img.height));
-
-          const canvas = document.createElement("canvas");
-          canvas.width = sw;
-          canvas.height = sh;
-          const ctx = canvas.getContext("2d");
-          ctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
-          resolve(canvas.toDataURL("image/jpeg", 0.9));
-        };
-        img.onerror = reject;
-      });
-    };
-
-    const generatePersonalWrappedDataUrl = async (userDoc, myPosts, myLikesCount, myFriendsCount, myMatchesCount) => {
-      const canvas = document.createElement("canvas");
-      const W = 1080, H = 1920;
-      canvas.width = W;
-      canvas.height = H;
-      const ctx = canvas.getContext("2d");
-
-      const grad = ctx.createLinearGradient(0, 0, W, H);
-      grad.addColorStop(0, "#4B0E2E");
-      grad.addColorStop(0.5, "#16030C");
-      grad.addColorStop(1, "#090105");
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, W, H);
-
-      ctx.strokeStyle = "#FBBF24";
-      ctx.lineWidth = 6;
-      ctx.strokeRect(45, 45, W - 90, H - 90);
-
-      ctx.fillStyle = "#FBBF24";
-      ctx.font = '800 28px "Plus Jakarta Sans", sans-serif';
-      ctx.textAlign = "center";
-      ctx.fillText("✨ MI RESUMEN OFICIAL DE LA NOCHE ✨", W / 2, 140);
-
-      ctx.fillStyle = "#FFFFFF";
-      ctx.font = '700 78px "Playfair Display", serif';
-      ctx.fillText("SUNSET WRAPPED", W / 2, 235);
-
-      const loadImg = (url) => new Promise((res) => {
-        const im = new Image();
-        im.crossOrigin = "anonymous";
-        im.onload = () => res(im);
-        im.onerror = () => res(null);
-        im.src = url;
-      });
-
-      const avatarImg = await loadImg(userDoc.avatar);
-      if (avatarImg) {
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(W / 2, 430, 130, 0, Math.PI * 2);
-        ctx.clip();
-        ctx.drawImage(avatarImg, W / 2 - 130, 300, 260, 260);
-        ctx.restore();
-      }
-      ctx.strokeStyle = "#FBBF24";
-      ctx.lineWidth = 6;
-      ctx.beginPath();
-      ctx.arc(W / 2, 430, 132, 0, Math.PI * 2);
-      ctx.stroke();
-
-      ctx.fillStyle = "#FFFFFF";
-      ctx.font = '800 48px "Plus Jakarta Sans", sans-serif';
-      ctx.fillText(`@${userDoc.username}`, W / 2, 635);
-
-      ctx.fillStyle = "#E8B4B8";
-      ctx.font = '700 30px "Plus Jakarta Sans", sans-serif';
-      ctx.fillText(userDoc.vibeStatus || "🥂 Alma de la Fiesta", W / 2, 690);
-
-      const stats = [
-        { label: "FOTOS Y VIDEOS", val: `${myPosts.length} 📸` },
-        { label: "LIKES RECIBIDOS", val: `${myLikesCount} ❤️` },
-        { label: "AMIGOS EN EL SUNSET", val: `${myFriendsCount} 🥂` },
-        { label: "FUEGOS DE MATCH", val: `${myMatchesCount} 🔥` }
-      ];
-
-      stats.forEach((st, idx) => {
-        const bx = idx % 2 === 0 ? 95 : 565;
-        const by = idx < 2 ? 780 : 1030;
-        ctx.fillStyle = "rgba(46, 7, 27, 0.9)";
-        ctx.beginPath();
-        ctx.roundRect(bx, by, 420, 200, 28);
-        ctx.fill();
-        ctx.strokeStyle = "rgba(232, 180, 184, 0.45)";
-        ctx.lineWidth = 3;
-        ctx.stroke();
-
-        ctx.fillStyle = "#FBBF24";
-        ctx.font = '800 54px "Plus Jakarta Sans", sans-serif';
-        ctx.fillText(st.val, bx + 210, by + 100);
-
-        ctx.fillStyle = "#FDF4F5";
-        ctx.font = '700 22px "Plus Jakarta Sans", sans-serif';
-        ctx.fillText(st.label, bx + 210, by + 155);
-      });
-
-      const bestPost = [...myPosts].filter(p => p.mediaType !== "video").sort((a, b) => (b.likes?.length || 0) - (a.likes?.length || 0))[0];
-      if (bestPost) {
-        const postIm = await loadImg(bestPost.mediaUrl);
-        if (postIm) {
-          ctx.fillStyle = "#FBBF24";
-          ctx.font = '800 26px "Plus Jakarta Sans", sans-serif';
-          ctx.fillText("🌟 MI FOTO MÁS VOTADA DE LA NOCHE 🌟", W / 2, 1315);
-          ctx.save();
-          ctx.beginPath();
-          ctx.roundRect(W / 2 - 220, 1345, 440, 380, 26);
-          ctx.clip();
-          ctx.drawImage(postIm, W / 2 - 220, 1345, 440, 380);
-          ctx.restore();
+      // Si una cuenta local guardada en el navegador fue eliminada de Firebase durante las pruebas, cerrar esa sesión fantasma automáticamente
+      useEffect(() => {
+        if (!usersLoaded || !authSession) return;
+        const exists = users.some(u => u.uid === authSession.uid && u.username);
+        if (!exists && !authSession.isGoogle && String(authSession.uid).startsWith("u_")) {
+          try { localStorage.removeItem("sunset_vibes_session"); } catch (e) {}
+          setAuthSession(null);
         }
-      }
+      }, [usersLoaded, users, authSession]);
 
-      ctx.fillStyle = "#E8B4B8";
-      ctx.font = '700 28px "Playfair Display", serif';
-      ctx.fillText("🌅 Sunset Vibes • Recuerdo Oficial 2026", W / 2, 1825);
-
-      return canvas.toDataURL("image/jpeg", 0.9);
-    };
-
-    const generateMosaicPosterDataUrl = async (usersList, postsList) => {
-      const canvas = document.createElement("canvas");
-      const W = 1080, H = 1480;
-      canvas.width = W;
-      canvas.height = H;
-      const ctx = canvas.getContext("2d");
-
-      const grad = ctx.createLinearGradient(0, 0, 0, H);
-      grad.addColorStop(0, "#2E071B");
-      grad.addColorStop(0.5, "#16030C");
-      grad.addColorStop(1, "#090105");
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, W, H);
-
-      ctx.fillStyle = "#FBBF24";
-      ctx.font = '700 22px "Plus Jakarta Sans", sans-serif';
-      ctx.textAlign = "center";
-      ctx.fillText("🌅 RECUERDO OFICIAL DE FIN DE FIESTA 🌅", W / 2, 75);
-
-      ctx.fillStyle = "#FFFFFF";
-      ctx.font = '700 62px "Playfair Display", serif';
-      ctx.fillText("SUNSET VIBES", W / 2, 145);
-
-      ctx.fillStyle = "#E8B4B8";
-      ctx.font = '600 20px "Plus Jakarta Sans", sans-serif';
-      ctx.fillText(`${usersList.length} Invitados • ${postsList.length} Momentos Inolvidables`, W / 2, 185);
-
-      const loadImageSafe = (url) => new Promise((res) => {
-        const im = new Image();
-        im.crossOrigin = "anonymous";
-        im.onload = () => res(im);
-        im.onerror = () => res(null);
-        im.src = url;
-      });
-
-      const photoSources = [
-        ...postsList.filter(p => p.mediaType !== "video").slice(0, 24).map(p => p.mediaUrl),
-        ...usersList.slice(0, 40).map(u => u.avatar)
-      ].slice(0, 36);
-
-      const cols = 6;
-      const cellSize = 152;
-      const gap = 12;
-      const startX = (W - (cols * cellSize + (cols - 1) * gap)) / 2;
-      const startY = 230;
-
-      for (let i = 0; i < photoSources.length; i++) {
-        const r = Math.floor(i / cols);
-        const c = i % cols;
-        const x = startX + c * (cellSize + gap);
-        const y = startY + r * (cellSize + gap);
-
-        ctx.fillStyle = "#2E071B";
-        ctx.beginPath();
-        ctx.roundRect(x, y, cellSize, cellSize, 18);
-        ctx.fill();
-
-        const im = await loadImageSafe(photoSources[i]);
-        if (im) {
-          ctx.save();
-          ctx.beginPath();
-          ctx.roundRect(x, y, cellSize, cellSize, 18);
-          ctx.clip();
-          ctx.drawImage(im, x, y, cellSize, cellSize);
-          ctx.restore();
-        }
-        ctx.strokeStyle = "rgba(232, 180, 184, 0.45)";
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.roundRect(x, y, cellSize, cellSize, 18);
-        ctx.stroke();
-      }
-
-      ctx.fillStyle = "#FBBF24";
-      ctx.font = '800 24px "Plus Jakarta Sans", sans-serif';
-      ctx.fillText("“Gracias por hacer eterna esta noche” ✨", W / 2, H - 70);
-
-      return canvas.toDataURL("image/jpeg", 0.9);
-    };
-
-    const compressSimpleImage = (file, maxWidth = 650, quality = 0.85) => {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = (ev) => {
-          const img = new Image();
-          img.src = ev.target.result;
-          img.onload = () => {
-            const canvas = document.createElement("canvas");
-            let w = img.width, h = img.height;
-            if (w > maxWidth) { h = Math.round((h * maxWidth) / w); w = maxWidth; }
-            canvas.width = w; canvas.height = h;
-            canvas.getContext("2d").drawImage(img, 0, 0, w, h);
-            resolve(canvas.toDataURL("image/jpeg", quality));
+      // Desbloqueo Automático de todas las cuentas bloqueadas por error antes de esta actualización (banEpoch v3)
+      useEffect(() => {
+        if (!fbReady || !window.FB || autoResetBansDoneRef.current) return;
+        if (partyState && partyState.banEpoch !== 3) {
+          autoResetBansDoneRef.current = true;
+          const cleaned = {
+            ...partyState,
+            bannedDevices: [],
+            bannedUids: [],
+            banEpoch: 3,
+            updatedAt: Date.now()
           };
-          img.onerror = reject;
-        };
-        reader.onerror = reject;
-      });
-    };
+          setPartyState(cleaned);
+          window.FB.setDoc(window.FB.doc(window.FB.chatDb, "notifications", "GLOBAL_PARTY_STATE_DOC"), {
+            isPartyExtra: true,
+            extraType: "global_party_state",
+            partyPayload: cleaned,
+            createdAt: Date.now()
+          }).catch(() => {});
+          users.filter(u => u.isBanned).forEach(u => {
+            window.FB.updateDoc(window.FB.doc(window.FB.db, "users", u.uid), { isBanned: false }).catch(() => {});
+          });
+        }
+      }, [fbReady, partyState, users]);
 
-    const validateVideoFile = (file) => {
-      return new Promise((resolve, reject) => {
-        if (file.size > 100 * 1024 * 1024) {
-          reject(new Error("El video es muy pesado. Graba un clip de máximo 15 segundos."));
+      // Sincronizar Ruleta en Vivo
+      useEffect(() => {
+        const wheelSpin = partyState?.wheelSpin;
+        if (!wheelSpin || !wheelSpin.id) return;
+        if (lastSeenSpinIdRef.current === wheelSpin.id) return;
+        if (Date.now() - wheelSpin.startedAt > 35000) {
+          lastSeenSpinIdRef.current = wheelSpin.id;
           return;
         }
-        const video = document.createElement("video");
-        video.preload = "metadata";
-        const objUrl = URL.createObjectURL(file);
-        video.onloadedmetadata = () => {
-          if (video.duration > 15.8) {
-            URL.revokeObjectURL(objUrl);
-            reject(new Error(`El video dura ${Math.round(video.duration)} segundos. El máximo permitido es 15s.`));
-            return;
+        lastSeenSpinIdRef.current = wheelSpin.id;
+
+        const candidates = Array.isArray(wheelSpin.candidates) && wheelSpin.candidates.length > 0
+          ? wheelSpin.candidates
+          : [{ uid: wheelSpin.winnerUid, username: wheelSpin.winnerUsername, avatar: wheelSpin.winnerAvatar }];
+
+        playNotificationSound("wheel");
+        if (navigator.vibrate) navigator.vibrate([150, 80, 150, 80, 250]);
+
+        setWheelModalState({
+          open: true,
+          spinning: true,
+          displayIndex: 0,
+          spinData: wheelSpin
+        });
+
+        let step = 0;
+        const spinInterval = setInterval(() => {
+          step++;
+          setWheelModalState(prev => ({
+            ...prev,
+            displayIndex: step % candidates.length
+          }));
+        }, 115);
+
+        const stopTimeout = setTimeout(() => {
+          clearInterval(spinInterval);
+          playNotificationSound("match");
+          if (navigator.vibrate) navigator.vibrate([300, 120, 400]);
+          setWheelModalState(prev => ({
+            ...prev,
+            spinning: false
+          }));
+        }, 4400);
+
+        return () => {
+          clearInterval(spinInterval);
+          clearTimeout(stopTimeout);
+        };
+      }, [partyState?.wheelSpin?.id]);
+
+      const currentUserDoc = useMemo(() => {
+        if (!authSession) return null;
+        return users.find(u => u.uid === authSession.uid && u.username) || null;
+      }, [users, authSession]);
+
+      const isAdmin = useMemo(() => {
+        const emailToCheck = (currentUserDoc?.email || authSession?.email || "").toLowerCase();
+        return emailToCheck === ADMIN_EMAIL;
+      }, [currentUserDoc, authSession]);
+
+      // Marcar mensajes privados como "Visto (✓✓)" cuando se abre la conversación
+      useEffect(() => {
+        if (activeTab === "chat" && chatSubTab === "private" && activeChatFriend && currentUserDoc && window.FB) {
+          const chatKey = [currentUserDoc.uid, activeChatFriend.uid].sort().join("__");
+          messages
+            .filter(m => m.chatKey === chatKey && m.receiverId === currentUserDoc.uid && !m.seen)
+            .forEach(m => {
+              window.FB.updateDoc(window.FB.doc(window.FB.chatDb, "messages", m.id), { seen: true }).catch(() => {});
+            });
+        }
+        if (activeTab === "chat") {
+          setTimeout(() => {
+            chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+          }, 120);
+        }
+      }, [messages, activeTab, chatSubTab, activeChatFriend, currentUserDoc]);
+
+      // Detector de Bloqueo: SOLO se activa si el Admin tocó explícitamente el botón "🚫 Bloquear" (banEpoch 3)
+      const isCurrentDeviceBlocked = useMemo(() => {
+        if (isAdmin) return false;
+        if (partyState?.banEpoch !== 3) return false;
+        const bannedDevs = Array.isArray(partyState?.bannedDevices) ? partyState.bannedDevices : [];
+        const bannedUids = Array.isArray(partyState?.bannedUids) ? partyState.bannedUids : [];
+
+        return (
+          bannedDevs.includes(deviceId) ||
+          (authSession?.uid && bannedUids.includes(authSession.uid)) ||
+          currentUserDoc?.isBanned === true
+        );
+      }, [isAdmin, partyState, deviceId, authSession, currentUserDoc]);
+
+      const userBadgesMap = useMemo(() => {
+        const map = {};
+        if (users.length === 0) return map;
+        let topLikesUid = null, maxLikes = 2;
+        let topMatchesUid = null, maxMatches = 1;
+        let topPostsUid = null, maxPosts = 2;
+
+        users.forEach(u => {
+          const uPosts = posts.filter(p => p.userId === u.uid);
+          const likesSum = uPosts.reduce((s, p) => s + (p.likes?.length || 0), 0);
+          const matchesSum = (u.matchesReceived || []).length;
+          if (likesSum > maxLikes) { maxLikes = likesSum; topLikesUid = u.uid; }
+          if (matchesSum > maxMatches) { maxMatches = matchesSum; topMatchesUid = u.uid; }
+          if (uPosts.length > maxPosts) { maxPosts = uPosts.length; topPostsUid = u.uid; }
+        });
+
+        if (topLikesUid) map[topLikesUid] = [...(map[topLikesUid] || []), "👑 Rey/Reina"];
+        if (topMatchesUid) map[topMatchesUid] = [...(map[topMatchesUid] || []), "🔥 Rompecorazones"];
+        if (topPostsUid) map[topPostsUid] = [...(map[topPostsUid] || []), "📸 Paparazzi"];
+        return map;
+      }, [users, posts]);
+
+      // Barra de Energía: Arranca en 0% y sube con la actividad real
+      const sunsetEnergyPct = useMemo(() => {
+        const totalLikes = posts.reduce((acc, p) => acc + (p.likes?.length || 0), 0);
+        const totalComments = posts.reduce((acc, p) => acc + (p.comments?.length || 0), 0);
+        const totalInteractions =
+          (posts.length * 3) +
+          (stories.length * 2) +
+          totalLikes +
+          totalComments +
+          messages.length +
+          djSongs.length +
+          confessions.length +
+          destinyLetters.length;
+        if (totalInteractions === 0) return 0;
+        return Math.min(100, Math.round((totalInteractions / 200) * 100));
+      }, [posts, stories.length, messages.length, djSongs.length, confessions.length, destinyLetters.length]);
+
+      const myNotifications = useMemo(() => {
+        if (!currentUserDoc) return [];
+        const raw = notifications.filter(n => n.toUid === currentUserDoc.uid);
+        const seenKeys = new Set();
+        const deduped = [];
+        for (const n of raw) {
+          const key = `${n.fromUid}_${n.type}_${n.postId || ""}_${n.storyId || ""}_${n.text}`;
+          if (!seenKeys.has(key)) {
+            seenKeys.add(key);
+            deduped.push(n);
           }
-          resolve({ previewUrl: objUrl, file, duration: Math.round(video.duration) });
-        };
-        video.onerror = () => {
-          URL.revokeObjectURL(objUrl);
-          reject(new Error("Formato de video no compatible."));
-        };
-        video.src = objUrl;
-      });
-    };
+        }
+        return deduped;
+      }, [notifications, currentUserDoc]);
 
-    const isUserOnline = (u) => {
-      if (!u || u.isOnline === false || !u.lastSeen) return false;
-      return (Date.now() - u.lastSeen) < 360000;
-    };
+      const unreadBellCount = useMemo(() => myNotifications.filter(n => !n.read).length, [myNotifications]);
 
-    function RichMentionText({ text, users, onOpenProfile }) {
-      if (!text) return null;
-      const parts = String(text).split(/(@[a-zA-Z0-9_]+)/g);
-      return (
-        <span>
-          {parts.map((part, idx) => {
-            if (part.startsWith("@")) {
-              const clean = part.slice(1).toLowerCase();
-              const matched = users.find(u => (u.username || "").toLowerCase() === clean);
-              if (matched) {
-                return (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={(e) => { e.stopPropagation(); onOpenProfile(matched.uid); }}
-                    className="font-extrabold text-amber-300 hover:underline mx-0.5"
-                  >
-                    {part}
-                  </button>
-                );
+      const myReceivedMatches = useMemo(() => {
+        if (!currentUserDoc) return [];
+        return Array.isArray(currentUserDoc.matchesReceived) ? [...currentUserDoc.matchesReceived].reverse() : [];
+      }, [currentUserDoc]);
+
+      const pendingMatchCard = useMemo(() => {
+        if (!currentUserDoc) return null;
+        const list = Array.isArray(currentUserDoc.matchesReceived) ? currentUserDoc.matchesReceived : [];
+        return list.find(m => m.status === "pending") || null;
+      }, [currentUserDoc]);
+
+      const myReceivedDestinyLetters = useMemo(() => {
+        if (!currentUserDoc) return [];
+        return destinyLetters.filter(l => l.toUid === currentUserDoc.uid);
+      }, [destinyLetters, currentUserDoc]);
+
+      const triggerExternalAlert = (title, bodyText, soundType = "bell") => {
+        playNotificationSound(soundType);
+        if (navigator.vibrate) {
+          navigator.vibrate([180, 90, 220]);
+        }
+        if (document.hidden && "Notification" in window && Notification.permission === "granted") {
+          try {
+            const n = new Notification(title, {
+              body: bodyText,
+              icon: BRAND_LOGO_URL || "https://cdn-icons-png.flaticon.com/512/3222/3222800.png",
+              tag: "sunset-vibes-live"
+            });
+            n.onclick = () => { window.focus(); n.close(); };
+          } catch (e) {}
+        }
+      };
+
+      const requestSystemNotificationPerm = async () => {
+        playNotificationSound("match");
+        if (!("Notification" in window)) {
+          alert("Sonido de alertas activado. En iPhone, usa Compartir > Agregar a Inicio para recibir notificaciones de pantalla bloqueada.");
+          return;
+        }
+        const perm = await Notification.requestPermission();
+        if (perm === "granted") {
+          setInAppToast({
+            id: Date.now(),
+            icon: "🔔",
+            title: "¡Alertas y Sonido Activados!",
+            text: "Te avisaremos con sonido cuando recibas un Match, Carta o mensaje.",
+            action: () => setInAppToast(null)
+          });
+        }
+      };
+
+      const sendNotification = async ({ toUid, type, text, postId = null, storyId = null, storyUserId = null, status = null, customDocId = null }) => {
+        if (!currentUserDoc || !window.FB || !toUid || toUid === currentUserDoc.uid) return;
+        const { chatDb, collection, doc, setDoc, addDoc } = window.FB;
+        const payload = {
+          toUid,
+          fromUid: currentUserDoc.uid,
+          fromUsername: currentUserDoc.username,
+          fromAvatar: currentUserDoc.avatar,
+          type,
+          text,
+          postId,
+          storyId,
+          storyUserId,
+          status: status || "info",
+          read: false,
+          createdAt: Date.now()
+        };
+
+        try {
+          if (customDocId) {
+            await setDoc(doc(chatDb, "notifications", customDocId), payload, { merge: true });
+          } else if (type === "like" && postId) {
+            const deterministicId = `like_${currentUserDoc.uid}_${postId}`;
+            await setDoc(doc(chatDb, "notifications", deterministicId), payload, { merge: true });
+          } else if (type === "reaction" && postId) {
+            const deterministicId = `react_${currentUserDoc.uid}_${postId}`;
+            await setDoc(doc(chatDb, "notifications", deterministicId), payload, { merge: true });
+          } else if (type === "story_reaction" && storyId) {
+            const deterministicId = `streact_${currentUserDoc.uid}_${storyId}`;
+            await setDoc(doc(chatDb, "notifications", deterministicId), payload, { merge: true });
+          } else if (type === "story_like" && storyId) {
+            const deterministicId = `stlike_${currentUserDoc.uid}_${storyId}`;
+            await setDoc(doc(chatDb, "notifications", deterministicId), payload, { merge: true });
+          } else if (type === "friend_request") {
+            const deterministicId = `freq_${currentUserDoc.uid}_${toUid}`;
+            await setDoc(doc(chatDb, "notifications", deterministicId), payload, { merge: true });
+          } else {
+            await addDoc(collection(chatDb, "notifications"), payload);
+          }
+        } catch (e) {}
+      };
+
+      const notifyMentionedUsers = (rawText, contextLabel, postId = null) => {
+        if (!rawText || !currentUserDoc) return;
+        const matches = String(rawText).match(/@([a-zA-Z0-9_]+)/g) || [];
+        const uniqueMentions = Array.from(new Set(matches.map(m => m.slice(1).toLowerCase())));
+        uniqueMentions.forEach(clean => {
+          const target = users.find(u => (u.username || "").toLowerCase() === clean);
+          if (target && target.uid !== currentUserDoc.uid) {
+            sendNotification({
+              toUid: target.uid,
+              type: "mention",
+              text: `✨ te etiquetó en ${contextLabel}: "${String(rawText).slice(0, 45)}"`,
+              postId
+            });
+          }
+        });
+      };
+
+      const handleOpenBellModal = async () => {
+        setNotifModalOpen(true);
+        if (!currentUserDoc || !window.FB) return;
+        const { chatDb, doc, updateDoc } = window.FB;
+        myNotifications.filter(n => !n.read).forEach(n => {
+          updateDoc(doc(chatDb, "notifications", n.id), { read: true }).catch(() => {});
+        });
+      };
+
+      // Verificar si puedo ver las historias de un usuario (SOLO AMIGOS, mis propias historias o el Admin)
+      const canAccessUserStories = (targetUid) => {
+        if (!currentUserDoc || !targetUid) return false;
+        if (targetUid === currentUserDoc.uid || isAdmin) return true;
+        return (currentUserDoc.friends || []).includes(targetUid);
+      };
+
+      // Grupos de Historias Filtrados: Solo aparecen las historias de AMIGOS confirmados, las propias y todas para el Admin
+      const storyGroups = useMemo(() => {
+        const map = new Map();
+        stories.forEach((st) => {
+          if (!canAccessUserStories(st.userId)) return;
+          if (!map.has(st.userId)) {
+            const uObj = users.find(u => u.uid === st.userId);
+            map.set(st.userId, {
+              userId: st.userId,
+              userName: uObj?.username || st.userName,
+              userAvatar: uObj?.avatar || st.userAvatar,
+              items: [],
+              hasUnseen: false
+            });
+          }
+          const grp = map.get(st.userId);
+          grp.items.push(st);
+          if (currentUserDoc && !(st.views || []).includes(currentUserDoc.uid)) {
+            grp.hasUnseen = true;
+          }
+        });
+        return Array.from(map.values()).sort((a, b) => (b.hasUnseen ? 1 : 0) - (a.hasUnseen ? 1 : 0));
+      }, [stories, users, currentUserDoc, isAdmin]);
+
+      useEffect(() => {
+        if (!storyViewer.open || !currentUserDoc || !window.FB) return;
+        const grp = storyGroups[storyViewer.groupIndex];
+        const st = grp?.items?.[storyViewer.storyIndex];
+        if (!st) return;
+        if (!(st.views || []).includes(currentUserDoc.uid)) {
+          window.FB.updateDoc(window.FB.doc(window.FB.db, "stories", st.id), {
+            views: window.FB.arrayUnion(currentUserDoc.uid)
+          }).catch(() => {});
+        }
+      }, [storyViewer.open, storyViewer.groupIndex, storyViewer.storyIndex, storyGroups, currentUserDoc]);
+
+      useEffect(() => {
+        if (!storyViewer.open) return;
+        const currentGroup = storyGroups[storyViewer.groupIndex];
+        if (!currentGroup) return;
+        const currentStory = currentGroup.items[storyViewer.storyIndex];
+        if (!currentStory) return;
+
+        const durationMs = currentStory.mediaType === "video"
+          ? Math.max(5000, (currentStory.videoDuration || 8) * 1000)
+          : 5000;
+
+        const stepMs = 50;
+        const increment = (stepMs / durationMs) * 100;
+
+        const timer = setInterval(() => {
+          if (storyPausedRef.current) return;
+          setStoryViewer((prev) => {
+            if (!prev.open || storyPausedRef.current) return prev;
+            if (prev.progress + increment >= 100) {
+              const grp = storyGroups[prev.groupIndex];
+              if (grp && prev.storyIndex < grp.items.length - 1) {
+                return { ...prev, storyIndex: prev.storyIndex + 1, progress: 0 };
+              } else if (prev.groupIndex < storyGroups.length - 1) {
+                return { ...prev, groupIndex: prev.groupIndex + 1, storyIndex: 0, progress: 0 };
+              } else {
+                return { open: false, groupIndex: 0, storyIndex: 0, paused: false, progress: 0 };
               }
             }
-            return <span key={idx}>{part}</span>;
-          })}
-        </span>
-      );
-    }
+            return { ...prev, progress: prev.progress + increment };
+          });
+        }, stepMs);
+
+        return () => clearInterval(timer);
+      }, [storyViewer.open, storyViewer.groupIndex, storyViewer.storyIndex, storyGroups]);
+
+      const goNextStory = () => {
+        setStoryMenuOpen(false);
+        setStoryViewer((prev) => {
+          const grp = storyGroups[prev.groupIndex];
+          if (!grp) return { ...prev, open: false };
+          if (prev.storyIndex < grp.items.length - 1) {
+            return { ...prev, storyIndex: prev.storyIndex + 1, progress: 0 };
+          } else if (prev.groupIndex < storyGroups.length - 1) {
+            return { ...prev, groupIndex: prev.groupIndex + 1, storyIndex: 0, progress: 0 };
+          } else {
+            return { open: false, groupIndex: 0, storyIndex: 0, paused: false, progress: 0 };
+          }
+        });
+      };
+
+      const goPrevStory = () => {
+        setStoryMenuOpen(false);
+        setStoryViewer((prev) => {
+          if (prev.storyIndex > 0) {
+            return { ...prev, storyIndex: prev.storyIndex - 1, progress: 0 };
+          } else if (prev.groupIndex > 0) {
+            const prevGrp = storyGroups[prev.groupIndex - 1];
+            return {
+              ...prev,
+              groupIndex: prev.groupIndex - 1,
+              storyIndex: Math.max(0, (prevGrp?.items?.length || 1) - 1),
+              progress: 0
+            };
+          } else {
+            return { ...prev, storyIndex: 0, progress: 0 };
+          }
+        });
+      };
+
+      // Abrir historias verificando que sean amigos primero
+      const openStoriesForUser = (uid) => {
+        if (!canAccessUserStories(uid)) {
+          alert("🔒 Las historias son exclusivas para Amigos. ¡Envíale solicitud de amistad o un Fuego de Match 🔥 para ver sus historias!");
+          return;
+        }
+        const gIdx = storyGroups.findIndex(g => g.userId === uid);
+        if (gIdx !== -1) {
+          const grp = storyGroups[gIdx];
+          const firstUnseenIdx = grp.items.findIndex(st => !(st.views || []).includes(currentUserDoc?.uid));
+          setStoryMenuOpen(false);
+          setStoryViewer({
+            open: true,
+            groupIndex: gIdx,
+            storyIndex: firstUnseenIdx !== -1 ? firstUnseenIdx : 0,
+            paused: false,
+            progress: 0
+          });
+        }
+      };
+
+      // Dar Me Gusta (❤️) a una Historia (Privado: solo el dueño de la historia y el Admin ven quién le dio MG)
+      const toggleStoryLike = async (storyItem) => {
+        if (!currentUserDoc || !window.FB || !storyItem) return;
+        if (!canAccessUserStories(storyItem.userId)) return;
+        const { db, doc, updateDoc, arrayUnion, arrayRemove } = window.FB;
+        const hasLiked = (storyItem.likes || []).includes(currentUserDoc.uid);
+        try {
+          await updateDoc(doc(db, "stories", storyItem.id), {
+            likes: hasLiked ? arrayRemove(currentUserDoc.uid) : arrayUnion(currentUserDoc.uid)
+          });
+          if (!hasLiked && storyItem.userId !== currentUserDoc.uid) {
+            await sendNotification({
+              toUid: storyItem.userId,
+              type: "story_like",
+              text: `❤️ le dio Me gusta a tu historia.`,
+              storyId: storyItem.id,
+              storyUserId: storyItem.userId
+            });
+          }
+          if (navigator.vibrate) navigator.vibrate(40);
+        } catch (e) {}
+      };
+
+      // Reacciones y Respuestas en Historias (Exclusivas para Amigos)
+      const handleSendStoryReply = async (e, storyGroup, storyItem, quickEmoji = null) => {
+        if (e) e.preventDefault();
+        if (!canAccessUserStories(storyGroup?.userId)) {
+          alert("🔒 Solo los amigos pueden reaccionar o responder a esta historia.");
+          return;
+        }
+        const textToSend = quickEmoji || storyReplyText.trim();
+        if (!textToSend || !currentUserDoc || !window.FB) return;
+        const { db, chatDb, collection, doc, addDoc, updateDoc } = window.FB;
+
+        try {
+          if (quickEmoji) {
+            const currentReacts = storyItem.reactions ? { ...storyItem.reactions } : {};
+            const arr = Array.isArray(currentReacts[quickEmoji]) ? [...currentReacts[quickEmoji]] : [];
+            if (!arr.includes(currentUserDoc.uid)) arr.push(currentUserDoc.uid);
+            currentReacts[quickEmoji] = arr;
+            await updateDoc(doc(db, "stories", storyItem.id), { reactions: currentReacts }).catch(() => {});
+
+            if (storyGroup.userId !== currentUserDoc.uid) {
+              await sendNotification({
+                toUid: storyGroup.userId,
+                type: "story_reaction",
+                text: `reaccionó con ${quickEmoji} a tu historia.`,
+                storyId: storyItem.id,
+                storyUserId: storyGroup.userId
+              });
+            }
+          } else if (storyGroup.userId !== currentUserDoc.uid) {
+            const chatKey = [currentUserDoc.uid, storyGroup.userId].sort().join("__");
+            await addDoc(collection(chatDb, "messages"), {
+              chatKey,
+              senderId: currentUserDoc.uid,
+              senderName: currentUserDoc.username,
+              senderAvatar: currentUserDoc.avatar,
+              receiverId: storyGroup.userId,
+              text: `Respondió a tu historia: "${textToSend}"`,
+              sharedMediaUrl: storyItem.mediaUrl,
+              sharedMediaType: storyItem.mediaType || "image",
+              seen: false,
+              createdAt: Date.now()
+            });
+            notifyMentionedUsers(textToSend, "una respuesta de historia");
+          }
+
+          if (navigator.vibrate) navigator.vibrate(40);
+          setStoryReplyText("");
+          setStoryInputFocused(false);
+          setInAppToast({
+            id: Date.now(),
+            icon: quickEmoji || "✅",
+            title: quickEmoji ? `Reaccionaste con ${quickEmoji}` : `Enviado a @${storyGroup.userName}`,
+            text: textToSend,
+            action: () => setInAppToast(null)
+          });
+        } catch (err) {}
+      };
+
+      // Repostear en mi Historia cuando me etiquetan o desde un post
+      const handleRepostToMyStory = async (sourceItem) => {
+        if (!currentUserDoc || !window.FB || !sourceItem) return;
+        try {
+          await window.FB.addDoc(window.FB.collection(window.FB.db, "stories"), {
+            userId: currentUserDoc.uid,
+            userName: currentUserDoc.username,
+            userAvatar: currentUserDoc.avatar,
+            mediaUrl: sourceItem.mediaUrl,
+            mediaType: sourceItem.mediaType || "image",
+            videoDuration: sourceItem.videoDuration || null,
+            filterId: sourceItem.filterId || "normal",
+            frameId: sourceItem.frameId || "none",
+            borderCrop: sourceItem.borderCrop || { top: 0, bottom: 0, left: 0, right: 0 },
+            overlayText: `🔄 De @${sourceItem.userName}`,
+            overlayColorId: "gold",
+            overlayPos: { x: 50, y: 15 },
+            overlayScale: 0.9,
+            overlayRotation: 0,
+            overlayStickers: [],
+            caption: sourceItem.caption || "",
+            views: [],
+            likes: [],
+            createdAt: Date.now()
+          });
+          setInAppToast({
+            id: Date.now(),
+            icon: "🔄",
+            title: "¡Reposteado en tu Historia!",
+            text: `Compartiste la publicación de @${sourceItem.userName} con tus amigos.`,
+            action: () => openStoriesForUser(currentUserDoc.uid)
+          });
+        } catch (e) {}
+      };
+
+      const handleDownloadMedia = (mediaUrl, type = "image") => {
+        if (!mediaUrl) return;
+        if (mediaUrl.startsWith("data:")) {
+          triggerDataUrlDownload(mediaUrl, `sunset-vibes-${Date.now()}.jpg`);
+          return;
+        }
+        const attachUrl = mediaUrl.includes("/upload/")
+          ? mediaUrl.replace("/upload/", "/upload/fl_attachment/")
+          : mediaUrl;
+        const link = document.createElement("a");
+        link.href = attachUrl;
+        link.target = "_blank";
+        link.download = `sunset-vibes-${Date.now()}.${type === "video" ? "mp4" : "jpg"}`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setStoryMenuOpen(false);
+      };
+
+      useEffect(() => {
+        if (!currentUserDoc || !window.FB) return;
+        const { db, doc, updateDoc } = window.FB;
+        const ref = doc(db, "users", currentUserDoc.uid);
+        const beat = () => updateDoc(ref, { isOnline: true, lastSeen: Date.now(), deviceId }).catch(() => {});
+        const off = () => updateDoc(ref, { isOnline: false, lastSeen: Date.now() }).catch(() => {});
+        beat();
+        const intv = setInterval(beat, 240000);
+        window.addEventListener("beforeunload", off);
+        return () => {
+          clearInterval(intv);
+          window.removeEventListener("beforeunload", off);
+        };
+      }, [currentUserDoc?.uid, deviceId]);
+
+      useEffect(() => {
+        if (!currentUserDoc) return;
+        const realMessages = messages.filter(m => m.chatKey !== "LIVE_PARTY_STATE");
+        if (prevMessagesLenRef.current !== null && realMessages.length > prevMessagesLenRef.current) {
+          const newest = realMessages[realMessages.length - 1];
+          const isForMe = newest.chatKey === "GLOBAL_GROUP" || newest.receiverId === currentUserDoc.uid;
+          if (newest.senderId !== currentUserDoc.uid && isForMe) {
+            const senderLive = users.find(u => u.uid === newest.senderId);
+            const sName = senderLive?.username || newest.senderName;
+            triggerExternalAlert(
+              newest.chatKey === "GLOBAL_GROUP" ? `🎉 Chat Grupal • @${sName}` : `💬 Mensaje de @${sName}`,
+              newest.text || "Envió una foto al chat",
+              "bell"
+            );
+            setInAppToast({
+              id: Date.now(),
+              icon: newest.chatKey === "GLOBAL_GROUP" ? "🎉" : "💬",
+              title: newest.chatKey === "GLOBAL_GROUP" ? `Chat Grupal • @${sName}` : `Mensaje de @${sName}`,
+              text: newest.text || "Envió una imagen",
+              action: () => {
+                setViewedProfileUid(null);
+                setActiveTab("chat");
+                if (newest.chatKey === "GLOBAL_GROUP") {
+                  setChatSubTab("group");
+                  setActiveChatFriend(null);
+                } else if (senderLive) {
+                  setChatSubTab("private");
+                  setActiveChatFriend(senderLive);
+                }
+                setInAppToast(null);
+              }
+            });
+            if (activeTab !== "chat") setUnreadChatCount(c => c + 1);
+          }
+        }
+        prevMessagesLenRef.current = realMessages.length;
+      }, [messages, currentUserDoc, activeTab, users]);
+
+      useEffect(() => {
+        if (!currentUserDoc) return;
+        if (prevNotifsLenRef.current !== null && myNotifications.length > prevNotifsLenRef.current) {
+          const newest = myNotifications[0];
+          if (newest && !newest.read) {
+            const isMatch = newest.type?.includes("match") || newest.type === "destiny_letter";
+            triggerExternalAlert(
+              `🌅 Sunset Vibes • @${newest.fromUsername}`,
+              newest.text,
+              isMatch ? "match" : "bell"
+            );
+            setInAppToast({
+              id: Date.now(),
+              icon: isMatch ? "💌" : "🔔",
+              title: `@${newest.fromUsername}`,
+              text: newest.text,
+              action: () => {
+                if (newest.type === "match_received") {
+                  setViewedProfileUid(null);
+                  setActiveTab("profile");
+                } else {
+                  handleOpenBellModal();
+                }
+                setInAppToast(null);
+              }
+            });
+          }
+        }
+        prevNotifsLenRef.current = myNotifications.length;
+      }, [myNotifications, currentUserDoc]);
+
+      useEffect(() => {
+        if (!inAppToast) return;
+        const t = setTimeout(() => setInAppToast(null), 5000);
+        return () => clearTimeout(t);
+      }, [inAppToast]);
+
+      const openUserProfile = (uid) => {
+        if (!uid) return;
+        setStoryViewer(prev => ({ ...prev, open: false }));
+        setFullscreenPostId(null);
+        setNotifModalOpen(false);
+        setLikesViewerList(null);
+        setStoryViewsModal(null);
+        if (uid === currentUserDoc?.uid) {
+          setViewedProfileUid(null);
+          setActiveTab("profile");
+        } else {
+          setViewedProfileUid(uid);
+        }
+      };
+
+      const nextSequentialChallenge = () => {
+        setChallengeIndex((prev) => (prev + 1) % PHOTO_CHALLENGES.length);
+      };
       // ====================================================================
       // CONTROLES EXCLUSIVOS DEL SUPER ADMIN (RULETA, ENCUESTA #5, MOSAICO #3, BLOQUEO SEPARADO DE BORRADO Y MODO DIOS)
       // ====================================================================
@@ -3317,7 +3570,6 @@
         const q = searchQuery.trim().replace(/^@/, "").toLowerCase();
         return users.filter(u => u.username).filter(u => !q || u.username.toLowerCase().includes(q));
       }, [users, searchQuery]);
-📦 PARTE 4 DE 4 (Pega esto justo debajo de la Parte 3 para cerrar tu archivo index.html)
       // ====================================================================
       // RENDERIZADO VISUAL COMPLETO Y DEFINITIVO
       // ====================================================================
